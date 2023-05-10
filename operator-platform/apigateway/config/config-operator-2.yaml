@@ -1,0 +1,27 @@
+_format_version: "3.0"
+_transform: true
+
+# jwt plugin: https://docs.konghq.com/hub/kong-inc/jwt/
+consumers:
+  - username: johndoe
+    custom_id: johndoe
+
+jwt_secrets:
+  - consumer: johndoe
+    # optional
+    key: qtkgy2es48XOqf7lu0iZ8f55mcQtxEQV
+    # optional
+    secret: OD7HwKGw5LvE1ZnaQaO4MgcoxE3CuaeW
+
+services:
+  - name: camara
+    url: http://operator-platform-camara-apis-2:8002
+    plugins:
+      - name: jwt
+      - name: log-signature
+        config:
+          path: /opt/logs/operator-2-request.log
+    routes:
+      - name: root
+        paths:
+          - /

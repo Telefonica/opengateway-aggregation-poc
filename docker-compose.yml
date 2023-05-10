@@ -1,0 +1,84 @@
+version: '3.9'
+
+services:
+
+  aggregator-telco-finder-1:
+    build:
+      context: ./aggregator/telco-finder
+    environment:
+      PORT: 2211
+    ports:
+      - 2211:2211
+
+  aggregator-telco-finder-2:
+    build:
+      context: ./aggregator/telco-finder
+    environment:
+      PORT: 2222
+    ports:
+      - 2222:2222
+
+  operator-platform-apigateway-1:
+    image: kong:3.1.1-alpine
+    user: kong
+    environment:
+      KONG_DATABASE: "off"
+      KONG_PLUGINS: "bundled,log-signature"
+      KONG_LUA_PACKAGE_PATH: "/opt/?.lua;;"
+      KONG_DECLARATIVE_CONFIG: "/opt/kong/config-operator-1.yaml"
+    ports:
+      - 10000:8000
+    volumes:
+      - ./operator-platform/apigateway/config:/opt/kong
+      - ./operator-platform/apigateway/plugins:/opt/kong/plugins
+      - ./operator-platform/apigateway/logs:/opt/logs
+
+  operator-platform-apigateway-2:
+    image: kong:3.1.1-alpine
+    user: kong
+    environment:
+      KONG_DATABASE: "off"
+      KONG_PLUGINS: "bundled,log-signature"
+      KONG_LUA_PACKAGE_PATH: "/opt/?.lua;;"
+      KONG_DECLARATIVE_CONFIG: "/opt/kong/config-operator-2.yaml"
+    ports:
+      - 20000:8000
+    volumes:
+      - ./operator-platform/apigateway/config:/opt/kong
+      - ./operator-platform/apigateway/plugins:/opt/kong/plugins
+      - ./operator-platform/apigateway/logs:/opt/logs
+
+  operator-platform-camara-apis-1:
+    build:
+      context: ./operator-platform/camara-apis
+    environment:
+      PORT: 8001
+    ports:
+      - 8001:8001
+
+  operator-platform-camara-apis-2:
+    build:
+      context: ./operator-platform/camara-apis
+    environment:
+      PORT: 8002
+    ports:
+      - 8002:8002
+
+  mongodb:
+    image: mongo:5.0
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodbdata:/data/db
+
+  # mongo-seed:
+  #   build:
+  #     context: ./mongo-seed
+  #   depends_on:
+  #     - mongodb
+  #     - authserver-1
+  #     - authserver-2
+  #     - authserver-3
+
+volumes:
+  mongodbdata:
