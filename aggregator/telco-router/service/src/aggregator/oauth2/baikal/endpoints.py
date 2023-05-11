@@ -64,6 +64,8 @@ class BaikalApiEndpoint(BaseEndpoint):
         response = do_request_call('Operator API', http_method, url,
                                    headers=headers, data=body, verify=settings.API_VERIFY_CERTIFICATE, timeout=settings.API_HTTP_TIMEOUT)
 
+        log_metric(str(response.status_code), additional_data={"host": api_host, "method": http_method, "path": real_path})
+
         return response.headers, response.text, response.status_code
 
     def validate_api_request(self, request):
