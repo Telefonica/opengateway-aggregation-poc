@@ -2,6 +2,8 @@ version: '3.9'
 
 services:
 
+
+  # Aggregation box
   aggregator-telco-finder-1:
     build:
       context: ./aggregator/telco-finder
@@ -18,6 +20,31 @@ services:
     ports:
       - 2222:2222
 
+
+  aggregator-telco-router-1:
+      build:
+        context: ./aggregator/telco-router
+      environment:
+        PORT: 3311
+        TELCO_FINDER_HOST: aggregator-telco-finder-1
+        DATABASE_HOST: "mongodb:27017"
+        DATABASE_NAME: "aggregator-telco-router-1"
+      ports:
+        - 3311:3311
+
+  aggregator-telco-router-2:
+    build:
+      context: ./aggregator/telco-router
+    environment:
+      PORT: 3322
+      TELCO_FINDER_HOST: aggregator-telco-finder-2
+      DATABASE_HOST: "mongodb:27017"
+      DATABASE_NAME: "aggregator-telco-router-2"
+    ports:
+      - 3322:3322
+
+
+  # Telco box
   operator-platform-apigateway-1:
     image: kong:3.1.1-alpine
     user: kong
@@ -64,6 +91,39 @@ services:
     ports:
       - 8002:8002
 
+
+
+  operator-platform-authserver-1:
+    build:
+      context: ./operator-platform/authserver
+    depends_on:
+      - mongodb
+    environment:
+      PORT: 9010
+      HOST: "http://authserver-1:9010"
+      DATABASE_HOST: "mongodb:27017"
+      DATABASE_NAME: "authserver-telefonica"
+      OPERATOR_ID: "TELEFONICA"
+    ports:
+      - 9010:9010
+
+  operator-platform-authserver-2:
+    build:
+      context: ./operator-platform/authserver
+    depends_on:
+      - mongodb
+    environment:
+      PORT: 9020
+      HOST: "http://authserver-2:9020"
+      DATABASE_HOST: "mongodb:27017"
+      DATABASE_NAME: "authserver-vodafone"
+      OPERATOR_ID: "VODAFONE"
+    ports:
+      - 9020:9020
+
+
+
+  # Common    
   mongodb:
     image: mongo:5.0
     ports:
@@ -71,14 +131,13 @@ services:
     volumes:
       - mongodbdata:/data/db
 
-  # mongo-seed:
-  #   build:
-  #     context: ./mongo-seed
-  #   depends_on:
-  #     - mongodb
-  #     - authserver-1
-  #     - authserver-2
-  #     - authserver-3
+  mongo-seed:
+    build:
+      context: ./mongo-seed
+    depends_on:
+      - mongodb
+      - operator-platform-authserver-1
+      - operator-platform-authserver-2
 
   demo-sdk-example:
     build:

@@ -1,6 +1,7 @@
 FROM mongo:5.0
 
 ADD ./app.js /app.js
+ADD ./routerApp.js /routerApp.js
 ADD ./docker-entrypoint.sh /docker-entrypoint.sh
 ADD ./wait-for-it.sh /wait-for-it.sh
 
