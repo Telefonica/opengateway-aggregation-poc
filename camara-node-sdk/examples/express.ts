@@ -55,7 +55,7 @@ app.post('/login', (req, res) => {
   req.session = req.session || {}
   req.session.login = {
     username: body.username || "John Doe",
-    ipport: body.ipport || "10.95.10.13:3543"
+    ipport: body.ipport || "83.58.58.57:3543"
   }
   res.redirect('/')
 });
@@ -70,7 +70,7 @@ app.get('/verify', async (req, res, next) => {
       if (!req.session?.camara) {
         req.session = req.session || {};
         req.session.camara = await Camara.login({
-          ipport: req.session?.login?.ipport || "10.95.10.13:3543",
+          ipport: req.session?.login?.ipport || "83.58.58.57:3543",
         });
       }
       const location = await deviceLocationVerificationClient.verify(
