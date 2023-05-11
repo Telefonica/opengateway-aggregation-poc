@@ -26,7 +26,7 @@ services:
       context: ./aggregator/telco-router
     environment:
       PORT: 3311
-      TELCO_FINDER_HOST: aggregator-telco-finder-1
+      TELCO_FINDER_HOST: "http://aggregator-telco-finder-1:2211"
       DATABASE_HOST: "mongodb:27017"
       DATABASE_NAME: "aggregator-telco-router-1"
     ports:
@@ -37,7 +37,7 @@ services:
       context: ./aggregator/telco-router
     environment:
       PORT: 3322
-      TELCO_FINDER_HOST: aggregator-telco-finder-2
+      TELCO_FINDER_HOST: "http://aggregator-telco-finder-2:2222"
       DATABASE_HOST: "mongodb:27017"
       DATABASE_NAME: "aggregator-telco-router-2"
     ports:
@@ -101,7 +101,7 @@ services:
       - mongodb
     environment:
       PORT: 9010
-      HOST: "http://authserver-1:9010"
+      HOST: "http://operator-platform-authserver-1:9010"
       DATABASE_HOST: "mongodb:27017"
       DATABASE_NAME: "authserver-telefonica"
       OPERATOR_ID: "TELEFONICA"
@@ -115,7 +115,7 @@ services:
       - mongodb
     environment:
       PORT: 9020
-      HOST: "http://authserver-2:9020"
+      HOST: "http://operator-platform-authserver-2:9020"
       DATABASE_HOST: "mongodb:27017"
       DATABASE_NAME: "authserver-vodafone"
       OPERATOR_ID: "VODAFONE"
