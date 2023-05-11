@@ -1,6 +1,6 @@
 # opengateway-aggregation-poc
 
-OpenGateway proof of concept. It demonstrates how an aggregator (e.g., hyperscaler, operator) can receive requests from an end user / application and forward them to the appropriate operator with no need of an additional east/west Federation API. Just regular CAMARA API calls.
+OpenGateway proof of concept. It demonstrates how an aggregator (e.g., hyperscaler, operator) can receive requests from an end user / application and forward them to the appropriate operator just using standard OIDC flows and regular CAMARA API calls.
 
 ![aggregation architecture](./docs/architecture.png)
 
