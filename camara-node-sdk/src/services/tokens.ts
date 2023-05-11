@@ -21,7 +21,6 @@ const createService = (
     cacheService,
   }: { authserverClient: InstanceType<typeof AuthserverClient>; cacheService: CacheService }
 ): TokenService => {
-  // TODO: Let the user configure?
   /** Safe period where the token is considered expired (seconds) */
   const TOKEN_EXPIRATION_SAFE_WINDOW = 2 * 60;
 
@@ -32,7 +31,7 @@ const createService = (
     if (token) {
       return token;
     }
-    // TODO: we still dont know what will be the authorization method used.
+    // XXX: The authorization method is not decided yet.
     // For now, we will use the JWT Bearer Token with an ipport subject with an special syntax (ipport@ip:port)
     const tokenSet = await authserverClient.getJWTBearerToken({ sub, scope }, context);
     const camaraTokenSet = toCamaraTokenSet(tokenSet);

@@ -28,13 +28,13 @@ const defaultTokenCache = createMemoryCache<TokenCacheKey, CamaraTokenSet>({
 });
 
 const createService = (setupId: CamaraSetupId, config: CamaraConfig): CacheService => {
-  // TODO: Let the user provide the cache implementation in the configuration
+  // XXX: Let the user provide the cache implementation in the configuration
   async function getCache<T extends CacheId>(id: T): Promise<CacheType<T>> {
     switch (id) {
       case 'token':
         return defaultTokenCache as CacheType<T>;
       default:
-        // TODO: fix as never
+        // XXX: casting "as never" should not be needed
         assertCacheId(id as never);
     }
   }

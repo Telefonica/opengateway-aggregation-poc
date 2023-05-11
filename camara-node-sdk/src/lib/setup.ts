@@ -10,7 +10,7 @@ import Cache from '../services/cache.js';
 export interface CamaraConfig {
   /** the baseURL for the authorization server. Defaults to CAMARA_AUTHSERVER_URL env var */
   authBaseURL?: string;
-  /** the baseURL for the api servier. Defaults to CAMARA_API_URL env var */
+  /** the baseURL for the api server. Defaults to CAMARA_API_URL env var */
   apiBaseURL?: string;
   /** The oauth client_id for your app. Defaults to CAMARA_CLIENT_ID env var */
   clientId?: string;
@@ -24,7 +24,8 @@ export interface CamaraConfig {
    * Defaults to CAMARA_CLIENT_KEY env var
    */
   clientKey?: string;
-  // TODO: we can setup caches providers, loggers, etc etc here
+
+  // XXX: we can setup caches providers, loggers, etc etc here
 }
 
 export type CamaraSetupId = 'default' | string;
