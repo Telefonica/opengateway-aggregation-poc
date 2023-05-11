@@ -176,6 +176,23 @@ class JwtBearerTokenErrorTestCase(JwtBearerTokenTestCase):
         response = self.do_token(token_params, {})
         self.assertJsonError(response, 400, 'unauthorized_client')
 
+    @requests_mock.mock()
+    def test_authserver_error(self, m):
+        self.do_mocking(m)
+
+        m.post("http://oauth.operator.com/token",
+               status_code=401,
+               json={
+                   "error": "invalid_client",
+                   "error_description": "Unknown client"
+               })
+
+        token_params = self.get_token_request_parameters()
+        token_params['client_assertion_type'] = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+        token_params['client_assertion'] = get_signed_jwt(self.get_default_client_assertion(), settings.SP_JWT_SIGNING_ALGORITHM, settings.SP_JWT_KID, SP_JWT_PRIVATE_KEY)
+        response = self.do_token(token_params, {})
+        self.assertJsonError(response, 401, 'invalid_client', "Unknown client.")
+
 
 class JwtBearerTokenWrongValuesTestCase(JwtBearerTokenTestCase):
 
