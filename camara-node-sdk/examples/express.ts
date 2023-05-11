@@ -3,11 +3,9 @@ import express from 'express';
 import cookieSession from 'cookie-session';
 import Camara from 'camara-node-sdk';
 
-import bodyParser from "body-parser";
-
-////////////////////////////
-// Setup the Contracting Operator credentials in the server
-////////////////////////////
+/////////////////////////////////////////////////
+// Setup the Aggregator credentials in the server
+/////////////////////////////////////////////////
 process.env.CAMARA_API_URL = process.env.CAMARA_API_URL ?? 'http://localhost:11111'; // telefonica
 process.env.CAMARA_AUTH_URL = process.env.CAMARA_AUTH_URL ?? 'http://localhost:9010/es/oauth2/authorize'; // telefonica
 process.env.CAMARA_ISSUER = process.env.CAMARA_ISSUER ?? 'http://localhost:3000'; // our app issuer
@@ -30,7 +28,6 @@ app.use(cookieSession({ keys: ['secret'] }));
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }))
 
-// parse application/json
 app.use(express.json())
 
 app.get('/', (req, res) => {
@@ -83,12 +80,11 @@ app.get('/verify', async (req, res, next) => {
       next(err);
     }
   }
-
 });
 
 /**
  * expose jwks endpoint in the server
- * http://localhost:3000/api/jwks must be registered in the Contracting Operator Authserver as the client jwks_uri
+ * http://localhost:3000/api/jwks must be registered in the Aggregator Authserver as the client jwks_uri
  */
 app.get('/api/jwks', async (req, res, next) => {
   console.log('/api/jwks', req.session);
@@ -99,6 +95,7 @@ app.get('/api/jwks', async (req, res, next) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('Example listening on http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Demo App listening on http://localhost:${PORT}`);
 });

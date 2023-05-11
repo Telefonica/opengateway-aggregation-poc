@@ -7,23 +7,24 @@
 
 <main>
   <div class="jumbotron">
-    <h1>Login Page</h1>
+    <h1>Login</h1>
     <form  action="/login" method="post">
-      
-      <label  for="username">Username:</label>
+
+      <label for="username">Username</label>
       <input class="userbox" type="text" name="username" /><br />
-      <label for="password">Password:</label>
+      <label for="password">Password</label>
       <input type="text" name="password" />
       <br/>
-      <label for="ipport">Ipport:</label>
+      <hr/>
+      <label for="ipport">Identifier (for demo purposes)</label><br />
       <select name="ipport" id="ipport">
-        <option value="83.58.58.57:3543" selected>83.58.58.57:3543 Telefónica</option>
-        <option value="109.42.3.0:4631">109.42.3.0:4631 Vodafone</option>
+        <option value="83.58.58.57:3543" selected>83.58.58.57:3543 (Telefónica)</option>
+        <option value="109.42.3.0:4631">109.42.3.0:4631 (Vodafone)</option>
       </select>
       <br/>
       <button type="submit" class="btn btn-primary">Login</button>
-    
-      </form>
+
+    </form>
   </div>
 </main>
 
