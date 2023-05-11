@@ -58,7 +58,7 @@ def get_jwe_info(jwe_token, audience=None, validator=None):
         jwe_token.decrypt(KeySetStorage().get_key(jwe_token.jose_header[FIELD_KID]))
 
         payload = json.loads(jwe_token.payload)
-        logger.info('JWT payload', extra={'data': OrderedDict([('header', jwe_token.jose_header), ('payload', get_cleaned_data(payload))])})
+        logger.debug('JWT payload', extra={'data': OrderedDict([('header', jwe_token.jose_header), ('payload', get_cleaned_data(payload))])})
 
         if validator is not None:
             validator.validate(payload)

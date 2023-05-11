@@ -37,7 +37,7 @@ def get_jws_info(jwstoken, key, issuer, audiences=None, validator=None):
 
         payload = json.loads(jwstoken.payload)
 
-        logger.info('JWT payload', extra={'data': OrderedDict([('header', jwstoken.jose_header), ('payload', get_cleaned_data(payload))])})
+        logger.debug('JWT payload', extra={'data': OrderedDict([('header', jwstoken.jose_header), ('payload', get_cleaned_data(payload))])})
 
         if validator is not None:
             validator.validate(payload)
