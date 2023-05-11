@@ -141,14 +141,14 @@ services:
       - operator-platform-authserver-1
       - operator-platform-authserver-2
 
-  demo-sdk-example:
+  demo-app:
     build:
       context: .
     environment:
       PORT: 3000
       # Contracting Operator: TEF
-      CAMARA_API_URL: 'http://operator-1:11111'
-      CAMARA_AUTH_URL: 'http://authserver-1:9010/es/oauth2/authorize'
+      CAMARA_API_URL: 'http://aggregator-telco-router-2:3322'
+      CAMARA_AUTH_URL: 'http://aggregator-telco-router-2:3322/es/oauth2/authorize'
       CAMARA_ISSUER: '73902489-c201-4819-bdf9-3708a484fe21'
     ports:
       - 3000:3000
