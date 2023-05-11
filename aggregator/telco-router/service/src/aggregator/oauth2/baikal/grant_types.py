@@ -58,7 +58,8 @@ class BaikalJWTBearerGrant(oauthlib.oauth2.rfc6749.grant_types.base.GrantTypeBas
 
         metadata = OidcClient().get_metadata(request.operator['authserver_url'])
 
-        headers = {BaikalMiddleware.BAIKAL_CORRELATOR_HEADER: BaikalMiddleware.get_correlator(BaikalMiddleware.get_current_request())}
+        headers = {BaikalMiddleware.BAIKAL_CORRELATOR_HEADER: BaikalMiddleware.get_correlator(BaikalMiddleware.get_current_request()),
+                   'Content-Type': 'application/x-www-form-urlencoded'}
         response = do_request_call('Operator Token', 'POST', metadata['token_endpoint'],
                         headers=headers, data=request.body, verify=settings.API_VERIFY_CERTIFICATE, timeout=settings.API_HTTP_TIMEOUT)
 
