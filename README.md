@@ -1,8 +1,10 @@
 # opengateway-aggregation-poc
 
-OpenGateway proof of concept. It demonstrates how an aggregator (e.g., hyperscaler, operator) can receive requests from an end user / application and forward them to the appropriate operator with no need of a east west Federation API. Just regular CAMARA API calls.
+OpenGateway proof of concept. It demonstrates how an aggregator (e.g., hyperscaler, operator) can receive requests from an end user / application and forward them to the appropriate operator with no need of an additional east/west Federation API. Just regular CAMARA API calls.
 
-## How to run
+![aggregation architecture](./docs/architecture.png)
+
+## How to run it
 
 To run the environment, you only need to have Docker installed.
 
@@ -15,10 +17,10 @@ docker-compose up --build
 ```
 
 That starts a demo app and **two aggregators**:
-1. Telefónica, listening on port 10000
-2. Vodafone, listening on port 20000
+1. Telefónica
+2. Vodafone acting as aggregator for the developer. This means that it is the only point of contact for the app.
 
-Now you can open the **demo-app** at http://localhost:3000.
+Now you can open the **demo-app** at http://localhost:3000 and simulate an app wants to call the Device Location Verification API for end users that are clients of Telefónica or Vodafone.
 
 # License
 

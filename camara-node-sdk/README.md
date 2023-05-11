@@ -13,9 +13,10 @@ import DeviceLocationVerificationClient from 'camara-node-sdk/clients/DeviceLoca
 Camara.setup();
 const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
 
-// Login with Camara using your client IP
+// Login with CAMARA using your client IP as identifier
 const session = await Camara.login({ ipport: '127.0.0.1:3000' });
-// Call APIs using the login session
+// Call CAMARA APIs using the login session
+const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
 const location = await deviceLocationVerificationClient.verify({ postcode: '28080' }, { session });
 
 console.log(location);

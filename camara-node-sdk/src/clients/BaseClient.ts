@@ -48,7 +48,6 @@ export default abstract class BaseClient {
   }
 }
 
-// TODO: let the user to customize the logger (per-request basis)
 function logRequest(config: InternalAxiosRequestConfig) {
   console.log(`--> ${config.method?.toUpperCase()} ${getURLInRequest(config)}`);
   return config;

@@ -15,7 +15,8 @@ port = int(os.environ.get('PORT', 5000))
 #
 # This is a simplified example that only supports IP addresses as identifiers.
 #
-# It could be implemented as a standard webfinger protocol.
+# XXX: It could be implemented as a standard webfinger protocol and extended to support
+# IP + port.
 #
 @app.route('/telcofinder/v1/<identifier_type>/<identifier_value>', methods=['GET'])
 def telcofinder(identifier_type, identifier_value):

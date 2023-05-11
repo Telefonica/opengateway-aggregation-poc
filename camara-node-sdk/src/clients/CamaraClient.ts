@@ -36,7 +36,8 @@ const handleSession = async (context: InternalAxiosRequestConfig & CamaraRequest
   return context;
 };
 const signRequest = async (context: InternalAxiosRequestConfig & CamaraRequestContext) => {
-  // TODO: Make a real signature for the payload
+  // TODO: Make a real signature for the payload.
+  // The signature allos non-repudiation of the request, which is useful in a distributed system.
   context.headers['X-Signature'] = uuid();
   return context;
 };

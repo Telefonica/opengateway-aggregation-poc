@@ -8,7 +8,6 @@ import Camara from 'camara-node-sdk';
 // When the aggregator is an hyperscaler, this could be its own SDK (e.g., Azure SDK)
 /////////////////////////////////////////////////
 Camara.setup();
-
 const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
 
 const app = express();
@@ -21,19 +20,12 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
 app.get('/', (req, res) => {
-  if (req.session?.login?.username) {
+  const userLogged = req.session?.login?.username;
+  if (userLogged) {
     res.render('pages/verify', {username: req.session?.login?.username, result:''});
   } else {
     res.render('pages/login');
   }
-});
-
-app.get('/logout', (req, res) => {
-  if (req.session) {
-    delete req.session.login
-    delete req.session.camara
-  }
-  res.redirect('/')
 });
 
 app.post('/login', (req, res) => {
@@ -42,7 +34,15 @@ app.post('/login', (req, res) => {
   req.session = req.session || {}
   req.session.login = {
     username: body.username || "John Doe",
-    ipport: body.ipport || "83.58.58.57"
+    ipport: body.ipport
+  }
+  res.redirect('/')
+});
+
+app.get('/logout', (req, res) => {
+  if (req.session) {
+    delete req.session.login
+    delete req.session.camara
   }
   res.redirect('/')
 });
@@ -56,20 +56,24 @@ app.get('/verify', async (req, res, next) => {
     try {
       if (!req.session?.camara) {
         req.session = req.session || {};
+
         /**
-         * We perform the sdk login operation that internally gets an access token using
-         * the jwt bearer flow and we store the token in the session to reuse it.
+         * We perform the SDK login operation that internally gets an access token using
+         * the jwt bearer flow (3 legged token). We store the token in the session to reuse it.
+         *
+         * The user identifier is the ip:port but the model is generic to be extended
+         * with other identifiers (MSISDN, etc).
          */
         req.session.camara = await Camara.login({
-          ipport: req.session?.login?.ipport || "83.58.58.57",
+          ipport: req.session?.login?.ipport,
         });
       }
+
       /**
-       * Once we have a token, we can consume a Camara API.
+       * Once we have a token, we can consume a CAMARA API.
        */
-      const location = await deviceLocationVerificationClient.verify(
-        { postcode: '28080' },
-        { session: req.session.camara }
+      const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
+      const location = await deviceLocationVerificationClient.verify(params, { session: req.session.camara }
       );
       res.render('pages/verify', {username: req.session?.login?.username, result: JSON.stringify(location, null, 4)});
     } catch (err) {

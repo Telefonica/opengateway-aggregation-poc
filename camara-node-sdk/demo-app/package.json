@@ -1,11 +1,11 @@
 {
-  "name": "camara-node-sdk-express",
+  "name": "demo-app",
   "version": "1.0.0",
-  "description": "Example using sdk",
+  "description": "Demo App using CAMARA SDK",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "tsx watch express.ts"
+    "start": "tsx watch app.ts"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
