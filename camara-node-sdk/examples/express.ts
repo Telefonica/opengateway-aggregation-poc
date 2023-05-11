@@ -4,7 +4,7 @@ import cookieSession from 'cookie-session';
 import Camara from 'camara-node-sdk';
 
 /////////////////////////////////////////////////
-// Setup the Aggregator credentials in the server
+// Setup the Aggregator configuration & credentials in the app's backend
 /////////////////////////////////////////////////
 process.env.CAMARA_API_URL = process.env.CAMARA_API_URL ?? 'http://localhost:11111'; // telefonica
 process.env.CAMARA_AUTH_URL = process.env.CAMARA_AUTH_URL ?? 'http://localhost:9010/es/oauth2/authorize'; // telefonica
@@ -17,8 +17,11 @@ process.env.CAMARA_CLIENT_KEY =
 // Enable if you want basic authentication
 // process.env.CAMARA_CLIENT_SECRET = '3184428a-1ea4-4e1c-9969-b623f36fbc2f'; // our app client id
 
+/////////////////////////////////////////////////
+// Initialize the SDK offering networking services (device location verification in the example)
+// When the aggregator is an hyperscaler, this could be its own SDK (e.g., Azure SDK)
+/////////////////////////////////////////////////
 Camara.setup();
-
 const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
 
 const app = express();
