@@ -17,7 +17,7 @@ services:
   - name: camara
     url: http://operator-platform-camara-apis-1:8001
     plugins:
-      - name: jwt
+      # - name: jwt
       - name: log-signature
         config:
           path: /opt/logs/operator-1-request.log

@@ -22,7 +22,9 @@ process.env.CAMARA_CLIENT_KEY =
 // When the aggregator is an hyperscaler, this could be its own SDK (e.g., Azure SDK)
 /////////////////////////////////////////////////
 Camara.setup();
-const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
+const deviceLocationVerificationClient = new DeviceLocationVerificationClient(
+  {pathname: '/es/api/device-location-verification/v1'}
+);
 
 const app = express();
 
@@ -55,7 +57,7 @@ app.post('/login', (req, res) => {
   req.session = req.session || {}
   req.session.login = {
     username: body.username || "John Doe",
-    ipport: body.ipport || "83.58.58.57:3543"
+    ipport: body.ipport || "83.58.58.57"
   }
   res.redirect('/')
 });
@@ -70,7 +72,7 @@ app.get('/verify', async (req, res, next) => {
       if (!req.session?.camara) {
         req.session = req.session || {};
         req.session.camara = await Camara.login({
-          ipport: req.session?.login?.ipport || "83.58.58.57:3543",
+          ipport: req.session?.login?.ipport || "83.58.58.57",
         });
       }
       const location = await deviceLocationVerificationClient.verify(

@@ -73,12 +73,12 @@ def _well_known_endpoints(asn):
 
     operator_database = {
         "ORG-TDE1-RIPE": {
-            "apigateway_url": "http://apigateway-1:8000",
-            "authserver_url": "http://authserver-1:9010/es/oauth2/authorize"
+            "apigateway_url": "http://operator-platform-apigateway-1:8000",
+            "authserver_url": "http://operator-platform-authserver-1:9010/es/oauth2/authorize"
         },
         "ORG-VDG1-RIPE": {
-            "apigateway_url": "http://apigateway-2:8000",
-            "authserver_url": "http://authserver-2:9020/es/oauth2/authorize"
+            "apigateway_url": "http://operator-platform-apigateway-2:8000",
+            "authserver_url": "http://operator-platform-authserver-2:9020/es/oauth2/authorize"
         }
     }
 
