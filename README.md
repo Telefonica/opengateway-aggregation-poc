@@ -18,7 +18,7 @@ That starts a demo app and **two aggregators**:
 1. Telefónica, listening on port 10000
 2. Vodafone, listening on port 20000
 
-Now you can open the **demo-app** at http://localhost:3001.
+Now you can open the **demo-app** at http://localhost:3000.
 
 # License
 
