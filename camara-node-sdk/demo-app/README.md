@@ -1,12 +1,4 @@
-# Example app
-
-Configure your `/etc/hosts`
-
-```txt
-127.0.0.1 authserver-1
-127.0.0.1 authserver-2
-127.0.0.1 authserver-3
-```
+# Demo app
 
 Provision in authservers
 
