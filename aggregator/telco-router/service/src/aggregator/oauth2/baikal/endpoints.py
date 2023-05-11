@@ -59,7 +59,7 @@ class BaikalApiEndpoint(BaseEndpoint):
         url = api_host + ('/' if not api_host.endswith("/") and not real_path.startswith("/") else "") + real_path
 
         headers = dict(headers)
-        headers['Authorization'] = request.token['access_token']
+        headers['Authorization'] = f"Bearer {request.token['access_token']}"
 
         response = do_request_call('Operator API', http_method, url,
                                    headers=headers, data=body, verify=settings.API_VERIFY_CERTIFICATE, timeout=settings.API_HTTP_TIMEOUT)
