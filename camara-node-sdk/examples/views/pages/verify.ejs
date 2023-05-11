@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head'); %>
+</head>
+<body class="container">
+
+<main>
+  <div class="jumbotron">
+    <h1>Verify Device Page</h1>
+    <p>Logged as: <b><%= username %></b></p>
+    <p><a class="btn btn-primary" href="/verify">Verify</a>   &nbsp;&nbsp;&nbsp;&nbsp; <a class="btn btn-warning" href="/logout">Logout</a></p>
+    <br/>
+    <p>Result: </p>
+    <% if (result) { %>
+    <pre><%= result %></pre>
+    <% } %>
+  </div>
+</main>
+
+</body>
+</html>
