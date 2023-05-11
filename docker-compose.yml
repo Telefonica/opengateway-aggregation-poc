@@ -80,5 +80,23 @@ services:
   #     - authserver-2
   #     - authserver-3
 
+  demo-sdk-example:
+    build:
+      context: .
+    environment:
+      PORT: 3000
+      # Contracting Operator: TEF
+      CAMARA_API_URL: 'http://operator-1:11111'
+      CAMARA_AUTH_URL: 'http://authserver-1:9010/es/oauth2/authorize'
+      CAMARA_ISSUER: '73902489-c201-4819-bdf9-3708a484fe21'
+    ports:
+      - 3000:3000
+    volumes:
+      - ./camara-node-sdk:/apps/camara-node-sdk
+      - nm1:/apps/camara-node-sdk/node_modules
+      - nm2:/apps/camara-node-sdk/examples/node_modules
+
 volumes:
   mongodbdata:
+  nm1:
+  nm2:

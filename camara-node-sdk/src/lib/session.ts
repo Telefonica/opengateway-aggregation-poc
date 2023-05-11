@@ -1,4 +1,3 @@
-import type { Discovery } from '../clients/DiscoveryClient.js';
 import type { CamaraRequestContext } from '../clients/CamaraClient.js';
 import type { CamaraTokenSet } from 'src/services/tokens.js';
 import { login } from '../lib/login.js';
@@ -9,7 +8,6 @@ import { login } from '../lib/login.js';
 export interface CamaraSession {
   access_token: string;
   expires_at: number;
-  discovery: Discovery;
   // This should not be needed if we use refresh tokens
   login: {
     ipport?: string;
@@ -21,15 +19,13 @@ export interface CamaraSession {
 export interface SessionService {
   createSession: (args: {
     camaraTokenSet: CamaraTokenSet;
-    discovery: Discovery;
     login: { ipport?: string; scope?: string; setupId: string };
   }) => Promise<CamaraSession>;
   restoreSession: (args: CamaraSession, context?: CamaraRequestContext) => Promise<CamaraSession>;
 }
 
-export const createSession: SessionService['createSession'] = async ({ discovery, login, camaraTokenSet }) => {
+export const createSession: SessionService['createSession'] = async ({ login, camaraTokenSet }) => {
   const session: CamaraSession = {
-    discovery,
     login,
     access_token: camaraTokenSet.access_token,
     expires_at: camaraTokenSet.expires_at,

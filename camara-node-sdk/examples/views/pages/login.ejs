@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head'); %>
+</head>
+<body class="container">
+
+<main>
+  <div class="jumbotron">
+    <h1>Login Page</h1>
+    <form  action="/login" method="post">
+      
+      <label  for="username">Username:</label>
+      <input class="userbox" type="text" name="username" /><br />
+      <label for="password">Password:</label>
+      <input type="text" name="password" />
+      <br/>
+      <label for="ipport">Ipport:</label>
+      <select name="ipport" id="ipport">
+        <option value="10.95.10.13:3543" selected>10.95.10.13:3543 Telefónica</option>
+        <option value="89.16.12.54:4631">89.16.12.54:4631 Vodafone</option>
+        <option value="54.55.12.98:5132">54.55.12.98:5132 Orange</option>
+      </select>
+      <br/>
+      <button type="submit" class="btn btn-primary">Login</button>
+    
+      </form>
+  </div>
+</main>
+
+</body>
+</html>
