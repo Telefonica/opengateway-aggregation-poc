@@ -7,9 +7,15 @@ db.apps.replaceOne(
         consumer_secret : "3184428a-1ea4-4e1c-9969-b623f36fbc2f",
         name : "Demo App",
         description : "App for testing",
+        redirect_uri : [
+            "http://localhost:3000/api/auth/callback/telco",
+            "http://localhost:3001/api/auth/callback/camara",
+            "http://127.0.0.1:3000/api/auth/callback/camara" ,
+            "http://localhost:3000/login/camara/callback"
+        ],
         developer : {
-            email : "johndoe@demoapp.com",
-            name : "John Doe"
+            email : "johndoe@demo-app.com",
+            name : "John Doe Developer"
         },
         status : "active",
         grants : [
