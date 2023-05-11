@@ -2,6 +2,9 @@ version: '3.9'
 
 services:
 
+  #
+  # AGGREGATORS
+  #
   aggregator-telco-finder-1:
     build:
       context: ./aggregator/telco-finder
@@ -18,6 +21,25 @@ services:
     ports:
       - 2222:2222
 
+  aggregator-telco-router-1:
+    build:
+      context: ./aggregator/telco-router
+    environment:
+      PORT: 3311
+    ports:
+      - 3311:3311
+
+  aggregator-telco-router-2:
+    build:
+      context: ./aggregator/telco-router
+    environment:
+      PORT: 3322
+    ports:
+      - 3322:3322
+
+  #
+  # OPERATOR PLATFORMS
+  #
   operator-platform-apigateway-1:
     image: kong:3.1.1-alpine
     user: kong
@@ -26,6 +48,7 @@ services:
       KONG_PLUGINS: "bundled,log-signature"
       KONG_LUA_PACKAGE_PATH: "/opt/?.lua;;"
       KONG_DECLARATIVE_CONFIG: "/opt/kong/config-operator-1.yaml"
+      KONG_LOG_LEVEL: "warn"
     ports:
       - 10000:8000
     volumes:
@@ -41,6 +64,7 @@ services:
       KONG_PLUGINS: "bundled,log-signature"
       KONG_LUA_PACKAGE_PATH: "/opt/?.lua;;"
       KONG_DECLARATIVE_CONFIG: "/opt/kong/config-operator-2.yaml"
+      KONG_LOG_LEVEL: "warn"
     ports:
       - 20000:8000
     volumes:
@@ -64,10 +88,14 @@ services:
     ports:
       - 8002:8002
 
+  #
+  # MISC
+  #
   mongodb:
     image: mongo:5.0
     ports:
       - 27017:27017
+    command: --quiet --logpath /dev/null
     volumes:
       - mongodbdata:/data/db
 
@@ -78,7 +106,6 @@ services:
   #     - mongodb
   #     - authserver-1
   #     - authserver-2
-  #     - authserver-3
 
 volumes:
   mongodbdata:

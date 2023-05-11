@@ -1,5 +1,6 @@
 import os
-from flask import Flask, redirect, request, jsonify
+from flask import Flask, jsonify
+from gevent.pywsgi import WSGIServer
 
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 5000))
@@ -22,4 +23,5 @@ def healthz():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=port)
+    http_server = WSGIServer(('0.0.0.0', port), app)
+    http_server.serve_forever()
