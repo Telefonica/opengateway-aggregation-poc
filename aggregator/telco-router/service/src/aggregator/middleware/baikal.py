@@ -38,16 +38,20 @@ def custom_exception_handler(request, exc):
         return custom_exception_handler(request, ServerError())
 
 
-def log_error_metric(error):
-    log_metric(error.error, getattr(error, 'description', None))
+def log_error_metric(error, additional_data=None):
+    log_metric(error.error, getattr(error, 'description', None), additional_data)
 
 
-def log_metric(result, description=None):
+def log_metric(result, description=None, additional_data=None):
     try:
         request = BaikalMiddleware.get_current_request()
         oauth_request = BaikalMiddleware.get_oauth_request(request)
 
         data = OrderedDict([('op',  getattr(request, 'operation', 'NA')), ('result', result)])
+
+        if additional_data:
+            data.update(additional_data)
+
         if oauth_request:
             for field in ['client_name', 'response_type', 'grant_type', 'scopes', 'acr', 'amr']:
                 value = getattr(oauth_request, field, None)
@@ -163,9 +167,9 @@ class BaikalMiddleware(MiddlewareMixin):
             request = cls.get_wsgi_request(request)
             oauth_request = cls.get_oauth_request(request)
             if oauth_request is not None:
-                user = getattr(oauth_request, 'uid', None)
+                user = getattr(oauth_request, 'sub', None)
                 if hasattr(oauth_request, 'auth'):
-                    user = oauth_request.auth.get('uid', None)
+                    user = oauth_request.auth.get('sub', None)
         return user
 
     @classmethod

@@ -32,7 +32,7 @@ def _get_cleaned_body(obj, data):
 
 def do_request_call(api_name, method, url, *args, **kwargs):
 
-    cleaned_body = _get_cleaned_body(kwargs.get('json', None), kwargs.get('data', None))
+    cleaned_body = _get_cleaned_body(kwargs.get('json', None), kwargs.get('data').decode("utf-8") if ('data' in kwargs and isinstance(kwargs.get('data'), bytes)) else kwargs.get('data', None))
 
     logger.info(f'{api_name} request', extra={'data': OrderedDict([('method', method), ('url', url),
                                                                    ('headers', get_cleaned_data(kwargs.get('headers', None))),

@@ -1,6 +1,6 @@
 import os
-import requests
-from flask import Flask
+from flask import Flask, jsonify
+from gevent.pywsgi import WSGIServer
 from ipwhois import IPWhois
 
 app = Flask(__name__)
@@ -25,7 +25,7 @@ def telcofinder(identifier_type, identifier_value):
 
     serving_operator_info = _resolve_serving_operator(identifier_type, identifier_value)
     if serving_operator_info is not None:
-        return serving_operator_info, 200
+        return jsonify(serving_operator_info)
     else:
         return 'Not able to resolve serving operator', 404
 
@@ -87,4 +87,6 @@ def _well_known_endpoints(asn):
 
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=port)
+    http_server = WSGIServer(('0.0.0.0', port), app)
+    http_server.serve_forever()
+
