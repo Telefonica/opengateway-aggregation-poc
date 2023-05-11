@@ -151,7 +151,7 @@ services:
     environment:
       PORT: 3000
       # Aggregator configuration
-      CAMARA_API_URL: 'http://aggregator-telco-router-2:3322'
+      CAMARA_API_URL: 'http://aggregator-telco-router-2:3322/es/api'
       CAMARA_AUTH_URL: 'http://aggregator-telco-router-2:3322/es/oauth2'
       CAMARA_ISSUER: '73902489-c201-4819-bdf9-3708a484fe21'
       CAMARA_CLIENT_ID: '73902489-c201-4819-bdf9-3708a484fe21'

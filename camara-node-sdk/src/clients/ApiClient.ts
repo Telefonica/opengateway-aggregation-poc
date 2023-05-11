@@ -1,6 +1,7 @@
 import type { AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 import type { BaseClientConfig, BaseRequestContext } from './BaseClient.js';
 import BaseClient from './BaseClient.js';
+import * as path from 'path'
 
 interface WithTokenGetter {
   getToken?: (context: ApiRequestContext) => Promise<string>;
@@ -21,9 +22,12 @@ export interface ApiClientConfig extends BaseClientConfig, WithTokenGetter {
  */
 export default abstract class ApiClient extends BaseClient {
   constructor(configuration?: ApiClientConfig) {
+
+    const baseURLInstance = new URL((configuration?.baseURL || process.env.CAMARA_API_URL)!);
+    
     const baseURL = new URL(
-      configuration?.pathname || '/',
-      configuration?.baseURL || process.env.CAMARA_API_URL
+      path.posix.join(baseURLInstance?.pathname || '/', configuration?.pathname || '/'),
+      baseURLInstance.toString()
     ).toString();
 
     const clientConfig: AxiosRequestConfig = {

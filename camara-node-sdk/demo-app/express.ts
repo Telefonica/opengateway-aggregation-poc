@@ -9,9 +9,7 @@ import Camara from 'camara-node-sdk';
 /////////////////////////////////////////////////
 Camara.setup();
 
-const deviceLocationVerificationClient = new DeviceLocationVerificationClient(
-  {pathname: '/es/api/device-location-verification/v1'}
-);
+const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
 
 const app = express();
 
