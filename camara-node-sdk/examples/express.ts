@@ -3,6 +3,8 @@ import express from 'express';
 import cookieSession from 'cookie-session';
 import Camara from 'camara-node-sdk';
 
+import bodyParser from "body-parser";
+
 ////////////////////////////
 // Setup the Contracting Operator credentials in the server
 ////////////////////////////
@@ -25,29 +27,63 @@ const app = express();
 
 app.enable('trust proxy');
 app.use(cookieSession({ keys: ['secret'] }));
+app.set('view engine', 'ejs');
+app.use(express.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(express.json())
 
 app.get('/', (req, res) => {
-  res.send(`<html><body><a href="/verify">Verify</a></body></html>`);
+  if (req.session?.login?.username) {
+    res.render('pages/verify', {username: req.session?.login?.username, result:''});
+  } else {
+    res.render('pages/login');
+  }
+});
+
+app.get('/logout', (req, res) => {
+  if (req.session) {
+    delete req.session.login
+    delete req.session.camara
+  }
+  res.redirect('/')
+});
+
+app.post('/login', (req, res) => {
+  let body = req.body
+  console.log(JSON.stringify(body))
+  req.session = req.session || {}
+  req.session.login = {
+    username: body.username || "John Doe",
+    ipport: body.ipport || "10.95.10.13:3543"
+  }
+  res.redirect('/')
 });
 
 app.get('/verify', async (req, res, next) => {
   console.log('/verify', req.session);
-  try {
-    if (!req.session?.camara) {
-      req.session = req.session || {};
-      req.session.camara = await Camara.login({
-        ipport: `127.0.0.0:3000`,
-      });
+
+  if (!req.session?.login?.username) {
+    res.redirect('/')
+  } else {
+    try {
+      if (!req.session?.camara) {
+        req.session = req.session || {};
+        req.session.camara = await Camara.login({
+          ipport: req.session?.login?.ipport || "10.95.10.13:3543",
+        });
+      }
+      const location = await deviceLocationVerificationClient.verify(
+        { postcode: '28080' },
+        { session: req.session.camara }
+      );
+      console.log(location);
+      res.render('pages/verify', {username: req.session?.login?.username, result: JSON.stringify(location, null, 4)});
+    } catch (err) {
+      next(err);
     }
-    const location = await deviceLocationVerificationClient.verify(
-      { postcode: '28080' },
-      { session: req.session.camara }
-    );
-    console.log(location);
-    res.json(location);
-  } catch (err) {
-    next(err);
   }
+
 });
 
 /**

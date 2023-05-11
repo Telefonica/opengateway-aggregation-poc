@@ -1,11 +1,8 @@
 import type { TokenService } from '../services/tokens.js';
 import type { CacheService } from '../services/cache.js';
-import type { DiscoveryService } from '../services/discovery.js';
 import AuthserverClient from '../clients/AuthserverClient.js';
-import DiscoveryClient from '../clients/DiscoveryClient.js';
 import Token from '../services/tokens.js';
 import Cache from '../services/cache.js';
-import Discovery from '../services/discovery.js';
 
 /**
  * Configuration for the Camara SDK
@@ -41,7 +38,6 @@ export interface CamaraSetup {
   jwks(): Promise<object>;
   tokenService: TokenService;
   cacheService: CacheService;
-  discoveryService: DiscoveryService;
 }
 
 const setups = new Map<string, CamaraSetup>();
@@ -69,14 +65,9 @@ const createSdkSetup = (config: CamaraConfig = {}, id: CamaraSetupId = defaultSe
     ...config,
     baseURL: config.authBaseURL,
   });
-  const discoveryClient = new DiscoveryClient({
-    ...config,
-    baseURL: config.apiBaseURL,
-  });
 
   const cacheService = Cache(id, config);
   const tokenService = Token(id, config, { authserverClient, cacheService });
-  const discoveryService = Discovery(id, config, { discoveryClient, cacheService, tokenService });
   return {
     id,
     jwks() {
@@ -84,6 +75,5 @@ const createSdkSetup = (config: CamaraConfig = {}, id: CamaraSetupId = defaultSe
     },
     tokenService,
     cacheService,
-    discoveryService,
   };
 };

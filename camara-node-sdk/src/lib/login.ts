@@ -18,20 +18,9 @@ export const login: Login = async ({ ipport, scope }, context = {}) => {
   const { setupId = defaultSetupId } = context;
   const sub = `ipport:${ipport}`;
   const setup = getSetup(setupId);
-  const { discoveryService } = setup;
+  const { tokenService } = setup;
 
-  const discovery = await discoveryService.discover({ sub }, context);
-
-  const setupDiscovered = createSetup(
-    {
-      apiBaseURL: discovery.apigateway_url,
-      authBaseURL: discovery.authserver_url,
-    },
-    `sdk:${discovery.operator_id}`
-  );
-
-  const { tokenService } = setupDiscovered;
   const camaraTokenSet = await tokenService.getLoginTokenSet({ sub, scope }, context);
-  const session = await createSession({ camaraTokenSet, discovery, login: { ipport, scope, setupId } });
+  const session = await createSession({ camaraTokenSet, login: { ipport, scope, setupId } });
   return session;
 };

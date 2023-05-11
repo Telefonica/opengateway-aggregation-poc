@@ -11,10 +11,6 @@ interface Camara {
 
 const Camara: Camara = {
   setup: (config, id) => {
-    // userland setups cannot start by 'sdk', as they are internal sdk setups due to discovery
-    if (id?.startsWith('sdk:')) {
-      throw new Error('Setup id cannot start with "sdk:"');
-    }
     return createSetup(config, id);
   },
   login,

@@ -1,5 +1,3 @@
-import type { TokenSet } from '../clients/AuthserverClient.js';
-import type { Discovery } from '../clients/DiscoveryClient.js';
 import type { CamaraConfig, CamaraSetupId } from '../lib/setup.js';
 import { LRUCache } from 'lru-cache';
 import type { CamaraTokenSet } from './tokens.js';
@@ -12,12 +10,12 @@ interface Cache<K, V> {
   get: (key: K) => Promise<V | undefined>;
   set: (key: K, value: V, opts?: { ttl?: number }) => Promise<void>;
 }
-type CacheType<T> = T extends 'token' ? TokenCache : T extends 'discovery' ? DiscoveryCache : never;
+type CacheType<T> = T extends 'token' ? TokenCache : never;
 
-type CacheId = 'token' | 'discovery';
+type CacheId = 'token';
 
 // Token Cache stuff
-type TokenCacheData = 'server:discovery' | `login:${string}`;
+type TokenCacheData = `login:${string}`;
 export type TokenCacheKey = `${CamaraSetupId}:token:${TokenCacheData}`;
 type TokenCache = Cache<TokenCacheKey, CamaraTokenSet>;
 
@@ -29,29 +27,15 @@ const defaultTokenCache = createMemoryCache<TokenCacheKey, CamaraTokenSet>({
   ttl: 1000 * 3500,
 });
 
-// Discovery cache stuff
-type DiscoveryCacheData = `${string}`;
-export type DiscoveryCacheKey = `${CamaraSetupId}:discovery:${DiscoveryCacheData}`;
-type DiscoveryCache = Cache<DiscoveryCacheKey, Discovery>;
-
-const defaultDiscoveryCache = createMemoryCache<DiscoveryCacheKey, Discovery>({
-  // number of discovers to cache
-  max: 1000,
-  // time to live: 1 minutes
-  ttl: 1000 * 1,
-});
-
 const createService = (setupId: CamaraSetupId, config: CamaraConfig): CacheService => {
   // TODO: Let the user provide the cache implementation in the configuration
-
   async function getCache<T extends CacheId>(id: T): Promise<CacheType<T>> {
     switch (id) {
       case 'token':
         return defaultTokenCache as CacheType<T>;
-      case 'discovery':
-        return defaultDiscoveryCache as CacheType<T>;
       default:
-        assertCacheId(id);
+        // TODO: fix as never
+        assertCacheId(id as never);
     }
   }
   return {
