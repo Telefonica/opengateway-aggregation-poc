@@ -33,14 +33,7 @@
 			],
 			"request": {
 				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{TOKEN_OP1}}",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "POST",
 				"header": [],
@@ -95,14 +88,7 @@
 			],
 			"request": {
 				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{TOKEN_OP1}}",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "POST",
 				"header": [],
@@ -148,7 +134,7 @@
 						"exec": [
 							"const token = pm.response.json().access_token;",
 							"if (token) {",
-							"    pm.variables.set(\"ACCESS_TOKEN\", token);",
+							"    pm.environment.set(\"ACCESS_TOKEN\", token);",
 							"}"
 						],
 						"type": "text/javascript"
