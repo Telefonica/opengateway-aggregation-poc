@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "Assertion",
+			"name": "Assertion (Internal)",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -62,7 +62,7 @@
 			"response": []
 		},
 		{
-			"name": "Client Assertion",
+			"name": "Client Assertion (Internal)",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -117,7 +117,7 @@
 			"response": []
 		},
 		{
-			"name": "Token JWT BEARER",
+			"name": "Token Aggregator",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -189,7 +189,7 @@
 			"response": []
 		},
 		{
-			"name": "Verify",
+			"name": "Verify (Camara API)",
 			"request": {
 				"auth": {
 					"type": "bearer",
