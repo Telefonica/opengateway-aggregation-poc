@@ -2,6 +2,8 @@ import DeviceLocationVerificationClient from 'camara-node-sdk/clients/DeviceLoca
 import express from 'express';
 import cookieSession from 'cookie-session';
 import Camara from 'camara-node-sdk';
+import { v4 as uuid } from 'uuid';
+import jose from 'node-jose';
 
 /////////////////////////////////////////////////
 // Initialize the SDK offering networking services (device location verification in the example)
@@ -94,6 +96,28 @@ app.get('/api/jwks', async (req, res, next) => {
     next(err);
   }
 });
+
+app.post('/api/assertion', async (req, res, next) => {
+  const now = Math.floor(Date.now() / 1000);
+  const jwtPayload: JWT = {
+    ...req.body,
+    jti: uuid(),
+    exp: now + 600,
+    iat: now,
+  };
+  try {
+    const clientKey = process.env.CAMARA_CLIENT_KEY;
+    const decodedKey = Buffer.from(clientKey, 'base64').toString('utf8');
+    const keystore = jose.JWK.createKeyStore();
+    await keystore.add(decodedKey, 'pem');
+    const assertion = await jose.JWS.createSign({ format: 'compact' }, keystore.all({ alg: 'RS256' }))
+      .update(JSON.stringify(jwtPayload), 'utf-8')
+      .final();
+    res.json({ assertion: assertion })
+  } catch (cause) {
+    throw new Error('Unable to sign JWT', { cause });
+  }
+})
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
