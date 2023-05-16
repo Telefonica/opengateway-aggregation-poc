@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head'); %>
+</head>
+<body class="container">
+
+<main>
+  <div class="jumbotron">
+    <h1>Demo App - Login</h1>
+    <hr/>
+      <div class="alert alert-warning" role="alert">
+        <p>This login will be the demo-app login. For this demo you can use any credentials to log in. This step simulates the 3rd party log in process and allow to select an Ipport in order to affect in the routing process.</p>
+      </div>
+    <hr/>
+    <form  action="/login" method="post">
+
+      <label for="username" style="width: 90px;">Username</label>
+      <input class="userbox" type="text" name="username" /><br />
+      <label for="password" style="width: 90px;">Password</label>
+      <input type="password" name="password" />
+      <br/>
+      <hr/>
+      <label for="ipport">Identifier (for demo purposes)</label><br />
+      <select name="ipport" id="ipport">
+        <option value="83.58.58.57" selected>83.58.58.57:3543 (Telefónica)</option>
+        <option value="109.42.3.0">109.42.3.0:4631 (Vodafone)</option>
+      </select>
+      <br/>
+      <hr/>
+      <br/>
+      <button type="submit" class="btn btn-primary">Login</button>
+
+    </form>
+  </div>
+</main>
+
+</body>
+</html>

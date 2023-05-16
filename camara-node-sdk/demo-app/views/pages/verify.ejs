@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head'); %>
+</head>
+<body class="container">
+
+<main>
+  <div class="jumbotron">
+    <h1>Demo App - Device Location Verification</h1>
+    <hr>
+      <div class="alert alert-warning" role="alert">
+        <p>Once you are logged in the demo-app platform, you can click on the <i>Verify Device Location</i> button in order to consume Camara APIs. The complete process follow the next logic:
+          <ul>
+            <li>If you don't have any access token yet:
+              <ul>
+                <li>Calculate an access token:
+                  <ul>
+                    <li>You send a POST /token to the associated Telco Hyperscaler Authserver</li>
+                    <li>The Authserver using the ipport informations asks the Telco Finder which Telco corresponds to the user Ipport</li>
+                    <li>The Telco Hyperscaler Authserver ask the Telco Operator Platform Authserver for an OIDC 3 legged access token.</li>
+                    <li>An access token will be generated for the demo-app</li>
+                  </ul>
+                </li>
+                <li>Consume CAMARA API to get the information</li>
+              </ul>
+            </li>
+            <li>If you already have an access token:
+              <ul>
+                <li>Consume CAMARA API to get the information</li>
+              </ul>
+            </li>
+          </ul>
+          You can see a detailed explanation in the following link: <a href="https://github.com/Telefonica/opengateway-aggregation-poc/blob/main/README.md">Architecture Information</a>
+        </p>
+      </div>
+    <hr/>
+    <p>You are logged as: <b><%= username %></b></p>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <a class="btn btn-primary" href="/verify">Verify Device Location</a>
+        </div>
+        <div class="col">
+            <a class="btn btn-warning" href="/logout">Logout</a>          
+        </div>
+      </div>
+    </div>
+    <br/>
+    <p>Result: </p>
+    <% if (result) { %>
+    <pre><%= result %></pre>
+    <% } %>
+  </div>
+</main>
+
+</body>
+</html>
