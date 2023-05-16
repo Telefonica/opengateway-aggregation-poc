@@ -10,18 +10,18 @@ from oauthlib.oauth2.rfc6749.endpoints.base import catch_errors_and_unavailabili
 from oauthlib.oauth2.rfc6749.endpoints.token import TokenEndpoint
 from oauthlib.oauth2.rfc6749.errors import UnsupportedGrantTypeError
 
-from aggregator.middleware.baikal import BaikalMiddleware, log_metric
+from aggregator.middleware.telcorouter import AggregatorMiddleware, log_metric
 from aggregator.utils.http import do_request_call
 
 log = logging.getLogger(__name__)
 
 
-class BaikalTokenEndpoint(TokenEndpoint):
+class AggregatorTokenEndpoint(TokenEndpoint):
 
     @catch_errors_and_unavailability
     def create_token_response(self, uri, http_method='POST', body=None, headers=None, credentials=None, grant_type_for_scope=None, claims=None):
         request = Request(uri, http_method=http_method, body=body, headers=headers)
-        BaikalMiddleware.set_oauth_request(BaikalMiddleware.get_current_request(), request)
+        AggregatorMiddleware.set_oauth_request(AggregatorMiddleware.get_current_request(), request)
 
         self.validate_token_request(request)
         request.scopes = utils.scope_to_list(request.scope)
@@ -41,7 +41,7 @@ class BaikalTokenEndpoint(TokenEndpoint):
         return headers, body, status
 
 
-class BaikalApiEndpoint(BaseEndpoint):
+class AggregatorApiEndpoint(BaseEndpoint):
 
     def __init__(self, request_validator):
         self.bearer = BearerToken(request_validator, None, None, None)
@@ -53,7 +53,7 @@ class BaikalApiEndpoint(BaseEndpoint):
         request = Request(uri, http_method, body, headers)
         self.validate_api_request(request)
 
-        api_host = request.token['operator']['apigateway_url']
+        api_host = request.token['routing']['apigateway_url']
         aggregator_api_prefix = reverse('api')
         real_path = uri.removeprefix(aggregator_api_prefix)
         url = api_host + ('/' if not api_host.endswith("/") and not real_path.startswith("/") else "") + real_path
@@ -61,7 +61,7 @@ class BaikalApiEndpoint(BaseEndpoint):
         headers = dict(headers)
         headers['Authorization'] = f"Bearer {request.token['access_token']}"
 
-        response = do_request_call('Operator API', http_method, url,
+        response = do_request_call('Routing API', http_method, url,
                                    headers=headers, data=body, verify=settings.API_VERIFY_CERTIFICATE, timeout=settings.API_HTTP_TIMEOUT)
 
         log_metric(str(response.status_code), additional_data={"host": api_host, "method": http_method, "path": real_path})

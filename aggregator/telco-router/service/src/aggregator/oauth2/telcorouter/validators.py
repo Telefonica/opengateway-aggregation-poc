@@ -26,7 +26,7 @@ from aggregator.utils.schemas import FIELD_ISSUER, FIELD_KID, FIELD_JTI, JWT_CLI
 logger = logging.getLogger(settings.LOGGING_PREFIX)
 
 
-class BaikalRequestValidator(RequestValidator):
+class AggregatorRequestValidator(RequestValidator):
 
     def validate_client_id(self, client_id, request, *args, **kwargs):
         if hasattr(request, 'app'):

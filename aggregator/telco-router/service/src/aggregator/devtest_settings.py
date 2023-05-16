@@ -7,7 +7,7 @@ except ImportError:
 
 MONGO_DATABASE_OPTIONS = {
     'default': {
-        'host': 'mongodb://localhost:27017/baikal-aggregator-test'
+        'host': 'mongodb://localhost:27017/aggregator-telcorouter-test'
     }
 }
 

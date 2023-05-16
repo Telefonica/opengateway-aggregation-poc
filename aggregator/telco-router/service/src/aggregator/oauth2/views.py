@@ -10,17 +10,17 @@ from django.views.generic.base import View
 from oauthlib.oauth2.rfc6749.endpoints.metadata import MetadataEndpoint
 from oauthlib.oauth2.rfc6749.errors import InvalidRequestFatalError
 
-from aggregator.oauth2.baikal.server import BaikalServer
-from aggregator.oauth2.baikal.tokens import access_token_expires_in, jwt_token_generator
-from aggregator.oauth2.baikal.validators import BaikalRequestValidator
+from aggregator.oauth2.telcorouter.server import AggregatorServer
+from aggregator.oauth2.telcorouter.tokens import access_token_expires_in, jwt_token_generator
+from aggregator.oauth2.telcorouter.validators import AggregatorRequestValidator
 from aggregator.utils.jwk import JWKManager
 from aggregator.utils.parsers import object_pairs_hook
 from aggregator.utils.views import publish_to_middleware
 
 logger = logging.getLogger(settings.LOGGING_PREFIX)
 
-validator = BaikalRequestValidator()
-server = BaikalServer(validator, token_expires_in=access_token_expires_in,
+validator = AggregatorRequestValidator()
+server = AggregatorServer(validator, token_expires_in=access_token_expires_in,
                       token_generator=jwt_token_generator)
 
 

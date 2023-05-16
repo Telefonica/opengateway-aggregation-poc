@@ -9,8 +9,8 @@ RUN pip install --upgrade pip setuptools && \
 
 FROM base
 
-ENV NAME=baikal-aggregator \
-    USERNAME=baikal \
+ENV NAME=telcorouter \
+    USERNAME=aggregator \
     USERID=12351
 ENV WORKDIRECTORY=/opt/${USERNAME}/${NAME} \
     CONFIGDIRECTORY=/etc/${NAME} \

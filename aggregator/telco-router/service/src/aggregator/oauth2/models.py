@@ -1,19 +1,16 @@
-import calendar
 import logging
-from datetime import datetime
 from urllib.parse import urlparse
-from uuid import uuid4
 
 import pymongo
 from django.conf import settings
 from django.core.cache import cache
-from pymongo.collection import ReturnDocument
 
-from aggregator.utils.database import BaikalCollection
+from aggregator.utils.database import AggregatorCollection
 
 logger = logging.getLogger(settings.LOGGING_PREFIX)
 
-class JtiCollection(BaikalCollection):
+
+class JtiCollection(AggregatorCollection):
 
     collection_name = 'jtis'
 
@@ -41,7 +38,7 @@ class JtiCollection(BaikalCollection):
         return cls.objects.insert_one({cls.FIELD_CLIENT_ID: client_id, cls.FIELD_JTI: jti, cls.FIELD_EXPIRATION: expiration})
 
 
-class ApplicationCollection(BaikalCollection):
+class ApplicationCollection(AggregatorCollection):
 
     collection_name = 'apps'
 

@@ -56,11 +56,11 @@ class ApiOkTestCase(ApiTestCase):
         self.assertDictEqual(body, {'quux': 'corge'})
         self.assertDictContainsSubset({'X-Foo': 'bar', 'Content-Type': 'application/json'}, dict(response.headers))
 
-        operator_request = self.get_request_from_history(m, -1)
-        self.assertEqual(operator_request.url, 'http://api.operator.com/myapi?baz=qux')
+        routing_request = self.get_request_from_history(m, -1)
+        self.assertEqual(routing_request.url, 'http://api.operator.com/myapi?baz=qux')
         self.assertDictContainsSubset({'X-Correlator': '8d085f36-8a06-40c9-a8c3-65073093cd23', 'Content-Type': 'application/json',
-                                       'Authorization': 'Bearer MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3'}, operator_request.headers)
-        self.assertDictEqual(operator_request.body, payload)
+                                       'Authorization': 'Bearer MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3'}, routing_request.headers)
+        self.assertDictEqual(routing_request.body, payload)
 
 
 class ApiErrorTestCase(ApiTestCase):

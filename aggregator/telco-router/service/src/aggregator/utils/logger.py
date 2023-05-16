@@ -35,7 +35,7 @@ from logging import Filter
 import ujson as json
 from django.conf import settings
 
-from aggregator.middleware.baikal import BaikalMiddleware
+from aggregator.middleware.telcorouter import AggregatorMiddleware
 
 logger = logging.getLogger(settings.LOGGING_PREFIX)
 
@@ -68,7 +68,7 @@ class LoggerFilter(Filter, object):
         try:
 
             record.component = settings.COMPONENT
-            request = BaikalMiddleware.get_current_request()
+            request = AggregatorMiddleware.get_current_request()
 
             if hasattr(record, 'data'):
                 record.jsonMsg = json.dumps(record.data, sort_keys=False, escape_forward_slashes=False)
@@ -84,12 +84,12 @@ class LoggerFilter(Filter, object):
                 record.queryString = request.META.get('QUERY_STRING', '')
                 record.httpAuthentication = request.headers.get('Authorization', '')
 
-                record.transactionId = BaikalMiddleware.get_transaction(request) or self.UNKNOWN_VALUE
-                record.correlator = BaikalMiddleware.get_correlator(request) or self.UNKNOWN_VALUE
+                record.transactionId = AggregatorMiddleware.get_transaction(request) or self.UNKNOWN_VALUE
+                record.correlator = AggregatorMiddleware.get_correlator(request) or self.UNKNOWN_VALUE
                 record.requestPath = request.get_full_path()
 
-                record.clientId = BaikalMiddleware.get_client_id(request) or self.UNKNOWN_VALUE
-                record.user = BaikalMiddleware.get_user(request) or self.UNKNOWN_VALUE
+                record.clientId = AggregatorMiddleware.get_client_id(request) or self.UNKNOWN_VALUE
+                record.user = AggregatorMiddleware.get_user(request) or self.UNKNOWN_VALUE
 
         except Exception as e:
             pass

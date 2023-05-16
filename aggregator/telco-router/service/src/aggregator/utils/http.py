@@ -57,7 +57,7 @@ def do_request_call(api_name, method, url, *args, **kwargs):
 
 
 def render_response(request, template, *args, **kwargs):
-    logger.info('Rendering template', extra={'data': OrderedDict([('template', template)])})
+    logger.debug('Rendering template', extra={'data': OrderedDict([('template', template)])})
     return render(request, template, *args, **kwargs)
 
 

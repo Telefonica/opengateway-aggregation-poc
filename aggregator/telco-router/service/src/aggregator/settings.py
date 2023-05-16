@@ -26,7 +26,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'aggregator.middleware.baikal.BaikalMiddleware',
+    'aggregator.middleware.telcorouter.AggregatorMiddleware',
     'aggregator.middleware.log.LogMiddleware',
     'django.middleware.security.SecurityMiddleware',
     # 'django.contrib.sessions.middleware.SessionMiddleware',
@@ -63,7 +63,7 @@ DATABASES = {}
 
 MONGO_DATABASE_OPTIONS = {
     'default': {
-        'host': f"mongodb://{os.getenv('DATABASE_HOST', 'localhost:27017')}/{os.getenv('DATABASE_NAME', 'baikal-aggregator')}",
+        'host': f"mongodb://{os.getenv('DATABASE_HOST', 'localhost:27017')}/{os.getenv('DATABASE_NAME', 'aggregator-telcorouter')}",
         'socketTimeoutMS': 30000
     }
 }
@@ -121,7 +121,7 @@ CENSORER_MASK = '----'
 CENSORER_NUM_UNMASKED_CHARS = 4
 
 LOGGING_ROOT = os.environ.get('LOGS_ROOT', os.path.join(os.path.dirname(__file__), 'logs'))
-LOGGING_PREFIX = 'baikal-aggregator'
+LOGGING_PREFIX = 'telcorouter'
 LOGGING_LEVEL = 'DEBUG' if DEBUG else 'INFO'
 LOGGING = {
     'version': 1,
@@ -133,7 +133,7 @@ LOGGING = {
         'simple': {
             'format': '%(levelname)s - %(asctime)s - %(message)s'
         },
-        'baikal': {
+        'aggregator': {
             'format': '{"time":"%(UTCTimestamp)s","lvl":"%(levelname)s","corr":"%(correlator)s","trans":"%(transactionId)s","clientId":"%(clientId)s","user":"%(user)s","msg":"%(message)s","data":%(jsonMsg)s}'
         }
     },
@@ -141,23 +141,23 @@ LOGGING = {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
         },
-        'baikal_fields': {
+        'aggregator_fields': {
             '()': 'aggregator.utils.logger.LoggerFilter'
         }
     },
     'handlers': {
         'file': {  # define and name a handler
             'level': LOGGING_LEVEL,
-            'filters': ['baikal_fields'],
+            'filters': ['aggregator_fields'],
             'class': 'logging.FileHandler',  # set the logging class to log to a file
-            'formatter': 'baikal',  # define the formatter to associate
+            'formatter': 'aggregator',  # define the formatter to associate
             'filename': os.path.join(LOGGING_ROOT, LOGGING_PREFIX + '.log')  # log file
         },
         'console': {
             'level': LOGGING_LEVEL,
-            'filters': ['baikal_fields'],
+            'filters': ['aggregator_fields'],
             'class': 'logging.StreamHandler',
-            'formatter': 'baikal',
+            'formatter': 'aggregator',
             'stream': sys.stdout
         }
     },
@@ -179,7 +179,7 @@ BRANDING = os.getenv('OPERATOR_ID', None)
 AGGREGATOR_HOST = os.getenv('HOST', 'http://127.0.0.1:10010')
 AGGREGATOR_PATH_PREFIX = 'es/'
 AGGREGATOR_ISSUER = f'{AGGREGATOR_HOST}/{AGGREGATOR_PATH_PREFIX}'
-AGGREGATOR_KID = 'baikal-aggregator'
+AGGREGATOR_KID = 'telcorouter'
 AGGREGATOR_JWKS_URI = None
 AGGREGATOR_AUDIENCES = [AGGREGATOR_ISSUER]
 
@@ -236,7 +236,7 @@ DISCOVERY = {
     'claims_supported': ['aud', 'exp', 'nonce', 'acr', 'amr', 'auth_time', 'iat', 'iss', 'sub'],
     'ui_locales_supported': ['en'],
     'acr_values_supported': ['1', '2', '3'],
-    'scopes_supported': ['openid', 'phone']
+    'scopes_supported': ['openid', 'phone', 'device-location-verification-verify-read']
 }
 
 TELCO_FINDER_HOST = os.getenv('TELCO_FINDER_HOST', 'http://127.0.0.1:10010')
@@ -245,7 +245,7 @@ API_VERIFY_CERTIFICATE = False
 API_HTTP_TIMEOUT = 10
 
 try:
-    sys.path.append('/etc/baikal-aggregator/')
+    sys.path.append('/etc/telcorouter/')
     from custom_settings import *
 except ImportError as e:  # pragma: no cover
     pass

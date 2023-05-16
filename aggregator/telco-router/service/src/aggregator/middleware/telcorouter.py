@@ -44,8 +44,8 @@ def log_error_metric(error, additional_data=None):
 
 def log_metric(result, description=None, additional_data=None):
     try:
-        request = BaikalMiddleware.get_current_request()
-        oauth_request = BaikalMiddleware.get_oauth_request(request)
+        request = AggregatorMiddleware.get_current_request()
+        oauth_request = AggregatorMiddleware.get_oauth_request(request)
 
         data = OrderedDict([('op',  getattr(request, 'operation', 'NA')), ('result', result)])
 
@@ -70,16 +70,16 @@ def log_metric(result, description=None, additional_data=None):
         raise
 
 
-class BaikalMiddleware(MiddlewareMixin):
+class AggregatorMiddleware(MiddlewareMixin):
 
     """
-    Baikal middleware. If it is enabled, each request/response will manage parameters.
+    Aggregator middleware. If it is enabled, each request/response will manage parameters.
     """
 
-    BAIKAL_CORRELATOR_HEADER = 'X-Correlator'
+    AGGREGATOR_CORRELATOR_HEADER = 'X-Correlator'
 
     TRANSACTION_ID_FIELD = 'transaction_id'
-    CORRELATOR_FIELD = 'baikal_correlator'
+    CORRELATOR_FIELD = 'aggregator_correlator'
     OAUTH_REQUEST_FIELD = 'oauth_request'
 
     CURRENT_REQUEST = 'current_request'
@@ -91,7 +91,7 @@ class BaikalMiddleware(MiddlewareMixin):
 
         self.set_transaction(request, transaction_id)
 
-        self.set_correlator(request, request.headers.get(self.BAIKAL_CORRELATOR_HEADER) or transaction_id)
+        self.set_correlator(request, request.headers.get(self.AGGREGATOR_CORRELATOR_HEADER) or transaction_id)
 
         return None
 

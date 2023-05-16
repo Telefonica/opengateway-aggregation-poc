@@ -8,7 +8,7 @@ from oauthlib.oauth2.rfc6749.errors import InvalidRequestFatalError, InvalidClie
 
 from aggregator.clients.oidc import OidcClient
 from aggregator.clients.telco_finder import TelcoFinderClient
-from aggregator.middleware.baikal import BaikalMiddleware
+from aggregator.middleware.telcorouter import AggregatorMiddleware
 from aggregator.utils.exceptions import MissingParameterError, InvalidParameterValueError
 from aggregator.utils.http import do_request_call
 from aggregator.utils.schemas import FIELD_SUB, FIELD_SCOPE
@@ -18,7 +18,7 @@ logger = logging.getLogger(settings.LOGGING_PREFIX)
 GRANT_TYPE_JWT_BEARER = 'urn:ietf:params:oauth:grant-type:jwt-bearer'
 
 
-class BaikalJWTBearerGrant(oauthlib.oauth2.rfc6749.grant_types.base.GrantTypeBase):
+class AggregatorJWTBearerGrant(oauthlib.oauth2.rfc6749.grant_types.base.GrantTypeBase):
 
     def validate_token_request(self, request):
         for validator in self.custom_validators.pre_token:
@@ -52,15 +52,15 @@ class BaikalJWTBearerGrant(oauthlib.oauth2.rfc6749.grant_types.base.GrantTypeBas
         for validator in self.custom_validators.post_token:
             validator(request)
 
-    def _get_operator_token(self, request):
+    def _get_routing_token(self, request):
         index = request.auth[FIELD_SUB].find(":")
-        request.operator = TelcoFinderClient().get_operator_metadata(request.auth[FIELD_SUB][0:index], request.auth[FIELD_SUB][index+1:])
+        request.routing = TelcoFinderClient().get_routing_metadata(request.auth[FIELD_SUB][0:index], request.auth[FIELD_SUB][index+1:])
 
-        metadata = OidcClient().get_metadata(request.operator['authserver_url'])
+        metadata = OidcClient().get_metadata(request.routing['authserver_url'])
 
-        headers = {BaikalMiddleware.BAIKAL_CORRELATOR_HEADER: BaikalMiddleware.get_correlator(BaikalMiddleware.get_current_request()),
+        headers = {AggregatorMiddleware.AGGREGATOR_CORRELATOR_HEADER: AggregatorMiddleware.get_correlator(AggregatorMiddleware.get_current_request()),
                    'Content-Type': 'application/x-www-form-urlencoded'}
-        response = do_request_call('Operator Token', 'POST', metadata['token_endpoint'],
+        response = do_request_call('Routing Token', 'POST', metadata['token_endpoint'],
                         headers=headers, data=request.body, verify=settings.API_VERIFY_CERTIFICATE, timeout=settings.API_HTTP_TIMEOUT)
 
         if response.status_code == requests.codes.ok:  # @UndefinedVariable
@@ -72,7 +72,7 @@ class BaikalJWTBearerGrant(oauthlib.oauth2.rfc6749.grant_types.base.GrantTypeBas
     def _generate_token(self, request, token_handler):
         request.refresh_token = None
         request.extra_credentials = None
-        request.token = self._get_operator_token(request)
+        request.token = self._get_routing_token(request)
         if FIELD_SCOPE in request.token:
             request.scopes = request.token[FIELD_SCOPE].split(' ')
         token = token_handler.create_token(request, refresh_token=False)

@@ -61,7 +61,7 @@ class LogMiddleware(MiddlewareMixin):
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         try:
-            logger.debug(view_func.view_class.__name__, extra={'data': get_cleaned_data(view_kwargs)})
+            # logger.debug(view_func.view_class.__name__, extra={'data': get_cleaned_data(view_kwargs)})
             request.view = view_func.view_class.__name__
         except Exception as e:
             logger.error('Error processing view: %s', str(e.args[0]))

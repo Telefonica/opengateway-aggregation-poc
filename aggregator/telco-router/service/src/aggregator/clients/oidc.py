@@ -5,7 +5,7 @@ from cachetools import TTLCache
 from cachetools import cachedmethod
 from django.conf import settings
 
-from aggregator.middleware.baikal import BaikalMiddleware
+from aggregator.middleware.telcorouter import AggregatorMiddleware
 from aggregator.utils.exceptions import log_exception, ServerErrorException
 from aggregator.utils.http import do_request_call
 from aggregator.utils.utils import Singleton
@@ -22,7 +22,7 @@ class OidcClient(object, metaclass=Singleton):
     def get_metadata(self, issuer):
         api_name = 'OIDC Discovery'
         try:
-            headers = {BaikalMiddleware.BAIKAL_CORRELATOR_HEADER: BaikalMiddleware.get_correlator(BaikalMiddleware.get_current_request())}
+            headers = {AggregatorMiddleware.AGGREGATOR_CORRELATOR_HEADER: AggregatorMiddleware.get_correlator(AggregatorMiddleware.get_current_request())}
             response = do_request_call(api_name, 'GET', issuer + settings.OIDC_DISCOVERY_PATH,
                                        headers=headers, verify=settings.OIDC_VERIFY_CERTIFICATE, timeout=settings.OIDC_HTTP_TIMEOUT)
             if response.status_code == requests.codes.ok:  # @UndefinedVariable

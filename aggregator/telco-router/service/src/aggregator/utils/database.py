@@ -64,7 +64,7 @@ class CollectionClass(type):
         return self.get_collection(self.db_client, self.database, self.collection_name)
 
 
-class BaikalCollection(object, metaclass=CollectionClass):
+class AggregatorCollection(object, metaclass=CollectionClass):
     db_client = DBClient
     database = 'default'
     collection_name = None

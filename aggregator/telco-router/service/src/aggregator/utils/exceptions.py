@@ -14,7 +14,7 @@ from aggregator.utils.utils import uncapitalize_first, undot, dot, \
 logger = logging.getLogger(settings.LOGGING_PREFIX)
 
 
-class BaikalException(Exception):
+class AggregatorException(Exception):
 
     def __init__(self, response_code, log_level, code, message=None, description=None):
         super().__init__(message)
@@ -24,7 +24,7 @@ class BaikalException(Exception):
         self.description = description or message
 
 
-class ServerErrorException(BaikalException):
+class ServerErrorException(AggregatorException):
 
     def __init__(self, message):
         super().__init__(500,

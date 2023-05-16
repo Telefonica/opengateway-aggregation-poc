@@ -1,13 +1,10 @@
 import time
 
 from django.conf import settings
-from jwcrypto.jwt import JWT
 from oauthlib.oauth2.rfc6749.tokens import random_token_generator
 
-from aggregator.middleware.baikal import BaikalMiddleware
-from aggregator.oauth2.models import Grant
+from aggregator.middleware.telcorouter import AggregatorMiddleware
 from aggregator.utils.jwe import build_jwe
-from aggregator.utils.jwk import JWKManager
 from aggregator.utils.schemas import FIELD_JTI, FIELD_ISSUER, FIELD_AUDIENCE, FIELD_SCOPES, FIELD_CLIENT_ID, FIELD_EXPIRATION, FIELD_ISSUED_TIME
 
 
@@ -27,6 +24,6 @@ def jwt_token_generator(request):
         FIELD_ISSUED_TIME: now,
         FIELD_EXPIRATION: now + request.token["expires_in"],
         'access_token': request.token["access_token"],
-        'operator': request.operator
+        'routing': request.routing
     }
-    return build_jwe(access_token, BaikalMiddleware.get_correlator(request), settings.JWE_ACCESS_TOKEN_KID)
+    return build_jwe(access_token, AggregatorMiddleware.get_correlator(request), settings.JWE_ACCESS_TOKEN_KID)
