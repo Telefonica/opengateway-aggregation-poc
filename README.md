@@ -1,19 +1,19 @@
 # opengateway-aggregation-poc
 
-OpenGateway proof of concept. It demonstrates how an aggregator (e.g., hyperscaler, operator) can receive requests from an end user / application and forward them to the appropriate operator just using standard OIDC flows and regular CAMARA API calls.
+Open Gateway proof of concept. It demonstrates how an aggregator (e.g., hyperscaler, operator) can receive requests from an end user / application and forward them to the appropriate operator just using standard OIDC flows and regular CAMARA API calls.
+
+## Demo app
+
+The following diagram represents the flow used in this proof of concept, where an end user wants to use a network capability available in a web demo-app. This app was created by a developer that has a contract with an Aggregator. All the interactions between the demo-app and the aggregator is hidden behind a CAMARA SDK.
 
 ![aggregation architecture](./docs/architecture-poc.gif)
 
-This diagram shows the flow used in this proof of concept.
-
-1. The user (but it could be demo-app platform) wants some information handle by CAMARA.
-2. demo-app ask its Telco Authserver of reference in order to get a CAMARA Access Token.
-3. Using the Ipport the Telco Authserver asks the Telco Finder in which Telco that ipport belongs to.
-4. Once the Telco Authserver knowns the ipport Telco asks the Authserver Operator Platform of the user to get an access token.
-5. The access token will be generated and returned to the demo-app.
-6. The final step is to consume the CAMARA API using that access token.
-7. The access token have information about the Telco of the user and the Telco Router could redirect que API query to the corresponding apigateway.
-8. The result will return to the demo-app
+1. The demo-app requests an access token to the Aggregator.
+2. Using the user identifier (IP and port in this PoC), the Aggregator's authserver queries the Telco Finder to determine which Operator the user belongs to.
+3. Once the Telco's authserver knows the Operator, it requests a 3-legged access token from the Operator Platform's authserver.
+4. An encrypted access token (JWT) is generated and returned to the demo-app.
+5. The demo-app consumes the CAMARA API using the access token. The access token contains routing information, so the Telco Router is able to forward the API call to the Operator Platform's API gateway.
+6. The result is returned to the demo-app.
 
 ## How to run it
 
@@ -21,7 +21,7 @@ To run the environment, you only need to have Docker installed.
 
 ### Create the environment
 
-Execute in your terminal the following command (Docker is required):
+Execute the following command (Docker is required):
 
 ```sh
 docker-compose up --build
@@ -31,7 +31,14 @@ That starts a demo app and **two aggregators**:
 1. Telefónica
 2. Vodafone acting as aggregator for the developer. This means that it is the only point of contact for the app.
 
-Now you can open the **demo-app** at http://localhost:3000 and simulate an app wants to call the Device Location Verification API for end users that are clients of Telefónica or Vodafone.
+Now you can open the **demo-app** at http://localhost:3000 and simulate an app that calls the Device Location Verification API for end users that are Telefónica or Vodafone customers.
+
+# TODO
+
+- Add consent gathering support (already implemented and in production since MWC 2023)
+- Evolve Telco Finder to implement [standard webfinger protocol](https://www.rfc-editor.org/rfc/rfc7033#section-3.1).
+- Add Administration API to provision apps (already implemented and in production since MWC 2023)
+- ...
 
 # License
 
