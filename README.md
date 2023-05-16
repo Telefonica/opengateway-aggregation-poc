@@ -38,6 +38,7 @@ Now you can open the **demo-app** at http://localhost:3000 and simulate an app t
 - Add consent gathering support (already implemented and in production since MWC 2023)
 - Evolve Telco Finder to implement [standard webfinger protocol](https://www.rfc-editor.org/rfc/rfc7033#section-3.1).
 - Add Administration API to provision apps (already implemented and in production since MWC 2023)
+- Add credentials management based on private_key_jwt.
 - ...
 
 # License
