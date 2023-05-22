@@ -178,7 +178,7 @@ COMPONENT = 'AUTHSERVER'
 BRANDING = os.getenv('OPERATOR_ID', None)
 
 AUTHSERVER_HOST = os.getenv('HOST', 'http://127.0.0.1:9010')
-AUTHSERVER_PATH_PREFIX = 'es/'
+AUTHSERVER_PATH_PREFIX = ''
 AUTHSERVER_ISSUER = f'{AUTHSERVER_HOST}/{AUTHSERVER_PATH_PREFIX}oauth2/authorize'
 AUTHSERVER_AUDIENCES = [AUTHSERVER_ISSUER]
 if os.getenv('ADDITIONAL_AUDIENCES') is not None:
@@ -225,14 +225,14 @@ AVAILABLE_SCOPES = ['openid', 'phone']
 JTI_TTL = 7 * 86400
 
 DISCOVERY = {
-    # 'issuer': f'{AUTHSERVER_HOST}/es/oauth2/authorize',
-    # 'authorization_endpoint': f'{AUTHSERVER_HOST}/es/oauth2/authorize',
-    # 'revocation_endpoint': f'{AUTHSERVER_HOST}/es/oauth2/revoke',
-    # 'token_endpoint': f'{AUTHSERVER_HOST}/es/oauth2/token',
-    # 'introspection_endpoint': f'{AUTHSERVER_HOST}/es/oauth2/introspect',
-    # 'backchannel_authentication_endpoint': f'{AUTHSERVER_HOST}/es/oauth2/bc-authorize',
-    # 'jwks_uri': f'{AUTHSERVER_HOST}/es/jwks.json',
-    # 'userinfo_endpoint': f'{AUTHSERVER_HOST}/es/userinfo',
+    # 'issuer': f'{AUTHSERVER_HOST}/{AUTHSERVER_PATH_PREFIX}oauth2/authorize',
+    # 'authorization_endpoint': f'{AUTHSERVER_HOST}/{AUTHSERVER_PATH_PREFIX}oauth2/authorize',
+    # 'revocation_endpoint': f'{AUTHSERVER_HOST}/{AUTHSERVER_PATH_PREFIX}oauth2/revoke',
+    # 'token_endpoint': f'{AUTHSERVER_HOST}/{AUTHSERVER_PATH_PREFIX}oauth2/token',
+    # 'introspection_endpoint': f'{AUTHSERVER_HOST}/{AUTHSERVER_PATH_PREFIX}oauth2/introspect',
+    # 'backchannel_authentication_endpoint': f'{AUTHSERVER_HOST}/{AUTHSERVER_PATH_PREFIX}oauth2/bc-authorize',
+    # 'jwks_uri': f'{AUTHSERVER_HOST}/{AUTHSERVER_PATH_PREFIX}jwks.json',
+    # 'userinfo_endpoint': f'{AUTHSERVER_HOST}/{AUTHSERVER_PATH_PREFIX}userinfo',
     'grant_types_supported': ['authorization_code', 'client_credentials', 'refresh_token', 'urn:ietf:params:oauth:grant-type:jwt-bearer'],
     'token_endpoint_auth_methods_supported': ['client_secret_post', 'client_secret_basic', 'private_key_jwt'],
     'revocation_endpoint_auth_methods_supported': ['client_secret_post', 'client_secret_basic', 'private_key_jwt'],

@@ -1,10 +1,10 @@
 import hashlib
+import time
 from base64 import urlsafe_b64encode
 from datetime import datetime
 from datetime import timedelta
 from urllib.parse import urlencode
 
-import time
 from django.conf import settings
 from django.test.client import Client
 from freezegun.api import datetime_to_fakedatetime, FakeDatetime
@@ -206,7 +206,7 @@ class TokenTestCase(BasicTestCase):
             'exp': now + 300,
             'aud': ['68399c5b-3cfa-4348-9f96-33d379077d71'],
             'azp': '68399c5b-3cfa-4348-9f96-33d379077d71',
-            'iss': f'{settings.AUTHSERVER_HOST}/es/oauth2/authorize'
+            'iss': f'{settings.AUTHSERVER_HOST}/{settings.AUTHSERVER_PATH_PREFIX}oauth2/authorize'
         }
 
         overwrite_dict(id_token, kwargs)

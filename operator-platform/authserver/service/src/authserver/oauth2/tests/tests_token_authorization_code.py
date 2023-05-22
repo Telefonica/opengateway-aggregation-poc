@@ -57,7 +57,7 @@ class AuthorizationCodeTokenTestCase(TokenTestCase):
             'client_id': '68399c5b-3cfa-4348-9f96-33d379077d71',
             'exp': int(now) + 600,
             'iat': int(now),
-            'iss': f'{settings.AUTHSERVER_HOST}/es/oauth2/authorize',
+            'iss': f'{settings.AUTHSERVER_HOST}/{settings.AUTHSERVER_PATH_PREFIX}oauth2/authorize',
             'scopes': ['openid', 'phone'],
             'sub': USER_PCR['_id'],
             'uid': USER_PCR['user']

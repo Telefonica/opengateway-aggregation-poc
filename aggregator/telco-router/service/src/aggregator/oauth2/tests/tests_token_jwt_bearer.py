@@ -49,7 +49,7 @@ class JwtBearerTokenTestCase(TokenTestCase):
 
         assertion = {
             'iss': APPLICATION['_id'],
-            'aud': f'{settings.AGGREGATOR_HOST}/es/',
+            'aud': f'{settings.AGGREGATOR_HOST}/{settings.AGGREGATOR_PATH_PREFIX}',
             'jti': str(uuid4()),
             'iat': int(now),
             'exp': int(now) + 300,

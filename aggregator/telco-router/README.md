@@ -30,7 +30,7 @@ $ python manage.py runserver 0.0.0.0:10010 --noreload --settings=aggregator.sett
 You can check your server installation by accessing to the Aggregator´s OpenID Connect Discovery metadata:
 
 ```sh
-$ curl http://127.0.0.1:10010/es/oauth2/.well-known/openid-configuration
+$ curl http://127.0.0.1:10010/oauth2/.well-known/openid-configuration
 ```
 
 #### Testing
@@ -81,7 +81,7 @@ $ python manage.py test --settings=aggregator.devtest_settings
 ```json
 {
   "iss": "73902489-c201-4819-bdf9-3708a484fe21", 
-  "aud": "http://127.0.0.1:10010/es/oauth2/authorize", 
+  "aud": "http://127.0.0.1:10010/oauth2/authorize", 
   "jti": "70d9ee54-70b7-415e-a410-05f018cbc080", 
   "iat": 1682666155, 
   "exp": 1682666455, 

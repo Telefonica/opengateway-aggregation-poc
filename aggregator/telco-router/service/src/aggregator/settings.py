@@ -177,7 +177,7 @@ COMPONENT = 'AGGREGATOR'
 BRANDING = os.getenv('OPERATOR_ID', None)
 
 AGGREGATOR_HOST = os.getenv('HOST', 'http://127.0.0.1:10010')
-AGGREGATOR_PATH_PREFIX = 'es/'
+AGGREGATOR_PATH_PREFIX = ''
 AGGREGATOR_ISSUER = f'{AGGREGATOR_HOST}/{AGGREGATOR_PATH_PREFIX}'
 AGGREGATOR_KID = 'telcorouter'
 AGGREGATOR_JWKS_URI = None
@@ -220,9 +220,9 @@ AVAILABLE_SCOPES = ['openid', 'phone']
 JTI_TTL = 7 * 86400
 
 DISCOVERY = {
-    # 'issuer': f'{AGGREGATOR_HOST}/es',
-    # 'token_endpoint': f'{AGGREGATOR_HOST}/es/oauth2/token',
-    # 'jwks_uri': f'{AGGREGATOR_HOST}/es/jwks.json',
+    # 'issuer': f'{AGGREGATOR_HOST}',
+    # 'token_endpoint': f'{AGGREGATOR_HOST}/{AGGREGATOR_PATH_PREFIX}oauth2/token',
+    # 'jwks_uri': f'{AGGREGATOR_HOST}/{AGGREGATOR_PATH_PREFIX}jwks.json',
     'grant_types_supported': ['urn:ietf:params:oauth:grant-type:jwt-bearer'],
     'token_endpoint_auth_methods_supported': ['private_key_jwt'],
     'subject_types_supported': ['pairwise'],
