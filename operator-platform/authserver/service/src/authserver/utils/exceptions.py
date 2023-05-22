@@ -6,7 +6,7 @@ from django.conf import settings
 from django.http.response import HttpResponse
 from oauthlib.oauth2.rfc6749 import errors
 from rest_framework.exceptions import MethodNotAllowed, ParseError, \
-    UnsupportedMediaType, NotAcceptable
+    UnsupportedMediaType, NotAcceptable, AuthenticationFailed, NotAuthenticated, PermissionDenied
 
 from authserver.utils.utils import uncapitalize_first, undot, dot, \
     capitalize_first
@@ -173,7 +173,12 @@ def api_exception_handler(exc, context):
         return api_exception_handler(InvalidParameterValueError(exc.detail), context)
     elif isinstance(exc, NotAcceptable):
         return api_exception_handler(errors.CustomOAuth2Error('invalid_request', status_code=406, description=exc.detail), context)
+    elif isinstance(exc, AuthenticationFailed) or isinstance(exc, NotAuthenticated):
+        return api_exception_handler(errors.InvalidRequestError(exc.detail), context)
+    elif isinstance(exc, PermissionDenied):
+        return api_exception_handler(errors.InsufficientScopeError(exc.detail), context)
     else:
+        log_exception(exc)
         return api_exception_handler(errors.CustomOAuth2Error('server_error', status_code=500), context)
 
 

@@ -110,7 +110,7 @@ SESSION_COOKIE_NAME = 'authserverid'
 CSRF_COOKIE_NAME = 'authservercsrftoken'
 CSRF_COOKIE_SECURE = True
 
-AUTHENTICATION_BACKENDS = []
+AUTHENTICATION_BACKENDS = ('authserver.backends.authentication.AuthBackend',)
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'authserver.utils.exceptions.api_exception_handler'

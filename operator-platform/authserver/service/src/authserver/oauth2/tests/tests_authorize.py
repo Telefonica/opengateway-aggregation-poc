@@ -175,7 +175,6 @@ class AuthorizationCodeOKTestCase(AuthorizationCodeTestCase):
         self.assertIn('state', redirect_params)
 
 
-
 class AuthorizationCodeErrorTestCase(AuthorizationCodeTestCase):
 
     def test_invalid_method(self):

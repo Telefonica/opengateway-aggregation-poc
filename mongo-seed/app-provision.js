@@ -32,4 +32,32 @@ db.apps.replaceOne(
     {
         upsert: true
     }
-)
+);
+
+db.apps.replaceOne(
+    {
+        _id : "4d019263-3ff0-4d0e-a48a-5b3d877038dc"
+    },
+    {
+        _id : "4d019263-3ff0-4d0e-a48a-5b3d877038dc",
+        consumer_secret : "4222fddd-64b6-4452-b24e-23caae9ccc08",
+        name : "Aggregator",
+        description : "Aggregator for testing",
+        developer : {
+            email : "jeandupont@demoapp.com",
+            name : "Jean Dupont Developer"
+        },
+        status : "active",
+        grants : [
+            {
+                grant_type : "basic",
+                scopes : [
+                    "admin:apps:create"
+                ]
+            }
+        ]
+    },
+    {
+        upsert: true
+    }
+);

@@ -28,6 +28,22 @@ jwt_secrets:
       -----END PUBLIC KEY-----
 
 services:
+  - name: authserver-admin-api
+    url: http://operator-platform-authserver-2:9020
+    plugins:
+      - name: jwt
+      - name: request-transformer
+        config:
+          replace:
+            headers: [ "Authorization: Basic NGQwMTkyNjMtM2ZmMC00ZDBlLWE0OGEtNWIzZDg3NzAzOGRjOjQyMjJmZGRkLTY0YjYtNDQ1Mi1iMjRlLTIzY2FhZTljY2MwOA==" ]
+      - name: log-signature
+        config:
+          path: /opt/logs/authserver-2-request.log
+    routes:
+      - name: admin
+        strip_path: false
+        paths:
+          - /api/admin
   - name: camara
     url: http://operator-platform-camara-apis-2:8002
     plugins:

@@ -327,10 +327,12 @@ class ApplicationCollection(BaikalCollection):
 
     @classmethod
     def get_sector_identifier(cls, app):
-        url = app.get(cls.FIELD_SECTOR_IDENTIFIER_URI, app[cls.FIELD_REDIRECT_URI])
-        url = url[0] if isinstance(url, list) else url
-        p = urlparse(url)
-        return p.netloc
+        url = app.get(cls.FIELD_SECTOR_IDENTIFIER_URI, app.get(cls.FIELD_REDIRECT_URI, None))
+        if url:
+            url = url[0] if isinstance(url, list) else url
+            p = urlparse(url)
+            return p.netloc
+        return None
 
     @classmethod
     def get_cache_key(cls, client_id):
