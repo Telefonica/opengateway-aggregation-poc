@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "78a0c241-1729-4ab8-bf5b-a87398e5d97c",
+		"_postman_id": "def4008e-322f-4e09-8002-b8e9ec5348b4",
 		"name": "Opengateway Aggregation",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "1194541"
+		"_exporter_id": "2268836"
 	},
 	"item": [
 		{
@@ -39,7 +39,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"sub\":\"ipport:83.58.58.57\",\n    \"aud\":\"http://aggregator-telco-router-2:3322/es/\",\n    \"iss\":\"73902489-c201-4819-bdf9-3708a484fe21\",\n    \"jti\":\"89a06c71-5d6b-42c8-bdcc-af3c49a33fe6\",\n    \"scope\": \"device-location-verification-verify-read\",\n    \"exp\":1683813270,\n    \"iat\":1683813210\n}",
+					"raw": "{\n    \"sub\":\"ipport:83.58.58.57\",\n    \"aud\":\"http://aggregator-telco-router-2:3322/\",\n    \"iss\":\"73902489-c201-4819-bdf9-3708a484fe21\",\n    \"jti\":\"89a06c71-5d6b-42c8-bdcc-af3c49a33fe6\",\n    \"scope\": \"device-location-verification-verify-read\",\n    \"exp\":1683813270,\n    \"iat\":1683813210\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -94,7 +94,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"sub\":\"73902489-c201-4819-bdf9-3708a484fe21\",\n    \"iss\":\"73902489-c201-4819-bdf9-3708a484fe21\",\n    \"aud\":\"http://aggregator-telco-router-2:3322/es/\",\n    \"jti\":\"d4f4aac4-bc29-4f10-92c8-af5b1da99a5c\",\n    \"exp\":1683813270,\n    \"iat\":1683813210\n}",
+					"raw": "{\n    \"sub\":\"73902489-c201-4819-bdf9-3708a484fe21\",\n    \"iss\":\"73902489-c201-4819-bdf9-3708a484fe21\",\n    \"aud\":\"http://aggregator-telco-router-2:3322/\",\n    \"jti\":\"d4f4aac4-bc29-4f10-92c8-af5b1da99a5c\",\n    \"exp\":1683813270,\n    \"iat\":1683813210\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -173,14 +173,13 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:3322/es/oauth2/token",
+					"raw": "http://localhost:3322/oauth2/token",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "3322",
 					"path": [
-						"es",
 						"oauth2",
 						"token"
 					]
@@ -213,14 +212,13 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3322/es/api/device-location-verification/v1/verify",
+					"raw": "http://localhost:3322/api/device-location-verification/v1/verify",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "3322",
 					"path": [
-						"es",
 						"api",
 						"device-location-verification",
 						"v1",

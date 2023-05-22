@@ -206,7 +206,7 @@ class TokenTestCase(BasicTestCase):
             'exp': now + 300,
             'aud': ['68399c5b-3cfa-4348-9f96-33d379077d71'],
             'azp': '68399c5b-3cfa-4348-9f96-33d379077d71',
-            'iss': f'{settings.AGGREGATOR_HOST}/es/oauth2/authorize'
+            'iss': f'{settings.AGGREGATOR_HOST}/{settings.AGGREGATOR_PATH_PREFIX}oauth2/authorize'
         }
 
         overwrite_dict(id_token, kwargs)

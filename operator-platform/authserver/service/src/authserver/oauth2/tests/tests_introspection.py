@@ -103,7 +103,7 @@ class IntrospectTokenOKTestCase(IntrospectTokenTestCase):
         response = self.do_instrospection(self.get_token_request_parameters(**{'token': self.token['access_token']}), self.get_default_headers())
         token = self.assertTokenOK(response)
 
-        self.assertEqual(token['iss'], f'{settings.AUTHSERVER_HOST}/es/oauth2/authorize')
+        self.assertEqual(token['iss'], f'{settings.AUTHSERVER_HOST}/{settings.AUTHSERVER_PATH_PREFIX}oauth2/authorize')
         self.assertEqual(token['scope'], ' '.join(self.token['scopes']))
         self.assertEqual(token['client_id'], APPLICATION['_id'])
         self.assertEqual(token['aud'], [APPLICATION['_id']])
@@ -116,7 +116,7 @@ class IntrospectTokenOKTestCase(IntrospectTokenTestCase):
         response = self.do_instrospection(self.get_token_request_parameters(**{'token': self.cc_token['access_token']}), self.get_default_headers())
         token = self.assertTokenOK(response)
 
-        self.assertEqual(token['iss'], f'{settings.AUTHSERVER_HOST}/es/oauth2/authorize')
+        self.assertEqual(token['iss'], f'{settings.AUTHSERVER_HOST}/{settings.AUTHSERVER_PATH_PREFIX}oauth2/authorize')
         self.assertEqual(token['scope'], ' '.join(self.cc_token['scopes']))
         self.assertEqual(token['client_id'], APPLICATION['_id'])
         self.assertEqual(token['aud'], [APPLICATION['_id']])
@@ -138,7 +138,7 @@ class IntrospectTokenOKTestCase(IntrospectTokenTestCase):
             **{'token': self.token['refresh_token'], 'token_type_hint': 'refresh_token'}), self.get_default_headers())
         token = self.assertTokenOK(response)
 
-        self.assertEqual(token['iss'], f'{settings.AUTHSERVER_HOST}/es/oauth2/authorize')
+        self.assertEqual(token['iss'], f'{settings.AUTHSERVER_HOST}/{settings.AUTHSERVER_PATH_PREFIX}oauth2/authorize')
         self.assertEqual(token['scope'], ' '.join(self.token['scopes']))
         self.assertEqual(token['client_id'], APPLICATION['_id'])
         self.assertEqual(token['aud'], [APPLICATION['_id']])

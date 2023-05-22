@@ -165,7 +165,7 @@ class BasicTestCase(AuthserverTestCase):
         return {
             'iss': APPLICATION['_id'],
             'sub': APPLICATION['_id'],
-            'aud': f'{settings.AUTHSERVER_HOST}/es/oauth2/authorize',
+            'aud': f'{settings.AUTHSERVER_HOST}/{settings.AUTHSERVER_PATH_PREFIX}oauth2/authorize',
             'jti': str(uuid4()),
             'iat': int(now),
             'exp': int(now) + 300

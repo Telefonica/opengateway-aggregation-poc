@@ -83,7 +83,7 @@ class CibaTestCase(BasicTestCase):
             'identifier_type': 'phone_number',
             'identifier': '+34618051526',
             'iss': 'https://www.foo.bar',
-            'aud': f'{settings.AUTHSERVER_HOST}/es/oauth2/authorize',
+            'aud': f'{settings.AUTHSERVER_HOST}/{settings.AUTHSERVER_PATH_PREFIX}oauth2/authorize',
             'jti': str(uuid4()),
             'iat': int(now),
             'exp': int(now) + 300,

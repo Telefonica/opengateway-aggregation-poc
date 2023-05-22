@@ -10,7 +10,7 @@ jwt_secrets:
   - consumer: johndoe
     algorithm: RS256
     # issuer
-    key: http://operator-platform-authserver-2:9020/es/oauth2/authorize
+    key: http://operator-platform-authserver-2:9020/oauth2/authorize
     rsa_public_key: |-
       -----BEGIN PUBLIC KEY-----
       MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA5LTYjBvFD7Zdz8/gP/Yr
