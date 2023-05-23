@@ -75,10 +75,7 @@ class ApplicationView(JSONBasicAuthenticatedView):
         except Exception as e:
             logger.warning('Error processing application: %s', str(e.args[0]))
             raise InvalidParameterValueError(message=str(e.args[0]))
-        try:
-            update_result = ApplicationCollection.update(application)
-        except Exception as e:
-            raise ServerError()
+        update_result = ApplicationCollection.update(application)
         if update_result is None:
             raise NotFoundError(request.path)
         return build_response({"Content-Type": "application/json"},
@@ -110,8 +107,6 @@ class ApplicationsView(JSONBasicAuthenticatedView):
             result = ApplicationCollection.insert(application)
         except DuplicateKeyError as dke:
             raise ConflictError(f'{request.path}/{application[ApplicationCollection.FIELD_ID]}')
-        except Exception as e:
-            raise ServerError()
         return build_response({
             "Content-Type": "application/json",
             "Location": f'{request.scheme}://{request.headers.get("Host")}{reverse("applications")}/'
