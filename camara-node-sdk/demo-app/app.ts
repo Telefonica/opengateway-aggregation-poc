@@ -2,9 +2,11 @@ import express from 'express';
 import cookieSession from 'cookie-session';
 import { v4 as uuid } from 'uuid';
 import jose from 'node-jose';
+import { createHash } from 'node:crypto'
 import Camara from 'camara-node-sdk';
 import { CamaraSetup } from 'camara-node-sdk/lib/setup';
 import DeviceLocationVerificationClient from 'camara-node-sdk/clients/DeviceLocationVerificationClient';
+import NumberVerificationClient from 'camara-node-sdk/clients/NumberVerificationClient';
 import AuthserverClient, { AuthorizeCallbackParams, AuthorizeSession, TokenSet } from 'camara-node-sdk/clients/AuthserverClient';
 
 /////////////////////////////////////////////////
@@ -14,6 +16,7 @@ import AuthserverClient, { AuthorizeCallbackParams, AuthorizeSession, TokenSet }
 const camaraSetup: CamaraSetup = Camara.setup();
 const authserverClient: AuthserverClient = camaraSetup.authserverClient;
 const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
+const numberVerificationClient = new NumberVerificationClient();
 
 const app = express();
 
@@ -99,24 +102,28 @@ app.get('/jwtbearer/verify', async (req, res, next) => {
 /**
  * Calculate authorize url and redirect to it in order to retrive a Oauth2 code.
  */
-app.get('/authcode/verify', async (req, res, next) => {
+app.get('/authcode/numberverify', async (req, res, next) => {
 
   const state = req.query.state ?? '';
 
+  if (!req.session?.login || !req.session.login.phonenumber) {
+    return res.redirect('/logout');
+  }
+  const phonenumber = req.session.login.phonenumber;
   try {
 
     // We check if we already have an access token. If we have one, we call the API using it.
     if (req.session && req.session.token) {
-      const location = await deviceLocationVerificationClient.verify(
-        { coordinates: { longitude: 3.8044, latitude: 42.3408 } },
+      const verification = await numberVerificationClient.verify(
+        { hashed_phone_number: createHash('sha256').update(phonenumber).digest('hex')},
         {
           getToken: () => req.session?.token?.access_token,
         }
       );
   
       res.render('pages/verify', { 
-        phonenumber: req.session?.login?.phonenumber,
-        result: JSON.stringify(location, null, 4),
+        phonenumber,
+        result: JSON.stringify(verification, null, 4),
         state: uuid()
       });
     }
@@ -127,7 +134,7 @@ app.get('/authcode/verify', async (req, res, next) => {
       console.warn('Not valid session')
       return res.redirect('/logout');
     } 
-    req.session.operation = "verify";
+    req.session.operation = "numberVerify";
 
     // Set the right scopes, redirect_uri and state to perform the flow.
     const authorizeParams: any = {
@@ -158,6 +165,12 @@ app.get('/authcode/verify', async (req, res, next) => {
 app.get('/authcode/callback', async (req, res, next) => {
 
   try {
+
+    const phonenumber = req.session?.login.phonenumber;
+    if (!phonenumber) {
+      console.warn('Phonenumber not found. Please, complete the flow again.');
+      return res.redirect('/logout');
+    }
 
     // Get code, state parameters to request an access token.
     const code = req.query.code as string;
@@ -190,18 +203,18 @@ app.get('/authcode/callback', async (req, res, next) => {
     // We store the token in the session for future uses
     if (req.session) req.session.token = tokenSet;
   
-    if ( operation === "verify") {
+    if ( operation === "numberVerify") {
       // We call the API using the access_token and render the view.
-      const location = await deviceLocationVerificationClient.verify(
-        { coordinates: { longitude: 3.8044, latitude: 42.3408 } },
+      const verification = await numberVerificationClient.verify(
+        { hashed_phone_number: createHash('sha256').update(phonenumber).digest('hex')},
         {
           getToken: () => req.session?.token?.access_token,
         }
       );
   
       res.render('pages/verify', { 
-        phonenumber: req.session?.login?.phonenumber,
-        result: JSON.stringify(location, null, 4),
+        phonenumber,
+        result: JSON.stringify(verification, null, 4),
         state: uuid()
       });
     }

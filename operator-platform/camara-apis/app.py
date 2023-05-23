@@ -16,6 +16,12 @@ def devicelocation():
     }
     return jsonify(dummmy_response_data)
 
+@app.route('/number-verification-rc/v1/verify-hashed', methods=['POST'])
+def devicelocation():
+    dummmy_response_data = {
+        "device_phone_number_verified": "match"
+    }
+    return jsonify(dummmy_response_data)
 
 @app.route('/healthz')
 def healthz():
