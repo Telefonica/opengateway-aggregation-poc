@@ -1,15 +1,18 @@
-import DeviceLocationVerificationClient from 'camara-node-sdk/clients/DeviceLocationVerificationClient';
 import express from 'express';
 import cookieSession from 'cookie-session';
-import Camara from 'camara-node-sdk';
 import { v4 as uuid } from 'uuid';
 import jose from 'node-jose';
+import Camara from 'camara-node-sdk';
+import { CamaraSetup } from 'camara-node-sdk/lib/setup';
+import DeviceLocationVerificationClient from 'camara-node-sdk/clients/DeviceLocationVerificationClient';
+import AuthserverClient, { AuthorizeCallbackParams, AuthorizeSession, TokenSet } from 'camara-node-sdk/clients/AuthserverClient';
 
 /////////////////////////////////////////////////
 // Initialize the SDK offering networking services (device location verification in the example)
 // When the aggregator is an hyperscaler, this could be its own SDK (e.g., Azure SDK)
 /////////////////////////////////////////////////
-Camara.setup();
+const camaraSetup: CamaraSetup = Camara.setup();
+const authserverClient: AuthserverClient = camaraSetup.authserverClient;
 const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
 
 const app = express();
@@ -22,9 +25,9 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
 app.get('/', (req, res) => {
-  const userLogged = req.session?.login?.username;
+  const userLogged = req.session?.login?.phonenumber;
   if (userLogged) {
-    res.render('pages/verify', {username: req.session?.login?.username, result:''});
+    res.render('pages/verify', {phonenumber: req.session?.login?.phonenumber, result:'', state: uuid()});
   } else {
     res.render('pages/login');
   }
@@ -35,7 +38,7 @@ app.post('/login', (req, res) => {
   console.log(JSON.stringify(body))
   req.session = req.session || {}
   req.session.login = {
-    username: body.username || "John Doe",
+    phonenumber: body.phonenumber || "+3462534724337623",
     ipport: body.ipport
   }
   res.redirect('/')
@@ -49,10 +52,10 @@ app.get('/logout', (req, res) => {
   res.redirect('/')
 });
 
-app.get('/verify', async (req, res, next) => {
+app.get('/jwtbearer/verify', async (req, res, next) => {
   console.log('/verify', req.session);
 
-  if (!req.session?.login?.username) {
+  if (!req.session?.login?.phonenumber) {
     res.redirect('/')
   } else {
     try {
@@ -77,10 +80,133 @@ app.get('/verify', async (req, res, next) => {
       const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
       const location = await deviceLocationVerificationClient.verify(params, { session: req.session.camara }
       );
-      res.render('pages/verify', {username: req.session?.login?.username, result: JSON.stringify(location, null, 4)});
+      res.render('pages/verify', { 
+        phonenumber: req.session?.login?.phonenumber,
+        result: JSON.stringify(location, null, 4),
+        state: uuid()
+      });
     } catch (err) {
       next(err);
     }
+  }
+});
+
+
+/**
+ * Authcode Section
+ */
+
+/**
+ * Calculate authorize url and redirect to it in order to retrive a Oauth2 code.
+ */
+app.get('/authcode/verify', async (req, res, next) => {
+
+  const state = req.query.state ?? '';
+
+  try {
+
+    // We check if we already have an access token. If we have one, we call the API using it.
+    if (req.session && req.session.token) {
+      const location = await deviceLocationVerificationClient.verify(
+        { coordinates: { longitude: 3.8044, latitude: 42.3408 } },
+        {
+          getToken: () => req.session?.token?.access_token,
+        }
+      );
+  
+      res.render('pages/verify', { 
+        phonenumber: req.session?.login?.phonenumber,
+        result: JSON.stringify(location, null, 4),
+        state: uuid()
+      });
+    }
+
+
+    // Store the operation in the session
+    if (!req.session) {
+      console.warn('Not valid session')
+      return res.redirect('/logout');
+    } 
+    req.session.operation = "verify";
+
+    // Set the right scopes, redirect_uri and state to perform the flow.
+    const authorizeParams: any = {
+      scope: 'device-location-verification-verify-read',
+      redirect_uri: `http://localhost:3000/authcode/callback`,
+    };
+    if (state) {
+      authorizeParams.state = state;
+    }
+
+    // Retrieve the authorized url and the session data.
+    const { url, session } = await authserverClient.authorize(authorizeParams);
+    // Store the sessión data in the session
+    req.session.oauth = session;
+
+    // Redirect to the Authorize Endpoint.
+    // res.redirect(url);
+    res.status(200).json({ url, session });
+  } catch (err) {
+    next(err);
+  }
+
+});
+
+/**
+ * Get an access_token by using a code and perform the API call. Callback url mus be configured in the application redirect_uri.
+ */
+app.get('/authcode/callback', async (req, res, next) => {
+
+  try {
+
+    // Get code, state parameters to request an access token.
+    const code = req.query.code as string;
+    if (!code) {
+      console.warn('Code not found. Please, complete the flow again.');
+      return res.redirect('/logout');
+    }
+  
+    const state = req.session?.oauth?.state;
+  
+    // Recover the operation from the previous step in order to perform the API call.
+    const operation = req.session?.operation;
+    if (!operation) {
+      console.warn('Operation undefined. Please, complete the flow again.');
+      return res.redirect('/logout');
+    }
+  
+    // Build the Callback Parameters
+    const params: AuthorizeCallbackParams = { code: code };
+    if (state) {
+      params.state = req.session?.oauth?.state;
+    }
+  
+    // Recover the Authorized sessión from the previous step.
+    const authorizeSession: AuthorizeSession = req.session?.oauth;
+  
+    // We get the access_token and other information such as refresh_token, id_token, etc....
+    const tokenSet: TokenSet = await authserverClient.getAuthorizationCodeToken(params, authorizeSession);
+  
+    // We store the token in the session for future uses
+    if (req.session) req.session.token = tokenSet;
+  
+    if ( operation === "verify") {
+      // We call the API using the access_token and render the view.
+      const location = await deviceLocationVerificationClient.verify(
+        { coordinates: { longitude: 3.8044, latitude: 42.3408 } },
+        {
+          getToken: () => req.session?.token?.access_token,
+        }
+      );
+  
+      res.render('pages/verify', { 
+        phonenumber: req.session?.login?.phonenumber,
+        result: JSON.stringify(location, null, 4),
+        state: uuid()
+      });
+    }
+  } catch(err) {
+    next(err);
   }
 });
 
@@ -97,6 +223,10 @@ app.get('/api/jwks', async (req, res, next) => {
   }
 });
 
+
+/**
+ * JWT Bearer POSTMan Helper Endpoint. Helps to retrieve signed assertions.
+ */
 app.post('/api/assertion', async (req, res, next) => {
   const now = Math.floor(Date.now() / 1000);
   const jwtPayload: JWT = {

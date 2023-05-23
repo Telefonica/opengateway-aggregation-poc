@@ -35,11 +35,20 @@
         </p>
       </div>
     <hr/>
-    <p>You are logged as: <b><%= username %></b></p>
+    <p>You are logged as: <b><%= phonenumber %></b></p>
     <div class="container">
       <div class="row">
         <div class="col">
-          <a class="btn btn-primary" href="/verify">Verify Device Location</a>
+          <a class="btn btn-primary" href="/jwtbearer/verify">
+            Device Location Verification<br/>
+            JWT Bearer
+          </a>
+        </div>
+        <div class="col">
+          <a class="btn btn-primary" href="/authcode/verify?state=<%= state %>">
+            Device Location Verification<br/>
+            Authorization Code
+          </a>
         </div>
         <div class="col">
             <a class="btn btn-warning" href="/logout">Logout</a>          
