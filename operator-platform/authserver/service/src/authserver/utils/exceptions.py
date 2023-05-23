@@ -103,6 +103,14 @@ class NotFoundError(errors.FatalClientError):
         super().__init__(description=f'Resource {resource} does not exist.', **kwargs)
 
 
+class ConflictError(errors.FatalClientError):
+    status_code = 409
+    error = 'invalid_request'
+
+    def __init__(self, resource, **kwargs):
+        super().__init__(description=f'Resource {resource} is conflicting.', **kwargs)
+
+
 class InvalidParameterValueError(errors.InvalidRequestError):
 
     def __init__(self, parameter=None, message=None, **kwargs):

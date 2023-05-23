@@ -6,6 +6,7 @@ from .utils.views import Handler404
 
 urlpatterns = [
     re_path(r'^' + settings.AUTHSERVER_PATH_PREFIX + 'oauth2', include('authserver.oauth2.urls')),
+    re_path(r'^' + settings.AUTHSERVER_PATH_PREFIX + 'api/admin', include('authserver.admin.urls')),
     re_path(r'health/', include('authserver.health.urls')),
 ]
 

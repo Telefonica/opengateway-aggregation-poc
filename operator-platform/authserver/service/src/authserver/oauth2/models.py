@@ -304,6 +304,10 @@ class ApplicationCollection(BaikalCollection):
     FIELD_STATUS_VALUE_ACTIVE = 'active'
 
     @classmethod
+    def insert(cls, application):
+        return cls.objects.insert_one(application)
+
+    @classmethod
     def find_one_by_id(cls, client_id, cached=True):
         key = cls.get_cache_key(client_id)
 
@@ -324,6 +328,20 @@ class ApplicationCollection(BaikalCollection):
             cache.set(key, app)
 
         return app
+
+    @classmethod
+    def update(cls, application):
+        app = cls.objects.find_one({cls.FIELD_ID: application[cls.FIELD_ID]})
+        if app is None:
+            return None
+        return cls.objects.update_one({cls.FIELD_ID: application[cls.FIELD_ID]}, {'$set': application}, upsert=False)
+
+    @classmethod
+    def remove(cls, client_id):
+        app = cls.objects.find_one({cls.FIELD_ID: client_id})
+        if app is None:
+            return None
+        return cls.objects.delete_one({cls.FIELD_ID: client_id})
 
     @classmethod
     def get_sector_identifier(cls, app):
