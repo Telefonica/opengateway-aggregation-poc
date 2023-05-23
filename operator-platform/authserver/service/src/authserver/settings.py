@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'authserver.admin',
     'authserver.oauth2',
     'authserver.health'
 ]

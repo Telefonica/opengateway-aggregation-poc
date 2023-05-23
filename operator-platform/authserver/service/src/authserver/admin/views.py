@@ -12,7 +12,7 @@ from authserver.oauth2.baikal.validators import BaikalRequestValidator
 from authserver.utils.exceptions import NotFoundError, ServerError, ConflictError, InvalidParameterValueError
 from authserver.utils.parsers import object_pairs_hook
 from authserver.utils.schemas import APPLICATION_VALIDATOR
-from authserver.utils.views import publish_to_middleware
+from authserver.utils.views import publish_to_middleware, JSONBasicAuthenticatedView
 from authserver.oauth2.models import ApplicationCollection
 
 logger = logging.getLogger(settings.LOGGING_PREFIX)
@@ -49,7 +49,13 @@ def get_body_from_request(request):
 
 
 @publish_to_middleware(response_content_type='application/json', operation='APPLICATION')
-class ApplicationView(View):
+class ApplicationView(JSONBasicAuthenticatedView):
+
+    scopes = {
+        'get': ['admin:apps:read'],
+        'put': ['admin:apps:create'],
+        'delete': ['admin:apps:create'],
+    }
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -86,7 +92,9 @@ class ApplicationView(View):
 
 
 @publish_to_middleware(response_content_type='application/json', operation='APPLICATIONS')
-class ApplicationsView(View):
+class ApplicationsView(JSONBasicAuthenticatedView):
+
+    scopes = {'post': ['admin:apps:create']}
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
