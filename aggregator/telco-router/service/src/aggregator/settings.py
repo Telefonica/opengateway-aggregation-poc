@@ -109,7 +109,7 @@ SESSION_COOKIE_NAME = 'aggregatorid'
 CSRF_COOKIE_NAME = 'aggregatorcsrftoken'
 CSRF_COOKIE_SECURE = True
 
-AUTHENTICATION_BACKENDS = []
+AUTHENTICATION_BACKENDS = ('aggregator.backends.authentication.AuthBackend',)
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'aggregator.utils.exceptions.api_exception_handler'

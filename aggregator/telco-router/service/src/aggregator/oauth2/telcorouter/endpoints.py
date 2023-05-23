@@ -13,7 +13,7 @@ from oauthlib.oauth2.rfc6749.errors import UnsupportedGrantTypeError
 from aggregator.middleware.telcorouter import AggregatorMiddleware, log_metric
 from aggregator.utils.http import do_request_call
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(settings.LOGGING_PREFIX)
 
 
 class AggregatorTokenEndpoint(TokenEndpoint):
@@ -70,4 +70,6 @@ class AggregatorApiEndpoint(BaseEndpoint):
 
     def validate_api_request(self, request):
         if not self.bearer.validate_request(request):
+            raise errors.InvalidTokenError()
+        if 'routing' not in request.token or 'access_token' not in request.token:
             raise errors.InvalidTokenError()

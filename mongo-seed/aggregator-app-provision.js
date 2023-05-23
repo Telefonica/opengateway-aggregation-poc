@@ -26,4 +26,32 @@ db.apps.replaceOne(
     {
         upsert: true
     }
-)
+);
+
+db.apps.replaceOne(
+    {
+        _id : "b8798a4a-7746-415e-88cf-1c44a2d5776f"
+    },
+    {
+        _id : "b8798a4a-7746-415e-88cf-1c44a2d5776f",
+        consumer_secret : "5d435c56-c68f-4bb4-8959-514f562fafea",
+        name : "Aggregator Portal",
+        description : "Aggregator Portal for testing",
+        developer : {
+            email : "jeandupont@demoapp.com",
+            name : "Jean Dupont Developer"
+        },
+        status : "active",
+        grants : [
+            {
+                grant_type : "basic",
+                scopes : [
+                    "admin:apps:create"
+                ]
+            }
+        ]
+    },
+    {
+        upsert: true
+    }
+);
