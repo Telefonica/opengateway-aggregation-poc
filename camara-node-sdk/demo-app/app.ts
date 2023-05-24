@@ -27,12 +27,25 @@ app.use(express.urlencoded({ extended: false }))
 
 app.use(express.json())
 
+const getIpAddress = (req: any) : string => {
+  let ips = (
+    req.headers['cf-connecting-ip'] ||
+    req.headers['x-real-ip'] ||
+    req.headers['x-forwarded-for'] ||
+    req.connection.remoteAddress || ''
+  ).split(',');
+
+  return ips[0].trim();
+}
+
+
 app.get('/', (req, res) => {
+  console.log('Client IP Address: ' + getIpAddress(req));
   const userLogged = req.session?.login?.phonenumber;
   if (userLogged) {
-    res.render('pages/verify', {phonenumber: req.session?.login?.phonenumber, result:'', state: uuid()});
+    res.render('pages/verify', {phonenumber: req.session?.login?.phonenumber, result:'', state: uuid(), clientIp: getIpAddress(req)});
   } else {
-    res.render('pages/login');
+    res.render('pages/login', { clientIp: getIpAddress(req) });
   }
 });
 
@@ -90,7 +103,8 @@ app.get('/jwtbearer/verify', async (req, res, next) => {
     res.render('pages/verify', { 
       phonenumber: req.session?.login?.phonenumber,
       result: JSON.stringify(location, null, 4),
-      state: uuid()
+      state: uuid(),
+      clientIp: getIpAddress(req)
     });
   } catch (err) {
     next(err);
@@ -138,7 +152,8 @@ app.get('/authcode/numberverify', async (req, res, next) => {
       return res.render('pages/verify', { 
         phonenumber,
         result: JSON.stringify(verification, null, 4),
-        state: uuid()
+        state: uuid(),
+        clientIp: getIpAddress(req)
       });
     }
 
@@ -163,6 +178,70 @@ app.get('/authcode/numberverify', async (req, res, next) => {
   }
 
 });
+
+/**
+ * Calculate authorize url and redirect to it in order to retrive a Oauth2 code.
+ */
+app.get('/authcode/verify', async (req, res, next) => {
+
+  const state: string = (req.query.state ?? '') as string;
+
+  // Store the operation in the session
+  if (!req.session) {
+    console.warn('Not valid session. Doing logout')
+    return res.redirect('/logout');
+  }
+  delete req.session.camara;
+  req.session.operation = "devVerify";
+
+  if (!req.session?.login || !req.session.login.phonenumber) {
+    console.warn("No phone number found. Doing logout");
+    return res.redirect('/logout');
+  }
+  const phonenumber = req.session.login.phonenumber;
+  try {
+
+    // We check if we already have an access token. If we have one, we call the API using it.
+    if (req.session.token) {
+      const verification = await numberVerificationClient.verify(
+        { hashed_phone_number: createHash('sha256').update(phonenumber).digest('hex')},
+        {
+          getToken: () => new Promise((resolve) => {
+            resolve(req.session?.token as string);
+          }),
+        }
+      );
+  
+      return res.render('pages/verify', { 
+        phonenumber,
+        result: JSON.stringify(verification, null, 4),
+        state: uuid(),
+        clientIp: getIpAddress(req)
+      });
+    }
+
+    // Set the right scopes, redirect_uri and state to perform the flow.
+    const authorizeParams: AuthorizeParams = {
+      scope: 'openid number-verification-verify-hashed-read',
+      redirect_uri: `http://localhost:3000/authcode/callback`,
+    };
+    if (state) {
+      authorizeParams.state = state;
+    }
+
+    // Retrieve the authorized url and the session data.
+    const { url, session } = await authserverClient.authorize(authorizeParams);
+    // Store the sessión data in the session
+    req.session.oauth = session;
+
+    // Redirect to the Authorize Endpoint.
+    return res.redirect(url);
+  } catch (err) {
+    next(err);
+  }
+
+});
+
 
 /**
  * Get an access_token by using a code and perform the API call. Callback url mus be configured in the application redirect_uri.
@@ -221,7 +300,8 @@ app.get('/authcode/callback', async (req, res, next) => {
       res.render('pages/verify', { 
         phonenumber,
         result: JSON.stringify(verification, null, 4),
-        state: uuid()
+        state: uuid(),
+        clientIp: getIpAddress(req)
       });
     }
   } catch(err) {

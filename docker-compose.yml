@@ -140,6 +140,8 @@ services:
   mongo-seed:
     build:
       context: ./mongo-seed
+    environment:
+      DEPLOYMENT: 'false'
     depends_on:
       - mongodb
       - operator-platform-authserver-1
