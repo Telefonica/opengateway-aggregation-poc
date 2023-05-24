@@ -10,14 +10,14 @@ port = int(os.environ.get('PORT', 5000))
 # with a hardcoded response.
 #
 @app.route('/device-location-verification/v1/verify', methods=['POST'])
-def devicelocation():
+def device_location():
     dummmy_response_data = {
         "verification_result": "match"
     }
     return jsonify(dummmy_response_data)
 
 @app.route('/number-verification-rc/v1/verify-hashed', methods=['POST'])
-def devicelocation():
+def number_verification():
     dummmy_response_data = {
         "device_phone_number_verified": "match"
     }
