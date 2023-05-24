@@ -42,35 +42,37 @@ app.get('/authcode/numberverify', async (req, res, next) => {
 
   const state: string = (req.query.state ?? '') as string;
 
+  // Store the operation in the session
+  if (!req.session) {
+    console.warn('Not valid session. Doing logout')
+    return res.redirect('/logout');
+  }
+  req.session.operation = "numberVerify";
+
   if (!req.session?.login || !req.session.login.phonenumber) {
+    console.warn("No phone number found. Doing logout");
     return res.redirect('/logout');
   }
   const phonenumber = req.session.login.phonenumber;
   try {
 
     // We check if we already have an access token. If we have one, we call the API using it.
-    if (req.session && req.session.token) {
+    if (req.session.token) {
       const verification = await numberVerificationClient.verify(
         { hashed_phone_number: createHash('sha256').update(phonenumber).digest('hex')},
         {
-          getToken: () => req.session?.token?.access_token,
+          getToken: () => new Promise((resolve) => {
+            resolve(req.session?.token as string);
+          }),
         }
       );
   
-      res.render('pages/verify', { 
+      return res.render('pages/verify', { 
         phonenumber,
         result: JSON.stringify(verification, null, 4),
         state: uuid()
       });
     }
-
-
-    // Store the operation in the session
-    if (!req.session) {
-      console.warn('Not valid session')
-      return res.redirect('/logout');
-    } 
-    req.session.operation = "numberVerify";
 
     // Set the right scopes, redirect_uri and state to perform the flow.
     const authorizeParams: AuthorizeParams = {
@@ -87,8 +89,7 @@ app.get('/authcode/numberverify', async (req, res, next) => {
     req.session.oauth = session;
 
     // Redirect to the Authorize Endpoint.
-    // res.redirect(url);
-    res.status(200).json({ url, session });
+    return res.redirect(url);
   } catch (err) {
     next(err);
   }
@@ -136,14 +137,16 @@ app.get('/authcode/callback', async (req, res, next) => {
     const tokenSet: TokenSet = await authserverClient.getAuthorizationCodeToken(params, authorizeSession);
   
     // We store the token in the session for future uses
-    if (req.session) req.session.token = tokenSet;
+    if (req.session) req.session.token = tokenSet.access_token;
   
     if ( operation === "numberVerify") {
       // We call the API using the access_token and render the view.
       const verification = await numberVerificationClient.verify(
         { hashed_phone_number: createHash('sha256').update(phonenumber).digest('hex')},
         {
-          getToken: () => req.session?.token?.access_token,
+          getToken: () => new Promise((resolve) => {
+            resolve(tokenSet.access_token);
+          }),
         }
       );
   
