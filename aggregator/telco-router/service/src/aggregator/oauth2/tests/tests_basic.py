@@ -164,7 +164,7 @@ class BasicTestCase(AggregatorTestCase):
                   "apigateway_url": "http://api.operator.com"
               })
 
-        m.get("http://api.aggregator.com/telcofinder/v1/ipport/83.58.58.57",
+        m.get("http://api.aggregator.com/telcofinder/v1/ipport/127.0.0.1",
               json={
                   "authserver_url": "http://oauth.operator.com",
                   "apigateway_url": "http://api.operator.com"

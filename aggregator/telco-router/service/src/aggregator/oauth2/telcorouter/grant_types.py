@@ -145,13 +145,23 @@ class AggregatorAuthorizationCodeGrantMixin:
 
         return state_token
 
+    def _get_ip(self):
+        request = AggregatorMiddleware.get_current_request()
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR',
+                                           request.META.get('HTTP_X_REAL_IP'))
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
     def create_authentication_response(self, request):
         try:
             _, authentication = self.validate_authorization_request(request)
             request.authentication = authentication
 
             #TODO: get IP to call TelcoFinder
-            request.routing = TelcoFinderClient().get_routing_metadata('ipport', '83.58.58.57')
+            request.routing = TelcoFinderClient().get_routing_metadata('ipport', self._get_ip())
 
             jwt_state_payload = self._get_state_payload(request)
             jwt_state = build_jwe(jwt_state_payload, AggregatorMiddleware.get_correlator(request), settings.JWE_ACCESS_TOKEN_KID)
