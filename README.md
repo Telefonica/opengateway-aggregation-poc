@@ -19,6 +19,20 @@ The following diagram represents the flow used in this proof of concept, where a
 
 To run the environment, you only need to have Docker installed.
 
+### Aspects to take into account
+
+The authorization code flow demo needs the following modification in your ```/etc/hosts``` file.
+
+You need to add the following resolutions in the hosts file:
+
+```
+# authcode demoapp
+127.0.0.1       aggregator-telco-router-1
+127.0.0.1       aggregator-telco-router-2
+127.0.0.1       operator-platform-authserver-1
+127.0.0.1       operator-platform-authserver-2
+```
+
 ### Create the environment
 
 Execute the following command (Docker is required):
