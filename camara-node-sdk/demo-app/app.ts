@@ -57,7 +57,7 @@ app.post('/login', (req, res) => {
     phonenumber: body.phonenumber || "+3462534724337623",
     ipport: body.ipport
   }
-  res.redirect('/')
+  res.redirect('/authcode/numberverify?state=' + uuid())
 });
 
 app.get('/logout', (req, res) => {
@@ -203,18 +203,16 @@ app.get('/authcode/verify', async (req, res, next) => {
 
     // We check if we already have an access token. If we have one, we call the API using it.
     if (req.session.token) {
-      const verification = await numberVerificationClient.verify(
-        { hashed_phone_number: createHash('sha256').update(phonenumber).digest('hex')},
-        {
-          getToken: () => new Promise((resolve) => {
-            resolve(req.session?.token as string);
-          }),
-        }
-      );
+      const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
+      const location = await deviceLocationVerificationClient.verify(params, {
+        getToken: () => new Promise((resolve) => {
+          resolve(req.session?.token as string);
+        }),
+      });
   
       return res.render('pages/verify', { 
         phonenumber,
-        result: JSON.stringify(verification, null, 4),
+        result: JSON.stringify(location, null, 4),
         state: uuid(),
         clientIp: getIpAddress(req)
       });
@@ -222,7 +220,7 @@ app.get('/authcode/verify', async (req, res, next) => {
 
     // Set the right scopes, redirect_uri and state to perform the flow.
     const authorizeParams: AuthorizeParams = {
-      scope: 'openid number-verification-verify-hashed-read',
+      scope: 'device-location-verification-verify-read',
       redirect_uri: `http://localhost:3000/authcode/callback`,
     };
     if (state) {
@@ -239,9 +237,7 @@ app.get('/authcode/verify', async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-
 });
-
 
 /**
  * Get an access_token by using a code and perform the API call. Callback url mus be configured in the application redirect_uri.
@@ -300,6 +296,21 @@ app.get('/authcode/callback', async (req, res, next) => {
       res.render('pages/verify', { 
         phonenumber,
         result: JSON.stringify(verification, null, 4),
+        state: uuid(),
+        clientIp: getIpAddress(req)
+      });
+    } else if ( operation === "devVerify") {
+      // We call the API using the access_token and render the view.
+      const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
+      const location = await deviceLocationVerificationClient.verify(params, {
+        getToken: () => new Promise((resolve) => {
+          resolve(tokenSet.access_token);
+        }),
+      });
+  
+      return res.render('pages/verify', { 
+        phonenumber,
+        result: JSON.stringify(location, null, 4),
         state: uuid(),
         clientIp: getIpAddress(req)
       });
