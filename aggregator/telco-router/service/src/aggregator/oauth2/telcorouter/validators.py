@@ -16,13 +16,20 @@ from pymongo.errors import DuplicateKeyError
 
 from aggregator.clients.oidc import OidcClient
 from aggregator.oauth2.models import ApplicationCollection, Grant, JtiCollection
+from aggregator.oauth2.telcorouter.grant_types import GRANT_TYPE_AUTHORIZATION_CODE
 from aggregator.utils.exceptions import InvalidParameterValueError, JWTException, InvalidSignatureError, UnavailableSignatureError
 from aggregator.utils.jwe import get_jwe_info, get_jwe_token
 from aggregator.utils.jwk import JWKManager
 from aggregator.utils.jws import validate_jws_header, get_jws_info
-from aggregator.utils.schemas import FIELD_ISSUER, FIELD_KID, FIELD_JTI, JWT_CLIENT_ASSERTION_VALIDATOR, FIELD_SUB, JWT_ASSERTION_VALIDATOR, FIELD_SCOPE, FIELD_EXPIRATION
+from aggregator.utils.schemas import FIELD_ISSUER, FIELD_KID, FIELD_JTI, JWT_CLIENT_ASSERTION_VALIDATOR, FIELD_SUB, JWT_ASSERTION_VALIDATOR, FIELD_SCOPE, FIELD_EXPIRATION, \
+    JWT_STATE_VALIDATOR, FIELD_REDIRECT_URI, FIELD_CLIENT_ID
 
 logger = logging.getLogger(settings.LOGGING_PREFIX)
+
+
+RESPONSE_TYPE_GRANT_MAPPING = {
+    'code': GRANT_TYPE_AUTHORIZATION_CODE
+}
 
 
 class AggregatorRequestValidator(RequestValidator):
@@ -46,6 +53,9 @@ class AggregatorRequestValidator(RequestValidator):
 
     def get_default_redirect_uri(self, client_id, request, *args, **kwargs):
         return None
+
+    def validate_response_type(self, client_id, response_type, client, request, *args, **kwargs):
+        return self.validate_grant_type(client_id, RESPONSE_TYPE_GRANT_MAPPING.get(response_type, None), client, request)
 
     def validate_scopes(self, client_id, scopes, client, request, *args, **kwargs):
         if scopes is None or len(scopes) == 0:
@@ -135,11 +145,53 @@ class AggregatorRequestValidator(RequestValidator):
         request.grants = [deepcopy(grant) for grant in request.app.get(ApplicationCollection.FIELD_GRANTS, []) if grant[Grant.FIELD_GRANT_TYPE] == grant_type]
         return len(request.grants) > 0
 
+    def validate_callback_response(self, request):
+
+        if request.state is None:
+            raise InvalidRequestFatalError('Missing state parameter.', request=request)
+
+        try:
+            request.state_payload = get_jwe_info(get_jwe_token(request.state), settings.AGGREGATOR_ISSUER, JWT_STATE_VALIDATOR).payload
+            request.redirect_uri = request.state_payload[FIELD_REDIRECT_URI]
+        except InvalidJWSSignature:
+            raise InvalidRequestFatalError('Invalid JWT state.', request=request)
+        except JWTException as e:
+            raise InvalidRequestFatalError(str(e.args[0]), request=request)
+
+        return True
+
     def save_token(self, token, request, *args, **kwargs):
         return
 
     def validate_user(self, request, *args, **kwargs):
         return True
+
+    def _get_code_payload(self, code):
+        try:
+            jwe_token = get_jwe_token(code)
+            token = get_jwe_info(jwe_token, settings.AGGREGATOR_ISSUER, None)
+            return token.payload
+        except Exception as e:
+            logger.warning('Error validating code: %s', str(e.args[0]))
+            return None
+
+    def validate_code(self, client_id, code, client, request, *args, **kwargs):
+        request.auth = getattr(request, 'auth', self._get_code_payload(code))
+        if request.auth is not None:
+            jti = JtiCollection.find_jti(client_id, request.auth[FIELD_JTI])
+            return (client_id is None or client_id == request.auth[FIELD_CLIENT_ID]) \
+                and request.auth[FIELD_EXPIRATION] > int(time.time()) \
+                and jti is None
+        return False
+
+    def get_authorization_code_scopes(self, client_id, code, redirect_uri, request):
+        return []
+
+    def confirm_redirect_uri(self, client_id, code, redirect_uri, client, request, *args, **kwargs):
+        return (redirect_uri is not None or len(redirect_uri) > 0) and redirect_uri == request.auth[FIELD_REDIRECT_URI]
+
+    def invalidate_authorization_code(self, client_id, code, request, *args, **kwargs):
+        JtiCollection.insert_jti(client_id, request.auth[FIELD_JTI], datetime.fromtimestamp(request.auth[FIELD_EXPIRATION]))
 
     def validate_bearer_token(self, token, scopes, request):
         try:

@@ -24,17 +24,6 @@ class JwtBearerTokenTestCase(TokenTestCase):
     def do_mocking(cls, m, jwks_uri_params=None):
         super().do_mocking(m, jwks_uri_params)
 
-        m.get("http://api.aggregator.com/telcofinder/v1/tel/+34618051526",
-              json={
-                  "authserver_url": "http://oauth.operator.com",
-                  "apigateway_url": "http://api.operator.com"
-              })
-
-        m.get("http://oauth.operator.com/.well-known/openid-configuration",
-              json={
-                "token_endpoint": "http://oauth.operator.com/token"
-              })
-
         m.post("http://oauth.operator.com/token",
               json={
                   "access_token": "MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3",
@@ -56,7 +45,7 @@ class JwtBearerTokenTestCase(TokenTestCase):
             "sub": USER_PCR['user'],
             "scope": "phone",
             "acr": "2",
-            "amr": ["sms"],
+            "amr": ["nbma"],
             "auth_time": int(now)
         }
 
@@ -89,7 +78,7 @@ class JwtBearerTokenOKTestCase(JwtBearerTokenTestCase):
         token_params['client_assertion_type'] = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
         token_params['client_assertion'] = get_signed_jwt(self.get_default_client_assertion(), settings.SP_JWT_SIGNING_ALGORITHM, settings.SP_JWT_KID, SP_JWT_PRIVATE_KEY)
         response = self.do_token(token_params, {})
-        token, _, _ = self.assertAccessTokenOK(response, refresh_token=False, id_token=False)
+        token = self.assertAccessTokenOK(response, refresh_token=False, id_token=False)
 
         jwe_token = jwe.JWE()
         jwe_token.deserialize(token['access_token'])
@@ -107,7 +96,7 @@ class JwtBearerTokenOKTestCase(JwtBearerTokenTestCase):
         token_params['client_assertion'] = get_signed_jwt(self.get_default_client_assertion(), settings.SP_JWT_SIGNING_ALGORITHM, settings.SP_JWT_KID, SP_JWT_PRIVATE_KEY)
         response = self.do_token(token_params, {})
 
-        token, _, _ = self.assertAccessTokenOK(response, refresh_token=False, id_token=False)
+        token = self.assertAccessTokenOK(response, refresh_token=False, id_token=False)
 
 
 class JwtBearerTokenErrorTestCase(JwtBearerTokenTestCase):
@@ -123,7 +112,7 @@ class JwtBearerTokenErrorTestCase(JwtBearerTokenTestCase):
 
     @freeze_time(datetime.utcnow(), tz_offset=0)
     @requests_mock.mock()
-    def test_token_ok_client_secret_post(self, m):
+    def test_token_client_secret_post(self, m):
         self.do_mocking(m)
 
         params = self.get_token_request_parameters()

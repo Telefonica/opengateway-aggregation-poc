@@ -52,6 +52,30 @@ def get_body_from_request(request):
     raise InvalidRequestFatalError(description='Invalid content type')
 
 
+@publish_to_middleware(response_content_type='text/html', operation='AUTHORIZE')
+class AuthorizeView(View):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._authorization_endpoint = server
+
+    def get(self, request):
+        headers, body, status = self._authorization_endpoint.create_authentication_response(request.get_full_path(), 'GET')
+        return build_response(headers, body, status)
+
+
+@publish_to_middleware(response_content_type='text/html', operation='AUTHORIZE')
+class AuthorizeCallbackView(View):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._authorization_endpoint = server
+
+    def get(self, request):
+        headers, body, status = self._authorization_endpoint.create_callback_response(request.get_full_path(), 'GET')
+        return build_response(headers, body, status)
+
+
 @publish_to_middleware(response_content_type='application/json', operation='TOKEN')
 class TokenView(View):
 
@@ -74,6 +98,7 @@ class MetadataView(View):
     def get(self, request):
         claims = {
             'issuer': settings.AGGREGATOR_ISSUER,
+            'authorization_endpoint': settings.AGGREGATOR_HOST + reverse('aggregator-authorize'),
             'token_endpoint': settings.AGGREGATOR_HOST + reverse('aggregator-token'),
             'jwks_uri': settings.AGGREGATOR_JWKS_URI or settings.AGGREGATOR_HOST + reverse('jwkset')
         }

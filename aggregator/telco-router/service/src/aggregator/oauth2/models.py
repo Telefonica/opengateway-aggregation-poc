@@ -1,4 +1,6 @@
+import calendar
 import logging
+from datetime import datetime
 from urllib.parse import urlparse
 
 import pymongo
@@ -34,6 +36,14 @@ class JtiCollection(AggregatorCollection):
             logger.error('Unable to create JTIs indexes: %s', str(e.args[0]))
 
     @classmethod
+    def find_jti(cls, client_id, jti):
+        jti = cls.objects.find_one({cls.FIELD_CLIENT_ID: client_id, cls.FIELD_JTI: jti})
+        if jti is not None:
+            if calendar.timegm(datetime.timetuple(datetime.utcnow())) > calendar.timegm(datetime.timetuple(jti[cls.FIELD_EXPIRATION])):
+                return None
+        return jti
+
+    @classmethod
     def insert_jti(cls, client_id, jti, expiration):
         return cls.objects.insert_one({cls.FIELD_CLIENT_ID: client_id, cls.FIELD_JTI: jti, cls.FIELD_EXPIRATION: expiration})
 
@@ -44,6 +54,7 @@ class ApplicationCollection(AggregatorCollection):
 
     FIELD_ID = '_id'
     FIELD_NAME = 'name'
+    FIELD_REDIRECT_URI = 'redirect_uri'
     FIELD_SECTOR_IDENTIFIER_URI = 'sector_identifier_uri'
     FIELD_JWKS_URI = 'jwks_uri'
     FIELD_SECTOR_IDENTIFIER = 'sector_identifier'
@@ -77,7 +88,7 @@ class ApplicationCollection(AggregatorCollection):
 
     @classmethod
     def get_sector_identifier(cls, app):
-        url = app[cls.FIELD_SECTOR_IDENTIFIER_URI]
+        url = app.get(cls.FIELD_SECTOR_IDENTIFIER_URI, app[cls.FIELD_REDIRECT_URI])
         url = url[0] if isinstance(url, list) else url
         p = urlparse(url)
         return p.netloc

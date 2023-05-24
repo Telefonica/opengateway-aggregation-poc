@@ -2,6 +2,7 @@
 
 This is an Authorization Server that implements the following functionalities of OAuth 2.0 and OpenID Connect protocols:
 
+* [OIDC Authorization Code Flow](https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth)
 * [JWT Bearer Grant](https://datatracker.ietf.org/doc/html/rfc7523)
 * [Proof Key for Code Exchange (PKCE)](https://www.rfc-editor.org/rfc/rfc7636) 
 * [OpenID Connect Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html)

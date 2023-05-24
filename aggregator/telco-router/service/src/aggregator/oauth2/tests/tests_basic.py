@@ -40,22 +40,7 @@ APPLICATION = {
             ]
         },
         {
-            'grant_type': 'client_credentials',
-            'scopes': [
-                'question',
-                'atp'
-            ]
-        },
-        {
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            'scopes': [
-                'openid',
-                'phone',
-                'atp'
-            ]
-        },
-        {
-            'grant_type': 'urn:openid:params:grant-type:ciba',
             'scopes': [
                 'openid',
                 'phone',
@@ -155,11 +140,11 @@ class BasicTestCase(AggregatorTestCase):
         }
 
     @classmethod
-    def get_default_client_assertion(cls):
+    def get_default_client_assertion(cls, client_id=None):
         now = time.time()
         return {
-            'iss': APPLICATION['_id'],
-            'sub': APPLICATION['_id'],
+            'iss': client_id or APPLICATION['_id'],
+            'sub': client_id or APPLICATION['_id'],
             'aud': f'{settings.AGGREGATOR_HOST}/{settings.AGGREGATOR_PATH_PREFIX}',
             'jti': str(uuid4()),
             'iat': int(now),
@@ -172,3 +157,21 @@ class BasicTestCase(AggregatorTestCase):
             m.get(APPLICATION['jwks_uri'], text=json.dumps(JWKS_URI))
         else:
             m.get(APPLICATION['jwks_uri'], **jwks_uri_params)
+
+        m.get("http://api.aggregator.com/telcofinder/v1/tel/+34618051526",
+              json={
+                  "authserver_url": "http://oauth.operator.com",
+                  "apigateway_url": "http://api.operator.com"
+              })
+
+        m.get("http://api.aggregator.com/telcofinder/v1/ipport/83.58.58.57",
+              json={
+                  "authserver_url": "http://oauth.operator.com",
+                  "apigateway_url": "http://api.operator.com"
+              })
+
+        m.get("http://oauth.operator.com/.well-known/openid-configuration",
+              json={
+                  "token_endpoint": "http://oauth.operator.com/token",
+                  "authorization_endpoint": "http://oauth.operator.com/authorize"
+              })
