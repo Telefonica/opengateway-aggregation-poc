@@ -51,7 +51,7 @@ class AuthorizationCodeTokenTestCase(TokenTestCase):
         now = time.time()
         token = {
             'acr': '2',
-            'amr': ['sms'],
+            'amr': ['nbma'],
             'aud': [APPLICATION['_id']],
             'auth_time': int(now),
             'client_id': '68399c5b-3cfa-4348-9f96-33d379077d71',

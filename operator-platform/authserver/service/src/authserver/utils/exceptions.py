@@ -174,6 +174,7 @@ def api_exception_handler(exc, context):
     elif isinstance(exc, NotAcceptable):
         return api_exception_handler(errors.CustomOAuth2Error('invalid_request', status_code=406, description=exc.detail), context)
     else:
+        log_exception(exc)
         return api_exception_handler(errors.CustomOAuth2Error('server_error', status_code=500), context)
 
 

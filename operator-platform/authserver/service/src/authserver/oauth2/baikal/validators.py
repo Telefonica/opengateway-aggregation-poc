@@ -1,9 +1,9 @@
 import logging
+import time
 from copy import deepcopy
 from datetime import timedelta, datetime, timezone
 from uuid import uuid4
 
-import time
 import ujson as json
 from django.conf import settings
 from django.core import exceptions
@@ -426,7 +426,7 @@ class BaikalRequestValidator(RequestValidator):
         request.auth.update({
             CibaAuthorizationCollection.FIELD_UID: 'tel:+34618051526' if request.login_hint[FIELD_IDENTIFIER_TYPE] != 'phone_number' else f'tel:{request.login_hint[FIELD_IDENTIFIER]}',
             CibaAuthorizationCollection.FIELD_ACR: '2',
-            CibaAuthorizationCollection.FIELD_AMR: ['sms'],
+            CibaAuthorizationCollection.FIELD_AMR: ['nbma'],
             CibaAuthorizationCollection.FIELD_AUTH_TIME: int(time.time()),
             CibaAuthorizationCollection.FIELD_STATUS: CibaAuthorizationCollection.STATUS_OK,  # delegated consent
         })

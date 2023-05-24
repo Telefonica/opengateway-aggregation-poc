@@ -175,7 +175,6 @@ class AuthorizationCodeOKTestCase(AuthorizationCodeTestCase):
         self.assertIn('state', redirect_params)
 
 
-
 class AuthorizationCodeErrorTestCase(AuthorizationCodeTestCase):
 
     def test_invalid_method(self):
@@ -201,7 +200,7 @@ class AuthorizationCodeErrorTestCase(AuthorizationCodeTestCase):
         self.assertSpErrorRedirection(response, APPLICATION['redirect_uri'], 'unauthorized_client')
 
     @override_settings(ERROR_DESCRIPTION_FORMAT='lowercase')
-    def test_error_descriotion_format(self):
+    def test_error_description_format(self):
         response = self.do_authorize(self.get_authorize_parameters(**{'client_id': 'Wrong'}))
         self.assertErrorPage(response, 400, 'invalid_request', 'invalid client_id parameter value')
 

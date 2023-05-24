@@ -139,7 +139,7 @@ class BaikalAuthorizationCodeGrantMixin:
         credentials['uid'] = 'tel:+34618051526'
         credentials['sub'] = UserPcrCollection.get_pcr_or_create(credentials['uid'], request.app[ApplicationCollection.FIELD_SECTOR_IDENTIFIER])
         credentials['acr'] = request.authentication[FIELD_ACR_VALUES].split(' ')[0]
-        credentials['amr'] = ['sms']
+        credentials['amr'] = ['nbma']
         credentials['claims'] = {}
         credentials['auth_time'] = int(time.time())
 
