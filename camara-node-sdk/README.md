@@ -29,7 +29,7 @@ console.log(location);
 import Camara from 'camara-node-sdk';
 import { CamaraSetup } from 'camara-node-sdk/lib/setup';
 import NumberVerificationClient from 'camara-node-sdk/clients/NumberVerificationClient';
-import AuthserverClient, { AuthorizeCallbackParams, AuthorizeSession, TokenSet } from 'camara-node-sdk/clients/AuthserverClient';
+import AuthserverClient, { AuthorizeCallbackParams, AuthorizeParams, AuthorizeSession, TokenSet } from 'camara-node-sdk/clients/AuthserverClient';
 
 const camaraSetup: CamaraSetup = Camara.setup();
 const authserverClient: AuthserverClient = camaraSetup.authserverClient;
@@ -40,7 +40,7 @@ const numberVerificationClient = new NumberVerificationClient();
  */
 app.get('/authcode/numberverify', async (req, res, next) => {
 
-  const state = req.query.state ?? '';
+  const state: string = (req.query.state ?? '') as string;
 
   if (!req.session?.login || !req.session.login.phonenumber) {
     return res.redirect('/logout');
@@ -73,8 +73,8 @@ app.get('/authcode/numberverify', async (req, res, next) => {
     req.session.operation = "numberVerify";
 
     // Set the right scopes, redirect_uri and state to perform the flow.
-    const authorizeParams: any = {
-      scope: 'device-location-verification-verify-read',
+    const authorizeParams: AuthorizeParams = {
+      scope: 'openid number-verification-verify-hashed-read',
       redirect_uri: `http://localhost:3000/authcode/callback`,
     };
     if (state) {
@@ -108,14 +108,12 @@ app.get('/authcode/callback', async (req, res, next) => {
       return res.redirect('/logout');
     }
 
-    // Get code, state parameters to request an access token.
+    // Get code value to request an access token.
     const code = req.query.code as string;
     if (!code) {
       console.warn('Code not found. Please, complete the flow again.');
       return res.redirect('/logout');
     }
-  
-    const state = req.session?.oauth?.state;
   
     // Recover the operation from the previous step in order to perform the API call.
     const operation = req.session?.operation;
@@ -126,8 +124,9 @@ app.get('/authcode/callback', async (req, res, next) => {
   
     // Build the Callback Parameters
     const params: AuthorizeCallbackParams = { code: code };
+    const state = req.session?.oauth?.state as string;
     if (state) {
-      params.state = req.session?.oauth?.state;
+      params.state = state;
     }
   
     // Recover the Authorized sessión from the previous step.

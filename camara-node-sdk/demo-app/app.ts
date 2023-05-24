@@ -7,7 +7,7 @@ import Camara from 'camara-node-sdk';
 import { CamaraSetup } from 'camara-node-sdk/lib/setup';
 import DeviceLocationVerificationClient from 'camara-node-sdk/clients/DeviceLocationVerificationClient';
 import NumberVerificationClient from 'camara-node-sdk/clients/NumberVerificationClient';
-import AuthserverClient, { AuthorizeCallbackParams, AuthorizeSession, TokenSet } from 'camara-node-sdk/clients/AuthserverClient';
+import AuthserverClient, { AuthorizeCallbackParams, AuthorizeParams, AuthorizeSession, TokenSet } from 'camara-node-sdk/clients/AuthserverClient';
 
 /////////////////////////////////////////////////
 // Initialize the SDK offering networking services (device location verification in the example)
@@ -56,41 +56,41 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/jwtbearer/verify', async (req, res, next) => {
-  console.log('/verify', req.session);
+  console.log('jwtbearer device location verify', req.session);
 
   if (!req.session?.login?.phonenumber) {
-    res.redirect('/')
-  } else {
-    try {
-      if (!req.session?.camara) {
-        req.session = req.session || {};
+    return res.redirect('/')
+  }
 
-        /**
-         * We perform the SDK login operation that internally gets an access token using
-         * the jwt bearer flow (3 legged token). We store the token in the session to reuse it.
-         *
-         * The user identifier is the ip:port but the model is generic to be extended
-         * with other identifiers (MSISDN, etc).
-         */
-        req.session.camara = await Camara.login({
-          ipport: req.session?.login?.ipport,
-        });
-      }
+  try {
+    if (!req.session?.camara) {
+      req.session = req.session || {};
 
       /**
-       * Once we have a token, we can consume a CAMARA API.
+       * We perform the SDK login operation that internally gets an access token using
+       * the jwt bearer flow (3 legged token). We store the token in the session to reuse it.
+       *
+       * The user identifier is the ip:port but the model is generic to be extended
+       * with other identifiers (MSISDN, etc).
        */
-      const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
-      const location = await deviceLocationVerificationClient.verify(params, { session: req.session.camara }
-      );
-      res.render('pages/verify', { 
-        phonenumber: req.session?.login?.phonenumber,
-        result: JSON.stringify(location, null, 4),
-        state: uuid()
+      req.session.camara = await Camara.login({
+        ipport: req.session?.login?.ipport,
       });
-    } catch (err) {
-      next(err);
     }
+
+    /**
+     * Once we have a token, we can consume a CAMARA API.
+     */
+    const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
+    const location = await deviceLocationVerificationClient.verify(params, { session: req.session.camara }
+    );
+    res.render('pages/verify', { 
+      phonenumber: req.session?.login?.phonenumber,
+      result: JSON.stringify(location, null, 4),
+      state: uuid()
+    });
+  } catch (err) {
+    next(err);
   }
 });
 
@@ -104,7 +104,7 @@ app.get('/jwtbearer/verify', async (req, res, next) => {
  */
 app.get('/authcode/numberverify', async (req, res, next) => {
 
-  const state = req.query.state ?? '';
+  const state: string = (req.query.state ?? '') as string;
 
   if (!req.session?.login || !req.session.login.phonenumber) {
     return res.redirect('/logout');
@@ -137,8 +137,8 @@ app.get('/authcode/numberverify', async (req, res, next) => {
     req.session.operation = "numberVerify";
 
     // Set the right scopes, redirect_uri and state to perform the flow.
-    const authorizeParams: any = {
-      scope: 'device-location-verification-verify-read',
+    const authorizeParams: AuthorizeParams = {
+      scope: 'openid number-verification-verify-hashed-read',
       redirect_uri: `http://localhost:3000/authcode/callback`,
     };
     if (state) {
@@ -172,14 +172,12 @@ app.get('/authcode/callback', async (req, res, next) => {
       return res.redirect('/logout');
     }
 
-    // Get code, state parameters to request an access token.
+    // Get code value to request an access token.
     const code = req.query.code as string;
     if (!code) {
       console.warn('Code not found. Please, complete the flow again.');
       return res.redirect('/logout');
     }
-  
-    const state = req.session?.oauth?.state;
   
     // Recover the operation from the previous step in order to perform the API call.
     const operation = req.session?.operation;
@@ -190,8 +188,9 @@ app.get('/authcode/callback', async (req, res, next) => {
   
     // Build the Callback Parameters
     const params: AuthorizeCallbackParams = { code: code };
+    const state = req.session?.oauth?.state as string;
     if (state) {
-      params.state = req.session?.oauth?.state;
+      params.state = state;
     }
   
     // Recover the Authorized sessión from the previous step.

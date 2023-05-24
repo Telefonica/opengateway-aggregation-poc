@@ -24,6 +24,13 @@ db.apps.replaceOne(
                 scopes : [
                     "device-location-verification-verify-read"
                 ]
+            },
+            {
+                grant_type : "authorization_code",
+                scopes : [
+                    "openid",
+                    "number-verification-verify-hashed-read"
+                ]
             }
         ],
         sector_identifier_uri : "http://localhost:3000",
