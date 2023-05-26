@@ -271,6 +271,17 @@ class AuthorizationCodeOperatorErrorTestCase(AuthorizationCodeTestCase):
 
     @freeze_time(datetime.utcnow(), tz_offset=0)
     @requests_mock.mock()
+    def test_telcofinder_unknown_error(self, m):
+        self.do_mocking(m)
+        m.get("http://api.aggregator.com/telcofinder/v1/ipport/127.0.0.1", status_code=404)
+
+        params = self.get_authorize_parameters()
+        response = self.do_authorize(params)
+        self.assertSpErrorRedirection(response, APPLICATION['redirect_uri'], 'access_denied', error_description='Unknown user.')
+
+
+    @freeze_time(datetime.utcnow(), tz_offset=0)
+    @requests_mock.mock()
     def test_operator_error(self, m):
         self.do_mocking(m)
 
