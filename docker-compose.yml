@@ -107,7 +107,7 @@ services:
       - mongodb
     environment:
       PORT: 9010
-      HOST: "http://operator-platform-authserver-1.opengateway.baikalplatform.es"
+      HOST: "https://operator-platform-authserver-1.opengateway.baikalplatform.es"
       # HOST: "http://operator-platform-authserver-1:9010" ###
       DATABASE_HOST: "mongodb:27017"
       DATABASE_NAME: "authserver-telefonica"
@@ -124,7 +124,7 @@ services:
       - mongodb
     environment:
       PORT: 9020
-      HOST: "http://operator-platform-authserver-2.opengateway.baikalplatform.es"
+      HOST: "https://operator-platform-authserver-2.opengateway.baikalplatform.es"
       # HOST: "http://operator-platform-authserver-2:9020" ###
       DATABASE_HOST: "mongodb:27017"
       DATABASE_NAME: "authserver-vodafone"
