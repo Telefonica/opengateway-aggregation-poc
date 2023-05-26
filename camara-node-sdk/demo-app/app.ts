@@ -292,7 +292,7 @@ app.get('/authcode/callback', async (req, res, next) => {
         }
       );
 
-      res.render('pages/verify', {
+      return res.render('pages/verify', {
         phonenumber,
         result: JSON.stringify(verification, null, 4),
         state: uuid(),
