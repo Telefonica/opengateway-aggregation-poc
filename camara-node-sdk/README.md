@@ -35,65 +35,35 @@ const camaraSetup: CamaraSetup = Camara.setup();
 const authserverClient: AuthserverClient = camaraSetup.authserverClient;
 const numberVerificationClient = new NumberVerificationClient();
 
+
 /**
- * Calculate authorize url and redirect to it in order to retrive a Oauth2 code.
+ * Calculate a redirect to the authorized endpoint.
  */
-app.get('/authcode/numberverify', async (req, res, next) => {
-
-  const state: string = (req.query.state ?? '') as string;
-
-  // Store the operation in the session
-  if (!req.session) {
-    console.warn('Not valid session. Doing logout')
-    return res.redirect('/logout');
-  }
-  req.session.operation = "numberVerify";
-
-  if (!req.session?.login || !req.session.login.phonenumber) {
-    console.warn("No phone number found. Doing logout");
-    return res.redirect('/logout');
-  }
-  const phonenumber = req.session.login.phonenumber;
-  try {
-
-    // We check if we already have an access token. If we have one, we call the API using it.
-    if (req.session.token) {
-      const verification = await numberVerificationClient.verify(
-        { hashed_phone_number: createHash('sha256').update(phonenumber).digest('hex')},
-        {
-          getToken: () => new Promise((resolve) => {
-            resolve(req.session?.token as string);
-          }),
-        }
-      );
+app.get('/authcode/flow', async (req, res, next) => {
   
-      return res.render('pages/verify', { 
-        phonenumber,
-        result: JSON.stringify(verification, null, 4),
-        state: uuid()
-      });
-    }
-
-    // Set the right scopes, redirect_uri and state to perform the flow.
-    const authorizeParams: AuthorizeParams = {
-      scope: 'openid number-verification-verify-hashed-read',
-      redirect_uri: `http://localhost:3000/authcode/callback`,
-    };
-    if (state) {
-      authorizeParams.state = state;
-    }
-
-    // Retrieve the authorized url and the session data.
-    const { url, session } = await authserverClient.authorize(authorizeParams);
-    // Store the sessión data in the session
-    req.session.oauth = session;
-
-    // Redirect to the Authorize Endpoint.
-    return res.redirect(url);
-  } catch (err) {
-    next(err);
+  const {phonenumber, operation, state, error} = retrieveParametersFromRequest(req);
+  if (error) {
+    console.log(error);
+    return res.redirect('/logout');
   }
 
+  // Set the right scopes, redirect_uri and state to perform the flow.
+  const authorizeParams: AuthorizeParams = {
+    scope: 'openid number-verification-verify-hashed-read device-location-verification-verify-read',
+    redirect_uri: `${process.env.HOST}/authcode/callback`,
+  };
+  
+  if (state) {
+    authorizeParams.state = state;
+  }
+
+  // Retrieve the authorized url and the session data.
+  const { url, session } = await authserverClient.authorize(authorizeParams);
+  // Store the session data in the cookie session
+  if (req.session) req.session.oauth = session;
+
+  // Redirect to the Authorize Endpoint.
+  return res.redirect(url);
 });
 
 /**
@@ -101,64 +71,52 @@ app.get('/authcode/numberverify', async (req, res, next) => {
  */
 app.get('/authcode/callback', async (req, res, next) => {
 
-  try {
+  const {phonenumber, operation, error} = retrieveParametersFromRequest(req);
 
-    const phonenumber = req.session?.login.phonenumber;
-    if (!phonenumber) {
-      console.warn('Phonenumber not found. Please, complete the flow again.');
-      return res.redirect('/logout');
-    }
-
-    // Get code value to request an access token.
-    const code = req.query.code as string;
-    if (!code) {
-      console.warn('Code not found. Please, complete the flow again.');
-      return res.redirect('/logout');
-    }
-  
-    // Recover the operation from the previous step in order to perform the API call.
-    const operation = req.session?.operation;
-    if (!operation) {
-      console.warn('Operation undefined. Please, complete the flow again.');
-      return res.redirect('/logout');
-    }
-  
-    // Build the Callback Parameters
-    const params: AuthorizeCallbackParams = { code: code };
-    const state = req.session?.oauth?.state as string;
-    if (state) {
-      params.state = state;
-    }
-  
-    // Recover the Authorized sessión from the previous step.
-    const authorizeSession: AuthorizeSession = req.session?.oauth;
-  
-    // We get the access_token and other information such as refresh_token, id_token, etc....
-    const tokenSet: TokenSet = await authserverClient.getAuthorizationCodeToken(params, authorizeSession);
-  
-    // We store the token in the session for future uses
-    if (req.session) req.session.token = tokenSet.access_token;
-  
-    if ( operation === "numberVerify") {
-      // We call the API using the access_token and render the view.
-      const verification = await numberVerificationClient.verify(
-        { hashed_phone_number: createHash('sha256').update(phonenumber).digest('hex')},
-        {
-          getToken: () => new Promise((resolve) => {
-            resolve(tokenSet.access_token);
-          }),
-        }
-      );
-  
-      res.render('pages/verify', { 
-        phonenumber,
-        result: JSON.stringify(verification, null, 4),
-        state: uuid()
-      });
-    }
-  } catch(err) {
-    next(err);
+  if (error) {
+    console.log(error);
+    return res.redirect('/logout');
   }
+
+  // Get code value to request an access token.
+  const code = req.query.code as string;
+  if (!code) {
+    console.warn('Code not found. Please, complete the flow again.');
+    return res.redirect('/logout');
+  }
+  
+  // Build the Callback Parameters
+  const params: AuthorizeCallbackParams = { code: code };
+  const state = req.session?.oauth?.state as string;
+  if (state) {
+    params.state = state;
+  }
+
+  // Recover the Authorized session from the previous step.
+  const authorizeSession: AuthorizeSession = req.session?.oauth;
+
+  // We get the access_token and other information such as refresh_token, id_token, etc....
+  const tokenSet: TokenSet = await authserverClient.getAuthorizationCodeToken(params, authorizeSession);
+  
+  // We consume the Number Verification API using the access token.
+  const result = await numberVerificationClient.verify(
+    { 
+      hashed_phone_number: createHash('sha256').update(phonenumber).digest('hex')
+    },{
+      getToken: () => new Promise<string>((resolve) => {
+        resolve(tokenSet.access_token as string);
+      })
+    });
+  
+  // We render the data returned by the API.
+  return res.render('pages/verify', { 
+    phonenumber,
+    result: JSON.stringify(result, null, 4),
+    state: uuid(),
+    clientIp: getIpAddress(req)
+  });
+
 });
+
 ```
 

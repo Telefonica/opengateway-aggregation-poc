@@ -101,13 +101,13 @@
               <div class="row align-items-center">
                 <div class="col-md-6 col-sm-6" >
                   <select name="ipport" id="ipport">
-                    <option value="83.58.58.57" selected>83.58.58.57:3543 (Telefónica)</option>
+                    <option value="<%= clientIp %>" selected><%= clientIp %> (Your Real IP)</option>
+                    <option value="83.58.58.57">83.58.58.57:3543 (Telefónica)</option>
                     <option value="109.42.3.0">109.42.3.0:4631 (Vodafone)</option>
-                    <option value="<%= clientIp %>"><%= clientIp %> (Your Real IP)</option>
                   </select>
                 </div>
                 <div class="col-md-6 col-sm-6">
-                  <a id="jwtbearer-button" class="btn btn-primary" style="margin: 10px;" href="/jwtbearer/verify?ip=83.58.58.57">
+                  <a id="jwtbearer-button" class="btn btn-primary" style="margin: 10px;" href="/jwtbearer/verify?ip=<%= clientIp %>">
                     Device Location Verification<br />
                     JWT Bearer
                   </a>
@@ -116,9 +116,9 @@
 
             </div>
             <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
-              <h2>Authorization Code Example: Number Verification API</h2>
+              <h2>Authorization Code Example: Device Location Verification API</h2>
               <div class="alert alert-warning" role="alert">
-                <p>Once you are logged in the demo-app platform, you can click on the <i>Number Verification</i> button in
+                <p>Once you are logged in the demo-app platform, you can click on the <i>Device Location Verification</i> button in
                   order to consume Camara APIs. The complete process follow the next logic:
                 <ul>
                   <li>If you don't have any access token yet:

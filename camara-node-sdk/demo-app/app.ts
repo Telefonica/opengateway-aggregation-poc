@@ -167,7 +167,9 @@ app.get('/jwtbearer/verify', async (req, res, next) => {
 /**
  * Authcode Section
  */
-
+/**
+ * Calculate a redirect to the authorized endpoint.
+ */
 app.get('/authcode/flow', async (req, res, next) => {
   
   const {phonenumber, operation, state, error} = retrieveParametersFromRequest(req);
