@@ -31,6 +31,7 @@ services:
       # HOST: "http://aggregator-telco-router-1:3311" ###
       DATABASE_HOST: "mongodb:27017"
       DATABASE_NAME: "aggregator-telco-router-1"
+      OPERATOR_ID: "TELEFONICA"
     ports:
       - 3311:3311
 
@@ -44,6 +45,7 @@ services:
       # HOST: "http://aggregator-telco-router-2:3322" ###
       DATABASE_HOST: "mongodb:27017"
       DATABASE_NAME: "aggregator-telco-router-2"
+      OPERATOR_ID: "VODAFONE"
     ports:
       - 3322:3322
 
