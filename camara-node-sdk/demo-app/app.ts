@@ -59,7 +59,6 @@ const retrieveParametersFromRequest = (req: any) => {
   }
 };
 
-
 const consumeCamaraAPI = async (req: any, phonenumber: string, operation: string) => {
   const getToken = () => new Promise<string>((resolve) => {
     resolve(req.session.token as string);
@@ -81,48 +80,9 @@ const consumeCamaraAPI = async (req: any, phonenumber: string, operation: string
   return result;
 }
 
-
-app.get('/', (req, res) => {
-  console.log('Client IP Address: ' + getIpAddress(req));
-  const userLogged = req.session?.login?.phonenumber;
-  if (userLogged) {
-    res.render('pages/verify', {phonenumber: req.session?.login?.phonenumber, result:'', state: uuid(), clientIp: getIpAddress(req)});
-  } else {
-    res.render('pages/login', { clientIp: getIpAddress(req) });
-  }
-});
-
-app.post('/login', (req, res) => {
-  let body = req.body
-  console.log(JSON.stringify(body))
-  req.session = req.session || {}
-  req.session.login = {
-    phonenumber: body.phonenumber || "+3462534724337623",
-  }
-  req.session.operation = "numberVerify";
-  res.redirect('/authcode/flow?state=' + uuid())
-});
-
-app.get('/authcode/verify', async (req, res, next) => {
-  
-  if (!req.session) {
-    console.warn('Not valid session. Doing logout')
-    return res.redirect('/logout');
-  }
-  delete req.session?.login.token;
-  delete req.session?.camara;
-  req.session.operation = "devVerify";
-  return res.redirect('/authcode/flow?state=' + uuid())
-});
-
-app.get('/logout', (req, res) => {
-  if (req.session) {
-    delete req.session.login;
-    delete req.session.operation;
-  }
-  res.redirect('/')
-});
-
+/**
+ * JWTbearer Section
+ */
 app.get('/jwtbearer/verify', async (req, res, next) => {
   console.log('jwtbearer device location verify', req.session);
   if (!req.session?.login?.phonenumber) {
@@ -161,16 +121,22 @@ app.get('/jwtbearer/verify', async (req, res, next) => {
     next(err);
   }
 });
-
+/**
+ * End JWTbearer Section
+ */
 
 
 /**
  * Authcode Section
  */
 /**
- * Calculate a redirect to the authorized endpoint.
+ * Calculate authorize url and redirect to it in order to retrive a Oauth2 code.
  */
 app.get('/authcode/flow', async (req, res, next) => {
+
+
+  //scope, state phoneNumber
+
   
   const {phonenumber, operation, state, error} = retrieveParametersFromRequest(req);
 
@@ -178,6 +144,8 @@ app.get('/authcode/flow', async (req, res, next) => {
     console.log(error);
     return res.redirect('/logout');
   }
+
+
 
   try {
     // Access token already exists
@@ -212,6 +180,9 @@ app.get('/authcode/flow', async (req, res, next) => {
     // Store the session data in the cookie session
     if (req.session) req.session.oauth = session;
 
+
+
+
     // Redirect to the Authorize Endpoint.
     return res.redirect(url);
 
@@ -220,12 +191,6 @@ app.get('/authcode/flow', async (req, res, next) => {
   }
    
 });
-
-
-/**
- * Calculate authorize url and redirect to it in order to retrive a Oauth2 code.
- */
-
 
 /**
  * Get an access_token by using a code and perform the API call. Callback url mus be configured in the application redirect_uri.
@@ -284,6 +249,53 @@ app.get('/authcode/callback', async (req, res, next) => {
     next(err);
   }
 });
+/**
+ * End Authcode Section
+ */
+
+
+app.get('/', (req, res) => {
+  console.log('Client IP Address: ' + getIpAddress(req));
+  const userLogged = req.session?.login?.phonenumber;
+  if (userLogged) {
+    res.render('pages/verify', {phonenumber: req.session?.login?.phonenumber, result:'', state: uuid(), clientIp: getIpAddress(req)});
+  } else {
+    res.render('pages/login', { clientIp: getIpAddress(req) });
+  }
+});
+
+app.post('/login', (req, res) => {
+  let body = req.body
+  console.log(JSON.stringify(body))
+  req.session = req.session || {}
+  req.session.login = {
+    phonenumber: body.phonenumber || "+3462534724337623",
+  }
+  req.session.operation = "numberVerify";
+  res.redirect('/authcode/flow?state=' + uuid())
+});
+
+app.get('/authcode/verify', async (req, res, next) => {
+  
+  if (!req.session) {
+    console.warn('Not valid session. Doing logout')
+    return res.redirect('/logout');
+  }
+  delete req.session?.login.token;
+  delete req.session?.camara;
+  req.session.operation = "devVerify";
+  return res.redirect('/authcode/flow?state=' + uuid())
+});
+
+app.get('/logout', (req, res) => {
+  if (req.session) {
+    delete req.session.login;
+    delete req.session.operation;
+  }
+  res.redirect('/')
+});
+
+
 
 /**
  * expose jwks endpoint in the server
