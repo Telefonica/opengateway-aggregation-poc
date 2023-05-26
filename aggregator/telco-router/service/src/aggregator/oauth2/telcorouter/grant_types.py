@@ -15,7 +15,7 @@ from oauthlib import common
 from oauthlib.oauth2 import AuthorizationCodeGrant
 from oauthlib.oauth2.rfc6749 import errors
 from oauthlib.oauth2.rfc6749.errors import InvalidRequestFatalError, InvalidClientError, CustomOAuth2Error, MissingClientIdError, InvalidClientIdError, FatalClientError, \
-    OAuth2Error, InvalidRequestError
+    OAuth2Error, InvalidRequestError, AccessDeniedError, InvalidGrantError
 from oauthlib.oauth2.rfc6749.grant_types import AuthorizationCodeGrant as OAuth2AuthorizationCodeGrant
 from oauthlib.oauth2.rfc6749.tokens import random_token_generator
 
@@ -160,8 +160,9 @@ class AggregatorAuthorizationCodeGrantMixin:
             _, authentication = self.validate_authorization_request(request)
             request.authentication = authentication
 
-            #TODO: get IP to call TelcoFinder
             request.routing = TelcoFinderClient().get_routing_metadata('ipport', self._get_ip())
+            if request.routing is None:
+                raise AccessDeniedError(description="Unknown user")
 
             jwt_state_payload = self._get_state_payload(request)
             jwt_state = build_jwe(jwt_state_payload, AggregatorMiddleware.get_correlator(request), settings.JWE_ACCESS_TOKEN_KID)
@@ -349,6 +350,8 @@ class AggregatorJWTBearerGrant(oauthlib.oauth2.rfc6749.grant_types.base.GrantTyp
     def _get_routing_token(self, request):
         index = request.auth[FIELD_SUB].find(":")
         request.routing = TelcoFinderClient().get_routing_metadata(request.auth[FIELD_SUB][0:index], request.auth[FIELD_SUB][index+1:])
+        if request.routing is None:
+            raise InvalidGrantError(description="Unknown sub")
 
         metadata = OidcClient().get_metadata(request.routing['authserver_url'])
 

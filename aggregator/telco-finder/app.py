@@ -1,3 +1,4 @@
+import ipaddress
 import os
 
 from flask import Flask, jsonify
@@ -47,6 +48,10 @@ def healthz():
 #
 def _resolve_serving_operator(identifier_type, identifier_value):
     try:
+        # Default value for private IPs
+        if ipaddress.ip_address(identifier_value).is_private:
+            return OPERATOR_DATABASE["ORG-TDE1-RIPE"]
+
         # example 83.58.58.57 (Telefónica)
         # example 109.42.3.0 (Vodafone)
         whois = IPWhois(identifier_value).lookup_whois()
@@ -54,7 +59,7 @@ def _resolve_serving_operator(identifier_type, identifier_value):
         asn = int(whois['asn'])  # see https://asrank.caida.org/asns
         return _well_known_endpoints(asn)
     except Exception as e:
-        return OPERATOR_DATABASE["ORG-TDE1-RIPE"]
+        return None
 
 
 OPERATOR_DATABASE = {

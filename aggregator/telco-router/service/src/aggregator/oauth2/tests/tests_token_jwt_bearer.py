@@ -182,6 +182,18 @@ class JwtBearerTokenErrorTestCase(JwtBearerTokenTestCase):
         response = self.do_token(token_params, {})
         self.assertJsonError(response, 401, 'invalid_client', "Unknown client.")
 
+    @requests_mock.mock()
+    def test_telcofinder_unknown_error(self, m):
+        self.do_mocking(m)
+
+        m.get('http://api.aggregator.com/telcofinder/v1/tel/+34618051526', status_code=404)
+
+        token_params = self.get_token_request_parameters()
+        token_params['client_assertion_type'] = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+        token_params['client_assertion'] = get_signed_jwt(self.get_default_client_assertion(), settings.SP_JWT_SIGNING_ALGORITHM, settings.SP_JWT_KID, SP_JWT_PRIVATE_KEY)
+        response = self.do_token(token_params, {})
+        self.assertJsonError(response, 400, 'invalid_grant', "Unknown sub.")
+
 
 class JwtBearerTokenWrongValuesTestCase(JwtBearerTokenTestCase):
 
