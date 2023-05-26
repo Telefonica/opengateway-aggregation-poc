@@ -291,7 +291,7 @@ app.get('/authcode/callback', async (req, res, next) => {
           }),
         }
       );
-
+      console.log("Response: " + JSON.stringify(verification));
       return res.render('pages/verify', {
         phonenumber,
         result: JSON.stringify(verification, null, 4),
