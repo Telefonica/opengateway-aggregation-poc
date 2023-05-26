@@ -148,6 +148,7 @@ services:
   mongo-seed:
     build:
       context: ./mongo-seed
+    restart: always
     depends_on:
       - mongodb
       - operator-platform-authserver-1
