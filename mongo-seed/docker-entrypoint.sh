@@ -3,7 +3,7 @@
 url="http://169.254.169.254/metadata/instance?api-version=2021-01-01"
 http_code=$(curl  -H "Metadata: true" -s -o /dev/null -w "%{http_code}" "$url")
 
-if [ "$http_code" -eq 200 ]; then
+if [ "$http_code" -eq "200" ]; then
     # This code is Telefónica specific, for our deployment in Azure.
     # It is not needed for local development.
     mongo mongodb:27017/authserver-telefonica --quiet azure/app-provision.js
