@@ -5,6 +5,8 @@ _transform: true
 consumers:
   - username: johndoe
     custom_id: johndoe
+  - username: johndoe-azure
+    custom_id: johndoe-azure
 
 jwt_secrets:
   - consumer: johndoe
