@@ -3,6 +3,30 @@
 
 <head>
   <%- include('../partials/head'); %>
+  <script>
+    $(function() { 
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
+            localStorage.setItem('lastTab', $(this).attr('href'));
+        });
+        var lastTab = localStorage.getItem('lastTab');
+        if (lastTab) {
+            $(lastTab).addClass('show');
+            $(lastTab).addClass('active');
+            $('[href="' + lastTab + '"]').tab('show');
+            console.log(lastTab);
+        } else {
+          lastTab = "#tab1";
+          $(lastTab).addClass('show');
+          $(lastTab).addClass('active');
+          $('[href="' + lastTab + '"]').tab('show');
+          console.log(lastTab);
+        }
+        $('#ipport').on('change', function() {
+          var selectValue = this.value;
+          $('#jwtbearer-button').attr('href', '/jwtbearer/verify?ip=' + selectValue)
+        });
+    });
+    </script>
 </head>
 
 <body class="container">
@@ -74,9 +98,16 @@
               </div>
               <hr/>
 
-              <div class="row d-flex justify-content-center">
-                <div class="col-md-4">
-                  <a class="btn btn-primary" href="/jwtbearer/verify">
+              <div class="row align-items-center">
+                <div class="col-md-6 col-sm-6" >
+                  <select name="ipport" id="ipport">
+                    <option value="83.58.58.57" selected>83.58.58.57:3543 (Telefónica)</option>
+                    <option value="109.42.3.0">109.42.3.0:4631 (Vodafone)</option>
+                    <option value="<%= clientIp %>"><%= clientIp %> (Your Real IP)</option>
+                  </select>
+                </div>
+                <div class="col-md-6 col-sm-6">
+                  <a id="jwtbearer-button" class="btn btn-primary" style="margin: 10px;" href="/jwtbearer/verify?ip=83.58.58.57">
                     Device Location Verification<br />
                     JWT Bearer
                   </a>

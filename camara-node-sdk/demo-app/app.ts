@@ -38,6 +38,49 @@ const getIpAddress = (req: any) : string => {
   return ips[0].trim();
 }
 
+const retrieveParametersFromRequest = (req: any) => {
+  const state: string = (req.query.state ?? '') as string;
+  const operation: string = req.session?.operation as string;
+  let error = '';
+  if (!operation) {
+    error = 'No operation stablished. Performing logout';
+  }
+
+  if (!req.session?.login || !req.session.login.phonenumber) {
+    error = "No phone number found. Performing logout";
+  }
+  const phonenumber = req.session.login.phonenumber;
+
+  return {
+    state,
+    operation,
+    phonenumber,
+    error
+  }
+};
+
+
+const consumeCamaraAPI = async (req: any, phonenumber: string, operation: string) => {
+  const getToken = () => new Promise<string>((resolve) => {
+    resolve(req.session.token as string);
+  });
+  let result;
+  if (operation === "numberVerify") {
+    result = await numberVerificationClient.verify(
+      { 
+        hashed_phone_number: createHash('sha256').update(phonenumber).digest('hex')
+      },{
+        getToken,
+      });
+  } else if (operation === "devVerify") {
+    const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
+    result = await deviceLocationVerificationClient.verify(params, {
+      getToken
+    });
+  }
+  return result;
+}
+
 
 app.get('/', (req, res) => {
   console.log('Client IP Address: ' + getIpAddress(req));
@@ -54,30 +97,39 @@ app.post('/login', (req, res) => {
   console.log(JSON.stringify(body))
   req.session = req.session || {}
   req.session.login = {
-    phonenumber: body.phonenumber || "+34625347243",
-    ipport: body.ipport
+    phonenumber: body.phonenumber || "+3462534724337623",
   }
-  res.redirect('/authcode/numberverify?state=' + uuid())
+  req.session.operation = "numberVerify";
+  res.redirect('/authcode/flow?state=' + uuid())
+});
+
+app.get('/authcode/verify', async (req, res, next) => {
+  
+  if (!req.session) {
+    console.warn('Not valid session. Doing logout')
+    return res.redirect('/logout');
+  }
+  delete req.session?.login.token;
+  delete req.session?.camara;
+  req.session.operation = "devVerify";
+  return res.redirect('/authcode/flow?state=' + uuid())
 });
 
 app.get('/logout', (req, res) => {
   if (req.session) {
-    delete req.session.login
-    delete req.session.camara
+    delete req.session.login;
+    delete req.session.operation;
   }
   res.redirect('/')
 });
 
 app.get('/jwtbearer/verify', async (req, res, next) => {
   console.log('jwtbearer device location verify', req.session);
-
   if (!req.session?.login?.phonenumber) {
     return res.redirect('/')
   }
 
   try {
-    delete req.session.token;
-    delete req.session.oauth;
     if (!req.session?.camara) {
       req.session = req.session || {};
 
@@ -89,7 +141,7 @@ app.get('/jwtbearer/verify', async (req, res, next) => {
        * with other identifiers (MSISDN, etc).
        */
       req.session.camara = await Camara.login({
-        ipport: req.session?.login?.ipport,
+        ipport: req.query.ip as string,
       });
     }
 
@@ -97,9 +149,9 @@ app.get('/jwtbearer/verify', async (req, res, next) => {
      * Once we have a token, we can consume a CAMARA API.
      */
     const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
-    const location = await deviceLocationVerificationClient.verify(params, { session: req.session.camara }
-    );
-    res.render('pages/verify', {
+    const location = await deviceLocationVerificationClient.verify(params, { session: req.session.camara });
+    delete req.session.camara;
+    res.render('pages/verify', { 
       phonenumber: req.session?.login?.phonenumber,
       result: JSON.stringify(location, null, 4),
       state: uuid(),
@@ -111,46 +163,29 @@ app.get('/jwtbearer/verify', async (req, res, next) => {
 });
 
 
+
 /**
  * Authcode Section
  */
 
-/**
- * Calculate authorize url and redirect to it in order to retrive a Oauth2 code.
- */
-app.get('/authcode/numberverify', async (req, res, next) => {
+app.get('/authcode/flow', async (req, res, next) => {
+  
+  const {phonenumber, operation, state, error} = retrieveParametersFromRequest(req);
 
-  const state: string = (req.query.state ?? '') as string;
-
-  // Store the operation in the session
-  if (!req.session) {
-    console.warn('Not valid session. Doing logout')
+  if (error) {
+    console.log(error);
     return res.redirect('/logout');
   }
-  delete req.session.camara;
-  req.session.operation = "numberVerify";
 
-  if (!req.session?.login || !req.session.login.phonenumber) {
-    console.warn("No phone number found. Doing logout");
-    return res.redirect('/logout');
-  }
-  const phonenumber = req.session.login.phonenumber;
   try {
+    // Access token already exists
+    if (req.session && req.session.token) {
 
-    // We check if we already have an access token. If we have one, we call the API using it.
-    if (req.session.token) {
-      const verification = await numberVerificationClient.verify(
-        { hashed_phone_number: createHash('sha256').update(phonenumber).digest('hex')},
-        {
-          getToken: () => new Promise((resolve) => {
-            resolve(req.session?.token as string);
-          }),
-        }
-      );
+      let result = await consumeCamaraAPI(req, phonenumber, operation);
 
-      return res.render('pages/verify', {
+      return res.render('pages/verify', { 
         phonenumber,
-        result: JSON.stringify(verification, null, 4),
+        result: JSON.stringify(result, null, 4),
         state: uuid(),
         clientIp: getIpAddress(req)
       });
@@ -158,98 +193,51 @@ app.get('/authcode/numberverify', async (req, res, next) => {
 
     // Set the right scopes, redirect_uri and state to perform the flow.
     const authorizeParams: AuthorizeParams = {
-      scope: 'openid number-verification-verify-hashed-read',
-      redirect_uri: process.env.HOST + '/authcode/callback',
+      scope: '',
+      redirect_uri: `${process.env.HOST}/authcode/callback`,
     };
     if (state) {
       authorizeParams.state = state;
     }
+    if (operation === "numberVerify") {
+      authorizeParams.scope = 'openid number-verification-verify-hashed-read';
+    } else if (operation === "devVerify") {
+      authorizeParams.scope = 'device-location-verification-verify-read';
+    }
 
     // Retrieve the authorized url and the session data.
     const { url, session } = await authserverClient.authorize(authorizeParams);
-    // Store the sessión data in the session
-    req.session.oauth = session;
+    // Store the session data in the cookie session
+    if (req.session) req.session.oauth = session;
 
     // Redirect to the Authorize Endpoint.
     return res.redirect(url);
-  } catch (err) {
+
+  } catch(err) {
     next(err);
   }
-
+   
 });
+
 
 /**
  * Calculate authorize url and redirect to it in order to retrive a Oauth2 code.
  */
-app.get('/authcode/verify', async (req, res, next) => {
 
-  const state: string = (req.query.state ?? '') as string;
-
-  // Store the operation in the session
-  if (!req.session) {
-    console.warn('Not valid session. Doing logout')
-    return res.redirect('/logout');
-  }
-  delete req.session.camara;
-  req.session.operation = "devVerify";
-
-  if (!req.session?.login || !req.session.login.phonenumber) {
-    console.warn("No phone number found. Doing logout");
-    return res.redirect('/logout');
-  }
-  const phonenumber = req.session.login.phonenumber;
-  try {
-
-    // We check if we already have an access token. If we have one, we call the API using it.
-    if (req.session.token) {
-      const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
-      const location = await deviceLocationVerificationClient.verify(params, {
-        getToken: () => new Promise((resolve) => {
-          resolve(req.session?.token as string);
-        }),
-      });
-
-      return res.render('pages/verify', {
-        phonenumber,
-        result: JSON.stringify(location, null, 4),
-        state: uuid(),
-        clientIp: getIpAddress(req)
-      });
-    }
-
-    // Set the right scopes, redirect_uri and state to perform the flow.
-    const authorizeParams: AuthorizeParams = {
-      scope: 'device-location-verification-verify-read',
-      redirect_uri: process.env.HOST + '/authcode/callback',
-    };
-    if (state) {
-      authorizeParams.state = state;
-    }
-
-    // Retrieve the authorized url and the session data.
-    const { url, session } = await authserverClient.authorize(authorizeParams);
-    // Store the sessión data in the session
-    req.session.oauth = session;
-
-    // Redirect to the Authorize Endpoint.
-    return res.redirect(url);
-  } catch (err) {
-    next(err);
-  }
-});
 
 /**
  * Get an access_token by using a code and perform the API call. Callback url mus be configured in the application redirect_uri.
  */
 app.get('/authcode/callback', async (req, res, next) => {
 
-  try {
+  const {phonenumber, operation, error} = retrieveParametersFromRequest(req);
 
-    const phonenumber = req.session?.login.phonenumber;
-    if (!phonenumber) {
-      console.warn('Phonenumber not found. Please, complete the flow again.');
-      return res.redirect('/logout');
-    }
+  if (error) {
+    console.log(error);
+    return res.redirect('/logout');
+  }
+
+  try {
 
     // Get code value to request an access token.
     const code = req.query.code as string;
@@ -258,13 +246,7 @@ app.get('/authcode/callback', async (req, res, next) => {
       return res.redirect('/logout');
     }
 
-    // Recover the operation from the previous step in order to perform the API call.
-    const operation = req.session?.operation;
-    if (!operation) {
-      console.warn('Operation undefined. Please, complete the flow again.');
-      return res.redirect('/logout');
-    }
-
+  
     // Build the Callback Parameters
     const params: AuthorizeCallbackParams = { code: code };
     const state = req.session?.oauth?.state as string;
@@ -274,46 +256,28 @@ app.get('/authcode/callback', async (req, res, next) => {
 
     // Recover the Authorized sessión from the previous step.
     const authorizeSession: AuthorizeSession = req.session?.oauth;
-
+  
     // We get the access_token and other information such as refresh_token, id_token, etc....
     const tokenSet: TokenSet = await authserverClient.getAuthorizationCodeToken(params, authorizeSession);
-
+  
     // We store the token in the session for future uses
+    
     if (req.session) req.session.token = tokenSet.access_token;
+  
+    let result = await consumeCamaraAPI(req, phonenumber, operation);
 
-    if ( operation === "numberVerify") {
-      // We call the API using the access_token and render the view.
-      const verification = await numberVerificationClient.verify(
-        { hashed_phone_number: createHash('sha256').update(phonenumber).digest('hex')},
-        {
-          getToken: () => new Promise((resolve) => {
-            resolve(tokenSet.access_token);
-          }),
-        }
-      );
-      console.log("Response: " + JSON.stringify(verification));
-      return res.render('pages/verify', {
-        phonenumber,
-        result: JSON.stringify(verification, null, 4),
-        state: uuid(),
-        clientIp: getIpAddress(req)
-      });
-    } else if ( operation === "devVerify") {
-      // We call the API using the access_token and render the view.
-      const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
-      const location = await deviceLocationVerificationClient.verify(params, {
-        getToken: () => new Promise((resolve) => {
-          resolve(tokenSet.access_token);
-        }),
-      });
-
-      return res.render('pages/verify', {
-        phonenumber,
-        result: JSON.stringify(location, null, 4),
-        state: uuid(),
-        clientIp: getIpAddress(req)
-      });
+    if (req.session) {
+      delete req.session.token;
+      delete req.session.oauth;
     }
+    
+    return res.render('pages/verify', { 
+      phonenumber,
+      result: JSON.stringify(result, null, 4),
+      state: uuid(),
+      clientIp: getIpAddress(req)
+    });
+
   } catch(err) {
     next(err);
   }
