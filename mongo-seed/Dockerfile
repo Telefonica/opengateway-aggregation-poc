@@ -1,7 +1,7 @@
 FROM mongo:5.0
 
-ADD ./app-provision.js /app-provision.js
-ADD ./aggregator-app-provision.js /aggregator-app-provision.js
+ADD ./localhost /localhost
+ADD ./azure /azure
 ADD ./docker-entrypoint.sh /docker-entrypoint.sh
 ADD ./wait-for-it.sh /wait-for-it.sh
 
