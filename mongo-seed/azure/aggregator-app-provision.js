@@ -31,7 +31,8 @@ db.apps.replaceOne(
         sector_identifier_uri : "https://opengateway.baikalplatform.es",
         jwks_uri : "https://opengateway.baikalplatform.es/api/jwks",
         redirect_uri : [
-            "https://opengateway.baikalplatform.es/authcode/callback"
+            "https://opengateway.baikalplatform.es/authcode/devloc/callback",
+            "https://opengateway.baikalplatform.es/authcode/numver/callback"
         ]
     },
     {
