@@ -54,7 +54,7 @@ app.post('/login', (req, res) => {
   console.log(JSON.stringify(body))
   req.session = req.session || {}
   req.session.login = {
-    phonenumber: body.phonenumber || "+3462534724337623",
+    phonenumber: body.phonenumber || "+34625347243",
     ipport: body.ipport
   }
   res.redirect('/authcode/numberverify?state=' + uuid())
@@ -93,14 +93,13 @@ app.get('/jwtbearer/verify', async (req, res, next) => {
       });
     }
 
-
     /**
      * Once we have a token, we can consume a CAMARA API.
      */
     const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
     const location = await deviceLocationVerificationClient.verify(params, { session: req.session.camara }
     );
-    res.render('pages/verify', { 
+    res.render('pages/verify', {
       phonenumber: req.session?.login?.phonenumber,
       result: JSON.stringify(location, null, 4),
       state: uuid(),
@@ -148,8 +147,8 @@ app.get('/authcode/numberverify', async (req, res, next) => {
           }),
         }
       );
-  
-      return res.render('pages/verify', { 
+
+      return res.render('pages/verify', {
         phonenumber,
         result: JSON.stringify(verification, null, 4),
         state: uuid(),
@@ -209,8 +208,8 @@ app.get('/authcode/verify', async (req, res, next) => {
           resolve(req.session?.token as string);
         }),
       });
-  
-      return res.render('pages/verify', { 
+
+      return res.render('pages/verify', {
         phonenumber,
         result: JSON.stringify(location, null, 4),
         state: uuid(),
@@ -258,30 +257,30 @@ app.get('/authcode/callback', async (req, res, next) => {
       console.warn('Code not found. Please, complete the flow again.');
       return res.redirect('/logout');
     }
-  
+
     // Recover the operation from the previous step in order to perform the API call.
     const operation = req.session?.operation;
     if (!operation) {
       console.warn('Operation undefined. Please, complete the flow again.');
       return res.redirect('/logout');
     }
-  
+
     // Build the Callback Parameters
     const params: AuthorizeCallbackParams = { code: code };
     const state = req.session?.oauth?.state as string;
     if (state) {
       params.state = state;
     }
-  
+
     // Recover the Authorized sessión from the previous step.
     const authorizeSession: AuthorizeSession = req.session?.oauth;
-  
+
     // We get the access_token and other information such as refresh_token, id_token, etc....
     const tokenSet: TokenSet = await authserverClient.getAuthorizationCodeToken(params, authorizeSession);
-  
+
     // We store the token in the session for future uses
     if (req.session) req.session.token = tokenSet.access_token;
-  
+
     if ( operation === "numberVerify") {
       // We call the API using the access_token and render the view.
       const verification = await numberVerificationClient.verify(
@@ -292,8 +291,8 @@ app.get('/authcode/callback', async (req, res, next) => {
           }),
         }
       );
-  
-      res.render('pages/verify', { 
+
+      res.render('pages/verify', {
         phonenumber,
         result: JSON.stringify(verification, null, 4),
         state: uuid(),
@@ -307,8 +306,8 @@ app.get('/authcode/callback', async (req, res, next) => {
           resolve(tokenSet.access_token);
         }),
       });
-  
-      return res.render('pages/verify', { 
+
+      return res.render('pages/verify', {
         phonenumber,
         result: JSON.stringify(location, null, 4),
         state: uuid(),
