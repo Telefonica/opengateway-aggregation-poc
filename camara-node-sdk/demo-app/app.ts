@@ -159,7 +159,7 @@ app.get('/authcode/numberverify', async (req, res, next) => {
     // Set the right scopes, redirect_uri and state to perform the flow.
     const authorizeParams: AuthorizeParams = {
       scope: 'openid number-verification-verify-hashed-read',
-      redirect_uri: `http://localhost:3000/authcode/callback`,
+      redirect_uri: process.env.HOST + '/authcode/callback',
     };
     if (state) {
       authorizeParams.state = state;
@@ -220,7 +220,7 @@ app.get('/authcode/verify', async (req, res, next) => {
     // Set the right scopes, redirect_uri and state to perform the flow.
     const authorizeParams: AuthorizeParams = {
       scope: 'device-location-verification-verify-read',
-      redirect_uri: `http://localhost:3000/authcode/callback`,
+      redirect_uri: process.env.HOST + '/authcode/callback',
     };
     if (state) {
       authorizeParams.state = state;

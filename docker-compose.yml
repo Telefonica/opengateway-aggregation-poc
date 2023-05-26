@@ -148,7 +148,6 @@ services:
   mongo-seed:
     build:
       context: ./mongo-seed
-    restart: always
     depends_on:
       - mongodb
       - operator-platform-authserver-1
@@ -159,6 +158,8 @@ services:
       context: .
     environment:
       PORT: 3000
+      HOST: "https://opengateway.baikalplatform.es"
+      # HOST: "http://localhost:3000" ###
       # Aggregator configuration
       CAMARA_API_URL: 'https://aggregator-telco-router-2.opengateway.baikalplatform.es/api'
       # CAMARA_API_URL: 'http://aggregator-telco-router-2:3322/api'
