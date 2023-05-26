@@ -29,7 +29,7 @@ jwt_secrets:
   - consumer: johndoe-azure
     algorithm: RS256
     # issuer
-    key: https://operator-platform-authserver-1.opengateway.baikalplatform.com/oauth2/authorize
+    key: https://operator-platform-authserver-1.opengateway.baikalplatform.es/oauth2/authorize
     rsa_public_key: |-
       -----BEGIN PUBLIC KEY-----
       MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA5LTYjBvFD7Zdz8/gP/Yr
