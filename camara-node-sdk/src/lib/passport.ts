@@ -19,10 +19,11 @@ const retrieveParametersFromRequest = (req: any) => {
   const state: string = (req.query.state ?? '') as string;
   const scope: string = req.session?.scope as string;
   let error = '';
-  if (!scope) {
-    error = 'No scope stablished. Performing logout';
-  }
+  // if (!scope) {
+  //   error = 'No scope stablished. Performing logout';
+  // }
 
+  // XXX it's not ok to have a phonenumber in the SDKs
   if (!req.session?.login || !req.session.login.phonenumber) {
     error = "No phone number found. Performing logout";
   }
@@ -97,7 +98,7 @@ export const passport: Passport = ({ redirect_uri, fixed_scope }, context = {}) 
       return res.redirect('/logout');
     }
 
-  
+
     // Build the Callback Parameters
     const params: AuthorizeCallbackParams = { code: code };
     const state = req.session?.oauth?.state as string;
@@ -107,12 +108,12 @@ export const passport: Passport = ({ redirect_uri, fixed_scope }, context = {}) 
 
     // Recover the Authorized sessión from the previous step.
     const authorizeSession: AuthorizeSession = req.session?.oauth;
-  
+
     // We get the access_token and other information such as refresh_token, id_token, etc....
     const tokenSet: TokenSet = await authserverClient.getAuthorizationCodeToken(params, authorizeSession);
-  
+
     // We store the token in the request context for future uses
-    res.locals = { 
+    res.locals = {
       token: tokenSet.access_token,
       phonenumber
     };

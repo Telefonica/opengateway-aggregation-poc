@@ -4,7 +4,7 @@
 <head>
   <%- include('../partials/head'); %>
   <script>
-    $(function() { 
+    $(function() {
         $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
             localStorage.setItem('lastTab', $(this).attr('href'));
         });
@@ -33,7 +33,7 @@
 
   <main>
     <div class="jumbotron">
-      <h1>Demo App</h1>
+      <h1>Demo App - Device Location</h1>
       <hr />
 
       <div class="row">
@@ -67,18 +67,17 @@
             <div class="tab-pane fade" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
               <h2>JWT Bearer Example: Device Location Verification API</h2>
               <div class="alert alert-warning" role="alert">
-                <p>Once you are logged in the demo-app platform, you can click on the <i>Device Location Verification</i> button in
+                <p>You can click on the <i>Device Location Verification</i> button in
                   order to consume Camara APIs. The complete process follow the next logic:
                 <ul>
-                  <li>If you don't have any access token yet:
+                  <li>If you don't have an access token yet:
                     <ul>
-                      <li>Calculate an access token:
+                      <li>Obtain an access token:
                         <ul>
-                          <li>You send a POST /token to the associated Telco Hyperscaler Authserver</li>
-                          <li>The Authserver using the ipport informations asks the Telco Finder which Telco corresponds to the
-                            user Ipport</li>
-                          <li>The Telco Hyperscaler Authserver ask the Telco Operator Platform Authserver for an OIDC 3 legged
-                            access token.</li>
+                          <li>You send a POST /token to the Aggregator.</li>
+                          <li>The Aggregator's Authserver calls the Telco Finder using the IP address as input
+                              to determine the target Operator Platform</li>
+                          <li>The Aggregator requests the target Operator Platform a OIDC 3-legged access token.</li>
                           <li>An access token will be generated for the demo-app</li>
                         </ul>
                       </li>
@@ -101,7 +100,7 @@
               <div class="row align-items-center">
                 <div class="col-md-6 col-sm-6" >
                   <select name="ipport" id="ipport">
-                    <option value="<%= clientIp %>" selected><%= clientIp %> (Your Real IP)</option>
+                    <option value="<%= clientIp %>" selected><%= clientIp %> (Your IP)</option>
                     <option value="83.58.58.57">83.58.58.57:3543 (Telefónica)</option>
                     <option value="109.42.3.0">109.42.3.0:4631 (Vodafone)</option>
                   </select>
@@ -111,21 +110,21 @@
                     Device Location Verification<br />
                     JWT Bearer
                   </a>
-                </div>              
+                </div>
               </div>
 
             </div>
             <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
               <h2>Authorization Code Example: Device Location Verification API</h2>
               <div class="alert alert-warning" role="alert">
-                <p>Once you are logged in the demo-app platform, you can click on the <i>Device Location Verification</i> button in
+                <p>You can click on the <i>Device Location Verification</i> button in
                   order to consume Camara APIs. The complete process follow the next logic:
                 <ul>
-                  <li>If you don't have any access token yet:
+                  <li>If you don't have an access token yet:
                     <ul>
-                      <li>Redirect the browser to the authorize endpoint with the needed scopes.</li>
-                      <li>The authserver redirects to the Callback Demo App endpoint including a code.</li>
-                      <li>The Demo App transforms that code in an access token.</li>
+                      <li>Redirect the browser to the Aggregator's /authorize endpoint with the needed scopes.</li>
+                      <li>The authserver redirects to the Demo App's callback including a code.</li>
+                      <li>The Demo App exchanges that code for an access token.</li>
                       <li>Consume CAMARA API to get the information using that access token.</li>
                     </ul>
                   </li>
@@ -148,7 +147,7 @@
                     Device Location Verification<br />
                     Authorization Code
                   </a>
-                </div>              
+                </div>
               </div>
 
             </div>
