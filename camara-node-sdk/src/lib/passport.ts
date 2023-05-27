@@ -19,9 +19,6 @@ const retrieveParametersFromRequest = (req: any) => {
   const state: string = (req.query.state ?? '') as string;
   const scope: string = req.session?.scope as string;
   let error = '';
-  if (!scope) {
-    error = 'No scope stablished. Performing logout';
-  }
 
   if (!req.session?.login || !req.session.login.phonenumber) {
     error = "No phone number found. Performing logout";
