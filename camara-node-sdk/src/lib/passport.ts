@@ -21,10 +21,10 @@ const retrieveParametersFromRequest = (req: any) => {
   let error = '';
 
   // XXX it's not ok to have a phonenumber in the SDKs
-  if (!req.session?.login || !req.session.login.phonenumber) {
+  if (!req.session?.login || !req.session?.login?.phonenumber) {
     error = "No phone number found. Performing logout";
   }
-  const phonenumber = req.session.login.phonenumber;
+  const phonenumber = req.session?.login?.phonenumber;
 
   return {
     state,
