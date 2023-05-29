@@ -135,13 +135,17 @@ class BaikalAuthorizationCodeGrantMixin:
 
     def _do_authentication(self, authentication, request):
         credentials = deepcopy(authentication)
-        credentials['corr'] = BaikalMiddleware.get_correlator(request)
+        # In a real scenario, prompt user for authentication, redirect to an external IdP
+        # or resolve origin IP from request to translate it to a user identity
         credentials['uid'] = 'tel:+34618051526'
+        # Get subject from identity
         credentials['sub'] = UserPcrCollection.get_pcr_or_create(credentials['uid'], request.app[ApplicationCollection.FIELD_SECTOR_IDENTIFIER])
+        # Add authentication data
         credentials['acr'] = request.authentication[FIELD_ACR_VALUES].split(' ')[0]
         credentials['amr'] = ['nbma']
         credentials['claims'] = {}
         credentials['auth_time'] = int(time.time())
+        credentials['corr'] = BaikalMiddleware.get_correlator(request)
 
         enrich_object(request, credentials or {})
 
@@ -152,7 +156,7 @@ class BaikalAuthorizationCodeGrantMixin:
 
             self.request_validator.save_authentication(authentication, request)
 
-            #TODO: Authentication
+            # TODO: Authentication
             self._do_authentication(authentication, request)
 
             grant = self.create_authorization_code(request)
