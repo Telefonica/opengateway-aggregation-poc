@@ -1,0 +1,8 @@
+{
+    "version": 2,
+    "projects": {
+        "camara-node-sdk": "sdks/camara-node-sdk",
+        "camara-express-sdk": "sdks/camara-express-sdk",
+        "express-demo-app": "examples/express-demo-app"
+    }
+}

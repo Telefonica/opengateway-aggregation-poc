@@ -1,0 +1,7 @@
+{
+    "root": "sdks/camara-express-sdk/",
+    "projectType": "library",
+    "tags": [
+        "type:lib"
+    ]
+}

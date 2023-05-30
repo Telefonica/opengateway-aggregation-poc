@@ -1,0 +1,25 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+        "strict": true,
+        "strictNullChecks": true,
+        "esModuleInterop": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "noUnusedLocals": true,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "moduleResolution": "node",
+        "paths": {
+            "camara-node-sdk": [
+                "camara-sdks/camara-node-sdk/src/index.ts"
+            ],
+            "camara-express-sdk": [
+                "camara-sdks/camara-express-sdk/src/index.ts"
+            ],
+            "express-demo-app": [
+                "examples/express-demo-app/src/index.ts"
+            ]
+        }
+    }
+}

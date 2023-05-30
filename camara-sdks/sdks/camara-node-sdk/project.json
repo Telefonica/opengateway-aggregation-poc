@@ -1,0 +1,7 @@
+{
+    "root": "sdks/camara-node-sdk/",
+    "projectType": "library",
+    "tags": [
+        "type:lib"
+    ]
+}

@@ -165,9 +165,8 @@ services:
       - operator-platform-authserver-2
 
   demo-app:
-    restart: always
     build:
-      context: .
+      context: ./camara-sdks
     restart: on-failure
     environment:
       PORT: 3000

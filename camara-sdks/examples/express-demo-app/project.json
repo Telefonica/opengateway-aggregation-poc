@@ -1,0 +1,7 @@
+{
+    "root": "examples/express-demo-app/",
+    "projectType": "application",
+    "tags": [
+        "type:server"
+    ]
+}
