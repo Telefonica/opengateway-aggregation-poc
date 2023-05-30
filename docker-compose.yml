@@ -8,6 +8,7 @@ services:
   aggregator-telco-finder-1:
     build:
       context: ./aggregator/telco-finder
+    restart: on-failure
     environment:
       PORT: 2211
     ports:
@@ -16,6 +17,7 @@ services:
   aggregator-telco-finder-2:
     build:
       context: ./aggregator/telco-finder
+    restart: on-failure
     environment:
       PORT: 2222
     ports:
@@ -24,6 +26,7 @@ services:
   aggregator-telco-router-1:
     build:
       context: ./aggregator/telco-router
+    restart: on-failure
     environment:
       PORT: 3311
       TELCO_FINDER_HOST: "http://aggregator-telco-finder-1:2211"
@@ -38,6 +41,7 @@ services:
   aggregator-telco-router-2:
     build:
       context: ./aggregator/telco-router
+    restart: on-failure
     environment:
       PORT: 3322
       TELCO_FINDER_HOST: "http://aggregator-telco-finder-2:2222"
@@ -55,6 +59,7 @@ services:
   operator-platform-apigateway-1:
     image: kong:3.1.1-alpine
     user: kong
+    restart: on-failure
     environment:
       KONG_DATABASE: "off"
       KONG_PLUGINS: "bundled,log-signature"
@@ -71,6 +76,7 @@ services:
   operator-platform-apigateway-2:
     image: kong:3.1.1-alpine
     user: kong
+    restart: on-failure
     environment:
       KONG_DATABASE: "off"
       KONG_PLUGINS: "bundled,log-signature"
@@ -87,6 +93,7 @@ services:
   operator-platform-camara-apis-1:
     build:
       context: ./operator-platform/camara-apis
+    restart: on-failure
     environment:
       PORT: 8001
     ports:
@@ -95,6 +102,7 @@ services:
   operator-platform-camara-apis-2:
     build:
       context: ./operator-platform/camara-apis
+    restart: on-failure
     environment:
       PORT: 8002
     ports:
@@ -105,6 +113,7 @@ services:
       context: ./operator-platform/authserver
     depends_on:
       - mongodb
+    restart: on-failure
     environment:
       PORT: 9010
       HOST: "https://operator-platform-authserver-1.opengateway.baikalplatform.es"
@@ -122,6 +131,7 @@ services:
       context: ./operator-platform/authserver
     depends_on:
       - mongodb
+    restart: on-failure
     environment:
       PORT: 9020
       HOST: "https://operator-platform-authserver-2.opengateway.baikalplatform.es"
@@ -142,6 +152,7 @@ services:
     ports:
       - 27017:27017
     command: --quiet --logpath /dev/null
+    restart: on-failure
     volumes:
       - mongodbdata:/data/db
 
@@ -157,6 +168,7 @@ services:
     restart: always
     build:
       context: .
+    restart: on-failure
     environment:
       PORT: 3000
       HOST: "https://opengateway.baikalplatform.es"
