@@ -1,9 +1,9 @@
 import type { InternalAxiosRequestConfig } from 'axios';
-import type { ApiRequestContext, ApiClientConfig } from './ApiClient.js';
-import type { CamaraSession } from '../lib/session.js';
-import ApiClient from './ApiClient.js';
+import type { ApiRequestContext, ApiClientConfig } from './ApiClient';
+import type { CamaraSession } from '../lib/session';
+import ApiClient from './ApiClient';
 import { v4 as uuid } from 'uuid';
-import { restoreSession } from '../lib/session.js';
+import { restoreSession } from '../lib/session';
 
 interface WithSessionSupport {
   session?: CamaraSession;

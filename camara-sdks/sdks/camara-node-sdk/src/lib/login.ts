@@ -1,8 +1,8 @@
-import type { BaseRequestContext } from '../clients/BaseClient.js';
-import type { CamaraSetupId } from './setup.js';
-import type { CamaraSession } from './session.js';
-import { createSession } from './session.js';
-import { defaultSetupId, getSetup, createSetup } from './setup.js';
+import type { BaseRequestContext } from '../clients/BaseClient';
+import type { CamaraSetupId } from './setup';
+import type { CamaraSession } from './session';
+import { createSession } from './session';
+import { defaultSetupId, getSetup } from './setup';
 
 export interface LoginContext extends BaseRequestContext {
   /** the setup id containing sdk configuration to use. Defaults to 'default' */

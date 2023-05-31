@@ -1,7 +1,7 @@
-import type { CamaraConfig, CamaraSetupId } from '../lib/setup.js';
-import type { AuthserverRequestContext, TokenSet } from '../clients/AuthserverClient.js';
-import type AuthserverClient from '../clients/AuthserverClient.js';
-import type { CacheService, TokenCacheKey } from './cache.js';
+import type { CamaraConfig, CamaraSetupId } from '../lib/setup';
+import type { AuthserverRequestContext, TokenSet } from '../clients/AuthserverClient';
+import type AuthserverClient from '../clients/AuthserverClient';
+import type { CacheService, TokenCacheKey } from './cache';
 
 export interface CamaraTokenSet extends TokenSet {
   expires_at: number;

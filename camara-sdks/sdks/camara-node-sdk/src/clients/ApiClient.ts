@@ -1,6 +1,6 @@
 import type { AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
-import type { BaseClientConfig, BaseRequestContext } from './BaseClient.js';
-import BaseClient from './BaseClient.js';
+import type { BaseClientConfig, BaseRequestContext } from './BaseClient';
+import BaseClient from './BaseClient';
 import * as path from 'path'
 
 interface WithTokenGetter {

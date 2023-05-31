@@ -1,5 +1,5 @@
-import type { CamaraClientConfig, CamaraRequestContext } from './CamaraClient.js';
-import CamaraClient from './CamaraClient.js';
+import type { CamaraClientConfig, CamaraRequestContext } from './CamaraClient';
+import CamaraClient from './CamaraClient';
 
 export interface VerifyResponse {
   /**

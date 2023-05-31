@@ -1,8 +1,8 @@
-import type { TokenService } from '../services/tokens.js';
-import type { CacheService } from '../services/cache.js';
-import AuthserverClient from '../clients/AuthserverClient.js';
-import Token from '../services/tokens.js';
-import Cache from '../services/cache.js';
+import type { TokenService } from '../services/tokens';
+import type { CacheService } from '../services/cache';
+import AuthserverClient from '../clients/AuthserverClient';
+import Token from '../services/tokens';
+import Cache from '../services/cache';
 
 /**
  * Configuration for the Camara SDK

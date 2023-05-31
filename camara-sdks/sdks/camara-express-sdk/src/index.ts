@@ -1,5 +1,5 @@
-import type { Passport } from './lib/passport.js';
-import { passport } from './lib/passport.js';
+import type { Passport } from './lib/passport';
+import { passport } from './lib/passport';
 
 interface CamaraExpress {
   passport: Passport;

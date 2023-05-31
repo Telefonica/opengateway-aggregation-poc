@@ -1,7 +1,7 @@
-import type { CamaraSetupId, Setup } from './lib/setup.js';
-import type { Login } from './lib/login.js';
-import { createSetup, getSetup } from './lib/setup.js';
-import { login as session } from './lib/login.js';
+import type { CamaraSetupId, Setup } from './lib/setup';
+import type { Login } from './lib/login';
+import { createSetup, getSetup } from './lib/setup';
+import { login as session } from './lib/login';
 
 interface Camara {
   setup: Setup;

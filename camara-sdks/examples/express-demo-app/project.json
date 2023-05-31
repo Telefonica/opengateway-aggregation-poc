@@ -1,7 +1,6 @@
 {
-    "root": "examples/express-demo-app/",
-    "projectType": "application",
-    "tags": [
-        "type:server"
-    ]
+  "name": "express-demo-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "tags": ["type:server"]
 }

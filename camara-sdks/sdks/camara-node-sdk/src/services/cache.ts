@@ -1,6 +1,6 @@
-import type { CamaraConfig, CamaraSetupId } from '../lib/setup.js';
+import type { CamaraConfig, CamaraSetupId } from '../lib/setup';
 import { LRUCache } from 'lru-cache';
-import type { CamaraTokenSet } from './tokens.js';
+import type { CamaraTokenSet } from './tokens';
 
 export interface CacheService {
   getCache: <T extends CacheId>(id: T) => Promise<CacheType<T>>;

@@ -1,5 +1,5 @@
-import type { BaseRequestContext } from './BaseClient.js';
-import BaseClient from './BaseClient.js';
+import type { BaseRequestContext } from './BaseClient';
+import BaseClient from './BaseClient';
 import { v4 as uuid } from 'uuid';
 import jose from 'node-jose';
 import memoize from 'memoizee';
@@ -429,6 +429,7 @@ export default class AuthserverClient extends BaseClient {
         url: url.toString(),
       };
     } catch (cause) {
+      // @ts-ignore
       throw new Error('Cannot create authorization url', { cause });
     }
   }
@@ -588,6 +589,7 @@ export default class AuthserverClient extends BaseClient {
         .final();
       return jwt as unknown as string;
     } catch (cause) {
+      // @ts-ignore
       throw new Error('Unable to sign JWT', { cause });
     }
   }

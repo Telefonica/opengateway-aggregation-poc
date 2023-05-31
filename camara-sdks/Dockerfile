@@ -6,7 +6,7 @@ RUN npm install -g pnpm@8.5.1
 
 WORKDIR /apps
 
-COPY package.json pnpm-lock.yaml workspace.json tsconfig.base.json pnpm-workspace.yaml nx.json babel.config.json ./
+COPY package.json pnpm-lock.yaml tsconfig.base.json tsconfig.json pnpm-workspace.yaml nx.json babel.config.json ./
 
 ADD examples ./examples
 

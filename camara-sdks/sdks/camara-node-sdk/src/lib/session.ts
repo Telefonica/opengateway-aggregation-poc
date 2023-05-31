@@ -1,6 +1,6 @@
-import type { CamaraRequestContext } from '../clients/CamaraClient.js';
-import type { CamaraTokenSet } from 'src/services/tokens.js';
-import { login } from '../lib/login.js';
+import type { CamaraRequestContext } from '../clients/CamaraClient';
+import type { CamaraTokenSet } from '../services/tokens';
+import { login } from '../lib/login';
 
 /**
  * Session for the Camara SDK
