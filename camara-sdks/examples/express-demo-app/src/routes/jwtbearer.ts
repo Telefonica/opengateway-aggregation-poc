@@ -2,9 +2,10 @@ import express from 'express';
 import Camara from 'camara-node-sdk/src';
 import { v4 as uuid } from 'uuid';
 import type DeviceLocationVerificationClient from 'camara-node-sdk/src/clients/DeviceLocationVerificationClient';
+import type { Router } from 'express';
 import getIpAddress from '../utils/getIpAddress';
 
-const JWTbearerRoutes = (deviceLocationVerificationClient: DeviceLocationVerificationClient) => {
+const JWTbearerRoutes = (deviceLocationVerificationClient: DeviceLocationVerificationClient): Router => {
     const router = express.Router();
     /**
      * JWTbearer Section

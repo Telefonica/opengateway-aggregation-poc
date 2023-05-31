@@ -5,7 +5,9 @@
     "test:unit:all": "nx run-many --target=test:unit --all --parallel=3",
     "lint:all": "nx run-many --target=lint --all --parallel=3",
     "graph": "nx graph",
-    "build:all": "nx run-many --target=build --all --parallel=3"
+    "build:all": "nx run-many --target=build --all --parallel=3",
+    "demoApp:start:dev": "nx run express-demo-app:start:dev",
+    "demoApp:start:pro": "nx run express-demo-app:start:pro"
   },
   "devDependencies": {
     "@nrwl/eslint-plugin-nx": "16.1.4",

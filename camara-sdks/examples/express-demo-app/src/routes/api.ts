@@ -2,9 +2,10 @@ import express from 'express';
 import { v4 as uuid } from 'uuid';
 import jose from 'node-jose';
 import type JWT from 'camara-node-sdk/src/clients/AuthserverClient'
+import type { Router } from 'express';
 import Camara from 'camara-node-sdk/src';
 
-const ApiRoutes = () => {
+const ApiRoutes = (): Router => {
   const router = express.Router();
 
   /**
@@ -12,7 +13,6 @@ const ApiRoutes = () => {
   * http://localhost:3000/api/jwks must be registered in the Aggregator Authserver as the client jwks_uri
   */
   router.get('/jwks', async (req, res, next) => {
-    console.log('/api/jwks', req.session);
     try {
       res.json(await Camara.jwks());
     } catch (err) {

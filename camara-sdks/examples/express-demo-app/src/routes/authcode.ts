@@ -4,9 +4,10 @@ import { createHash } from 'node:crypto'
 import type DeviceLocationVerificationClient from 'camara-node-sdk/src/clients/DeviceLocationVerificationClient';
 import getIpAddress from '../utils/getIpAddress';
 import type NumberVerificationClient from 'camara-node-sdk/src/clients/NumberVerificationClient';
+import type { Router } from 'express';
 import CamaraExpress from 'camara-express-sdk/src';
 
-const AuthCodeRoutes = (deviceLocationVerificationClient: DeviceLocationVerificationClient, numberVerificationClient: NumberVerificationClient) => {
+const AuthCodeRoutes = (deviceLocationVerificationClient: DeviceLocationVerificationClient, numberVerificationClient: NumberVerificationClient): Router => {
     const router = express.Router();
     const camaraPassportDevLocation = CamaraExpress.passport({
         redirect_uri: `${process.env.HOST}/authcode/devloc/callback`,

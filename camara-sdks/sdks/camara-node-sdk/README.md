@@ -13,9 +13,9 @@ import DeviceLocationVerificationClient from 'camara-node-sdk/clients/DeviceLoca
 Camara.setup();
 const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
 
-// Login with CAMARA using your client IP as identifier
-const session = await Camara.login({ ipport: '127.0.0.1:3000' });
-// Call CAMARA APIs using the login session
+// Create a CAMARA Session using your client IP as identifier and some scopes
+const session = await Camara.session({ ipport: '127.0.0.1:3000', scope: 'scope1 scope2' });
+// Call CAMARA APIs using the session
 const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
 const location = await deviceLocationVerificationClient.verify({ postcode: '28080' }, { session });
 
@@ -23,64 +23,53 @@ console.log(location);
 ```
 
 
-# Usage for JWT Authorization Code Flow. Express JS 
+# Usage for JWT Authorization Code Flow.
 
 To execute the authorization flow you only need an event that enables your browser to perform a GET to:
 
-```http://{your_service_host}:{your_service_port}/authcode/numver/flow?state={state}```
+```https://{your_service_host}:{your_service_port}/authcode/numver/flow?state={state}```
 
 ```js
 import Camara from 'camara-node-sdk';
 import NumberVerificationClient from 'camara-node-sdk/clients/NumberVerificationClient';
+import type { AuthorizeParams, AuthorizeCallbackParams, AuthorizeSession } from 'camara-node-sdk/src/clients/AuthserverClient';
+import type { TokenSet } from 'camara-node-sdk/src/clients/AuthserverClient';
 
-Camara.setup();
-const numberVerificationClient = new NumberVerificationClient();
-const camaraPassportNumVerification = Camara.passport({
-  redirect_uri: `${process.env.HOST}/authcode/numver/callback`,
-  fixed_scope: "openid number-verification-verify-hashed-read"
+const setup = Camara.setup();
+const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
+
+const { authserverClient } = setup;
+
+const authorizeParams: AuthorizeParams = {
+        scope: 'scope1 scope2',
+        redirect_uri: 'https://{your_service_host}:{your_service_port}/authcode/callback',
+      };
+// The SDK calculates the url for doing redirect and the data you have to store in session system {calculated_session} in the next step.      
+const { url, session } = await authserverClient.authorize(authorizeParams);
+
+
+// Build the Callback Parameters
+const params: AuthorizeCallbackParams = { code: code };
+const state = req.session?.oauth?.state as string;
+if (state) {
+  params.state = state;
+}
+// Once yo receive the code in your callback or redirect_uri endpoint you can do the following:
+const authorizeSession: AuthorizeSession = {calculated_session}
+// We get the access_token and other information such as refresh_token, id_token, etc....
+const tokenSet: TokenSet = await authserverClient.getAuthorizationCodeToken(params, authorizeSession);
+
+// Now you have an access_token inside the TokenSet and you can consume a Camara API
+
+// We set how are we going to retrieve our access_token. Prepared to use other system like cache or database.
+const getToken = () => new Promise<string>((resolve) => {
+    resolve(tokenSet.access_token as string);
 });
-
-/**
- * Authcode Section - Number Verification API. Scope openid number-verification-verify-hashed-read.
- */
-/**
- * Calculate authorize url and redirect to it in order to retrive a Oauth2 code.
- */
-
-app.get('/authcode/numver/flow', camaraPassportNumVerification.authorize);
-
-
-/**
- * Get an access_token by using a code and perform the API call. Callback url must be configured in the application redirect_uri.
- */
-app.get('/authcode/numver/callback', camaraPassportNumVerification.callback, async (req, res, next) => {
-  try {
-    // We set how are we going to retrieve our access_token. Prepared to use other system like cache or database.
-    const getToken = () => new Promise<string>((resolve) => {
-      resolve(res.locals.token as string);
-    });
-    //We consume the number verification API
-    const result = await numberVerificationClient.verify(
-      { 
-        hashed_phone_number: createHash('sha256').update(res.locals.phonenumber).digest('hex')
-      },{
-        getToken,
-      });
-    
-    // We render the view with the API result.
-    return res.render('pages/verify', { 
-      phonenumber: res.locals.phonenumber,
-      result: JSON.stringify(result, null, 4),
-      state: uuid(),
-      clientIp: getIpAddress(req)
-    });
-  } catch(err) {
-    next(err);
-  }
+//We consume the number verification API
+const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
+const result = await deviceLocationVerificationClient.verify(params, {
+    getToken
 });
-/**
- * End Authcode Section - Number Verification API.
- */
 
 ```
 

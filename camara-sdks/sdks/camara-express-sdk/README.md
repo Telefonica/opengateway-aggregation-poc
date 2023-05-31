@@ -1,27 +1,7 @@
-# camara-node-sdk
+# camara-express-sdk
 
 Public SDK used by applications to operate with the OpenGateway platform.
-Written in Node.js
-
-# Usage for JWT Bearer Flow
-
-```js
-import Camara from 'camara-node-sdk';
-import DeviceLocationVerificationClient from 'camara-node-sdk/clients/DeviceLocationVerificationClient';
-
-// Autoconfigure the SDK with env vars
-Camara.setup();
-const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
-
-// Login with CAMARA using your client IP as identifier
-const session = await Camara.login({ ipport: '127.0.0.1:3000' });
-// Call CAMARA APIs using the login session
-const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
-const location = await deviceLocationVerificationClient.verify({ postcode: '28080' }, { session });
-
-console.log(location);
-```
-
+Written in Node.js for Express JS Framework and Authorization Code Flow. Take into account that this SDK depends on ```camara-node-sdk```
 
 # Usage for JWT Authorization Code Flow. Express JS 
 
@@ -62,14 +42,14 @@ app.get('/authcode/numver/callback', camaraPassportNumVerification.callback, asy
     //We consume the number verification API
     const result = await numberVerificationClient.verify(
       { 
-        hashed_phone_number: createHash('sha256').update(res.locals.phonenumber).digest('hex')
+        hashed_phone_number: createHash('sha256').update(req.session.phonenumber).digest('hex')
       },{
         getToken,
       });
     
     // We render the view with the API result.
     return res.render('pages/verify', { 
-      phonenumber: res.locals.phonenumber,
+      phonenumber: req.session.phonenumber,
       result: JSON.stringify(result, null, 4),
       state: uuid(),
       clientIp: getIpAddress(req)
@@ -84,3 +64,18 @@ app.get('/authcode/numver/callback', camaraPassportNumVerification.callback, asy
 
 ```
 
+
+# Expose JWKS Endpoint
+
+```js
+import Camara from 'camara-node-sdk';
+Camara.setup();
+
+app.get('/jwks', async (req, res, next) => {
+  try {
+    res.json(await Camara.jwks());
+  } catch (err) {
+    next(err);
+  }
+});
+```
