@@ -57,11 +57,22 @@ const AuthCodeRoutes = (deviceLocationVerificationClient: DeviceLocationVerifica
                 phonenumber,
                 result: JSON.stringify(result, null, 4),
                 state: uuid(),
-                clientIp: getIpAddress(req)
+                clientIp: getIpAddress(req),
+                error: false
             });
         } catch (err) {
             next(err);
         }
+    }, (err: any, req: any, res: any, next: any) => {
+        // Handle error
+        delete req.session.login;
+        if (err.error) {
+            return res.render('pages/login', {
+                clientIp: getIpAddress(req),
+                error: err
+            });
+        }
+        return next(err);
     });
     /**
      * End Authcode Section - Number Verification API.
@@ -103,11 +114,25 @@ const AuthCodeRoutes = (deviceLocationVerificationClient: DeviceLocationVerifica
                 phonenumber,
                 result: JSON.stringify(result, null, 4),
                 state: uuid(),
-                clientIp: getIpAddress(req)
+                clientIp: getIpAddress(req),
+                error: false
             });
         } catch (err) {
             next(err);
         }
+    }, (err: any, req: any, res: any, next: any) => {
+        // Handle error
+        const phonenumber = req.session?.login?.phonenumber;
+        if (err.error) {
+            return res.render('pages/verify', {
+                phonenumber,
+                result: JSON.stringify(err, null, 4),
+                state: uuid(),
+                clientIp: getIpAddress(req),
+                error: true
+            });
+        }
+        return next(err);
     });
     /**
      * End Authcode Section -  Device Location Verification API.

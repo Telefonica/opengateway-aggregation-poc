@@ -76,10 +76,20 @@
       </div>
       <br />
       <hr />
+
+      <% if (error) { %>
+        <div class="alert alert-danger" role="alert">
+          <p>
+            An error was produced and you can see the problem in the result.
+          </p>
+        </div>
+        <br />
+      <% } %>
+
       <p>Result: </p>
       <% if (result) { %>
         <pre><%= result %></pre>
-        <% } %>
+      <% } %>
     </div>
   </main>
 

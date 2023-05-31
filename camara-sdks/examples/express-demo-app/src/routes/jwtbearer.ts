@@ -42,10 +42,18 @@ const JWTbearerRoutes = (deviceLocationVerificationClient: DeviceLocationVerific
                 phonenumber: req.session?.login?.phonenumber,
                 result: JSON.stringify(location, null, 4),
                 state: uuid(),
-                clientIp: getIpAddress(req)
+                clientIp: getIpAddress(req),
+                error: false
             });
-        } catch (err) {
-            next(err);
+        } catch (err: any) {
+            return err.response?.data ? res.render('pages/verify', {
+                phonenumber: req.session?.login?.phonenumber,
+                result: JSON.stringify(err.response?.data, null, 4),
+                state: uuid(),
+                clientIp: getIpAddress(req),
+                error: true
+            }) : next(err);
+
         }
     });
     /**

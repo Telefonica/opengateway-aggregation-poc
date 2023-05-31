@@ -45,9 +45,9 @@ app.get('/', (req, res) => {
   console.log('Client IP Address: ' + getIpAddress(req));
   const userLogged = req.session?.login?.phonenumber;
   if (userLogged) {
-    res.render('pages/verify', {phonenumber: req.session?.login?.phonenumber, result:'', state: uuid(), clientIp: getIpAddress(req)});
+    res.render('pages/verify', { phonenumber: req.session?.login?.phonenumber, result:'', state: uuid(), clientIp: getIpAddress(req), error: false });
   } else {
-    res.render('pages/login', { clientIp: getIpAddress(req) });
+    res.render('pages/login', { clientIp: getIpAddress(req), error: false});
   }
 });
 

@@ -76,6 +76,14 @@ export const passport: Passport = ({ redirect_uri, scope }, context = {}) => {
     // Get code value to request an access token.
     const code = req.query.code as string;
     if (!code) {
+      if (req.query?.error) {
+        return next(
+          {
+            error: req.query.error,
+            error_description: req.query.error_description
+          }
+        );
+      }
       console.warn('Code not found. Please, complete the flow again.');
       return res.redirect('/logout');
     }

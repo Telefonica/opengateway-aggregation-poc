@@ -25,6 +25,19 @@
       <button type="submit" class="btn btn-primary">Invoke</button>
 
     </form>
+  
+    <% if (error) { %>
+      <br/>
+      <div class="alert alert-danger" role="alert">
+        <p>
+          An error was produced and you can see the problem in the result.
+        </p>
+      </div>
+      <br />
+      <p>Result: </p>
+      <pre><%= JSON.stringify(error, null, 4) %></pre>
+      <br />
+    <% } %>
   </div>
 </main>
 
