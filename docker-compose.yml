@@ -166,7 +166,7 @@ services:
       PORT: 3000
       HOST: "${DEMO_APP_HOST:-http://localhost:3000}"
       CAMARA_API_URL: "${CAMARA_API_URL:-http://aggregator-telco-router-2:3322/api}"
-      CAMARA_AUTH_URL: "${CAMARA_API_URL:-http://aggregator-telco-router-2:3322/oauth2}"
+      CAMARA_AUTH_URL: "${CAMARA_AUTH_URL:-http://aggregator-telco-router-2:3322/oauth2}"
       CAMARA_ISSUER: '73902489-c201-4819-bdf9-3708a484fe21'
       CAMARA_CLIENT_ID: '73902489-c201-4819-bdf9-3708a484fe21'
       # For JWKS feature
