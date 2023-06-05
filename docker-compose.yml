@@ -117,7 +117,7 @@ services:
       HOST: "${OPERATOR_PLATFORM_AUTHSERVER_1_HOST:-http://operator-platform-authserver-1:9010}"
       DATABASE_HOST: "mongodb:27017"
       DATABASE_NAME: "authserver-telefonica"
-      ADDITIONAL_AUDIENCES: "${AGGREGATOR_TELCO_ROUTER_1_HOST:-http://aggregator-telco-router-1:3311},${AGGREGATOR_TELCO_ROUTER_2_HOST:-http://aggregator-telco-router-2:3322}"
+      ADDITIONAL_AUDIENCES: "${AGGREGATOR_TELCO_ROUTER_1_HOST:-http://aggregator-telco-router-1:3311}/,${AGGREGATOR_TELCO_ROUTER_2_HOST:-http://aggregator-telco-router-2:3322}/"
       OPERATOR_ID: "TELEFONICA"
     ports:
       - 9010:9010
@@ -133,7 +133,7 @@ services:
       HOST: "${OPERATOR_PLATFORM_AUTHSERVER_2_HOST:-http://operator-platform-authserver-2:9020}"
       DATABASE_HOST: "mongodb:27017"
       DATABASE_NAME: "authserver-vodafone"
-      ADDITIONAL_AUDIENCES: "${AGGREGATOR_TELCO_ROUTER_1_HOST:-http://aggregator-telco-router-1:3311},${AGGREGATOR_TELCO_ROUTER_2_HOST:-http://aggregator-telco-router-2:3322}"
+      ADDITIONAL_AUDIENCES: "${AGGREGATOR_TELCO_ROUTER_1_HOST:-http://aggregator-telco-router-1:3311}/,${AGGREGATOR_TELCO_ROUTER_2_HOST:-http://aggregator-telco-router-2:3322}/"
       OPERATOR_ID: "VODAFONE"
     ports:
       - 9020:9020
