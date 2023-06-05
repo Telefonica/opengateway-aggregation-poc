@@ -6,6 +6,7 @@ from oauthlib.common import Request
 from oauthlib.oauth2 import BearerToken
 from oauthlib.oauth2.rfc6749 import errors
 from oauthlib.oauth2.rfc6749 import utils
+from oauthlib.oauth2.rfc6749.endpoints.authorization import AuthorizationEndpoint
 from oauthlib.oauth2.rfc6749.endpoints.base import catch_errors_and_unavailability, BaseEndpoint
 from oauthlib.oauth2.rfc6749.endpoints.token import TokenEndpoint
 from oauthlib.oauth2.rfc6749.errors import UnsupportedGrantTypeError
@@ -14,6 +15,26 @@ from aggregator.middleware.telcorouter import AggregatorMiddleware, log_metric
 from aggregator.utils.http import do_request_call
 
 log = logging.getLogger(__name__)
+
+
+class AggregatorAuthorizationEndpoint(AuthorizationEndpoint):
+
+    @catch_errors_and_unavailability
+    def create_authentication_response(self, uri, http_method='GET'):
+        request = Request(uri, http_method=http_method, body=None, headers=None)
+        AggregatorMiddleware.set_oauth_request(AggregatorMiddleware.get_current_request(), request)
+        request.scopes = utils.scope_to_list(request.scope)
+        response_type_handler = self.response_types.get(request.response_type, self.default_response_type_handler)
+        headers, body, status = response_type_handler.create_authentication_response(request)
+        return headers, body, status
+
+    @catch_errors_and_unavailability
+    def create_callback_response(self, uri, http_method='GET'):
+        request = Request(uri, http_method=http_method, body=None, headers=None)
+        AggregatorMiddleware.set_oauth_request(AggregatorMiddleware.get_current_request(), request)
+        response_type_handler = self.response_types.get(request.response_type, self.default_response_type_handler)
+        headers, body, status = response_type_handler.create_callback_response(request, self.default_token_type)
+        return headers, body, status
 
 
 class AggregatorTokenEndpoint(TokenEndpoint):

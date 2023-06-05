@@ -21,6 +21,8 @@ class TelcoFinderClient(object, metaclass=Singleton):
                                        headers=headers, verify=settings.API_VERIFY_CERTIFICATE, timeout=settings.API_HTTP_TIMEOUT)
             if response.status_code == requests.codes.ok:  # @UndefinedVariable
                 return response.json()
+            elif response.status_code == requests.codes.not_found:  # @UndefinedVariable
+                return None
         except Exception as e:
             log_exception(e)
         raise ServerErrorException(f'{api_name} is unavailable')

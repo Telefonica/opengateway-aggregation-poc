@@ -28,6 +28,9 @@ FIELD_ERROR_DESCRIPTION = 'error_description'
 FIELD_CLAIM_PHONE = 'phone_number'
 FIELD_IDENTIFIER_TYPE = 'identifier_type'
 FIELD_IDENTIFIER = 'identifier'
+FIELD_ROUTING = 'routing'
+FIELD_STATE = 'state'
+FIELD_CODE = 'code'
 
 FIELD_ALG = 'alg'
 FIELD_KID = 'kid'
@@ -190,3 +193,40 @@ JWT_LOGIN_HINT_TOKEN_PAYLOAD = {
 }
 
 JWT_LOGIN_HINT_TOKEN_VALIDATOR = Draft7Validator(JWT_LOGIN_HINT_TOKEN_PAYLOAD, format_checker=FormatChecker())
+
+JWT_STATE_PAYLOAD = {
+    'type': 'object',
+    'properties': {
+        FIELD_AUDIENCE: {
+            'type': 'string'
+        },
+        FIELD_ISSUER: {
+            'type': 'string'
+        },
+        FIELD_EXPIRATION: {
+            'type': 'integer',
+        },
+        FIELD_ISSUED_TIME: {
+            'type': 'integer',
+        },
+        FIELD_JTI: {
+            'type': 'string'
+        },
+        FIELD_CLIENT_ID: {
+            'type': 'string'
+        },
+        FIELD_STATE: {
+            'type': 'string'
+        },
+        FIELD_REDIRECT_URI: {
+            'type': 'string'
+        },
+        FIELD_ROUTING: {
+            'type': 'object'
+        }
+    },
+    'required': [FIELD_JTI, FIELD_AUDIENCE, FIELD_ISSUER, FIELD_EXPIRATION, FIELD_ISSUED_TIME, FIELD_CLIENT_ID, FIELD_REDIRECT_URI, FIELD_ROUTING],
+    'additionalProperties': False
+}
+
+JWT_STATE_VALIDATOR = Draft7Validator(JWT_STATE_PAYLOAD, format_checker=FormatChecker())

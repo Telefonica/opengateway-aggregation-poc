@@ -75,7 +75,7 @@ class CibaTokenTestCase(TokenTestCase):
         now = time.time()
         token = {
             'acr': '2',
-            'amr': ['sms'],
+            'amr': ['nbma'],
             'aud': [APPLICATION['_id']],
             'auth_time': int(now),
             'client_id': '68399c5b-3cfa-4348-9f96-33d379077d71',
@@ -94,7 +94,7 @@ class CibaTokenTestCase(TokenTestCase):
         now = int(time.time())
         id_token = {
             'acr': '2',
-            'amr': ['sms'],
+            'amr': ['nbma'],
             'sub': '2128c01f-dcc8-4fde-a74e-eba2f9b1a3af',
             'auth_time': now,
             'iat': now,

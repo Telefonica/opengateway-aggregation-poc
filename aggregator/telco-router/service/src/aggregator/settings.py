@@ -211,6 +211,8 @@ OIDC_DISCOVERY_PATH = '/.well-known/openid-configuration'
 OIDC_VERIFY_CERTIFICATE = True
 OIDC_DATA_TTL = 15 * 60  # in seconds
 OIDC_HTTP_TIMEOUT = 10  # in seconds
+AUTHORIZATION_CODE_TTL = 10 * 60  # in seconds
+STATE_TTL = 15 * 60  # in seconds
 
 JWKS_URI_TTL = 900
 JWKS_URI_SSL_VERIFICATION = True
@@ -223,7 +225,7 @@ DISCOVERY = {
     # 'issuer': f'{AGGREGATOR_HOST}',
     # 'token_endpoint': f'{AGGREGATOR_HOST}/{AGGREGATOR_PATH_PREFIX}oauth2/token',
     # 'jwks_uri': f'{AGGREGATOR_HOST}/{AGGREGATOR_PATH_PREFIX}jwks.json',
-    'grant_types_supported': ['urn:ietf:params:oauth:grant-type:jwt-bearer'],
+    'grant_types_supported': ['authorization_code', 'urn:ietf:params:oauth:grant-type:jwt-bearer'],
     'token_endpoint_auth_methods_supported': ['private_key_jwt'],
     'subject_types_supported': ['pairwise'],
     'response_types_supported': ['code'],

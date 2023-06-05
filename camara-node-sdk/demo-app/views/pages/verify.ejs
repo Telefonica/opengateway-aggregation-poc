@@ -1,58 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <%- include('../partials/head'); %>
+  <script>
+    $(function() {
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
+            localStorage.setItem('lastTab', $(this).attr('href'));
+        });
+        var lastTab = localStorage.getItem('lastTab');
+        if (lastTab) {
+            $(lastTab).addClass('show');
+            $(lastTab).addClass('active');
+            $('[href="' + lastTab + '"]').tab('show');
+            console.log(lastTab);
+        } else {
+          lastTab = "#tab1";
+          $(lastTab).addClass('show');
+          $(lastTab).addClass('active');
+          $('[href="' + lastTab + '"]').tab('show');
+          console.log(lastTab);
+        }
+        $('#ipport').on('change', function() {
+          var selectValue = this.value;
+          $('#jwtbearer-button').attr('href', '/jwtbearer/verify?ip=' + selectValue)
+        });
+    });
+    </script>
 </head>
+
 <body class="container">
 
-<main>
-  <div class="jumbotron">
-    <h1>Demo App - Device Location Verification</h1>
-    <hr>
-      <div class="alert alert-warning" role="alert">
-        <p>Once you are logged in the demo-app platform, you can click on the <i>Verify Device Location</i> button in order to consume Camara APIs. The complete process follow the next logic:
-          <ul>
-            <li>If you don't have any access token yet:
-              <ul>
-                <li>Calculate an access token:
-                  <ul>
-                    <li>You send a POST /token to the associated Telco Hyperscaler Authserver</li>
-                    <li>The Authserver using the ipport informations asks the Telco Finder which Telco corresponds to the user Ipport</li>
-                    <li>The Telco Hyperscaler Authserver ask the Telco Operator Platform Authserver for an OIDC 3 legged access token.</li>
-                    <li>An access token will be generated for the demo-app</li>
-                  </ul>
-                </li>
-                <li>Consume CAMARA API to get the information</li>
-              </ul>
+  <main>
+    <div class="jumbotron">
+      <h1>Demo App - Device Location</h1>
+      <hr />
+
+      <div class="row">
+        <div class="col-md-8 mb-8">
+          <h3>You are logged as: <b>
+              <%= phonenumber %>
+            </b></h3>
+        </div>
+        <div class="col-md-4">
+          <a class="btn btn-warning" href="/logout">Return</a>
+        </div>
+      </div>
+
+      <hr />
+
+      <div class="row">
+        <div class="col-md-2 mb-3">
+          <ul class="nav nav-tabs flex-column" id="myTab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="tab1-tab" data-toggle="tab" href="#tab1" role="tab" aria-controls="tab1"
+                aria-selected="true">JWT Bearer Example</a>
             </li>
-            <li>If you already have an access token:
-              <ul>
-                <li>Consume CAMARA API to get the information</li>
-              </ul>
+            <li class="nav-item">
+              <a class="nav-link" id="tab2-tab" data-toggle="tab" href="#tab2" role="tab" aria-controls="tab2"
+                aria-selected="false">Authorization Code Example</a>
             </li>
           </ul>
-          You can see a detailed explanation in the following link: <a href="https://github.com/Telefonica/opengateway-aggregation-poc/blob/main/README.md">Architecture Information</a>
-        </p>
-      </div>
-    <hr/>
-    <p>You are logged as: <b><%= username %></b></p>
-    <div class="container">
-      <div class="row">
-        <div class="col">
-          <a class="btn btn-primary" href="/verify">Verify Device Location</a>
         </div>
-        <div class="col">
-            <a class="btn btn-warning" href="/logout">Logout</a>          
+        <div class="col-md-10">
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+              <h2>JWT Bearer Example: Device Location Verification API</h2>
+              <div class="alert alert-warning" role="alert">
+                <p>You can click on the <i>Device Location Verification</i> button in
+                  order to consume Camara APIs. The complete process follow the next logic:
+                <ul>
+                  <li>If you don't have an access token yet:
+                    <ul>
+                      <li>Obtain an access token:
+                        <ul>
+                          <li>You send a POST /token to the Aggregator.</li>
+                          <li>The Aggregator's Authserver calls the Telco Finder using the IP address as input
+                              to determine the target Operator Platform</li>
+                          <li>The Aggregator requests the target Operator Platform a OIDC 3-legged access token.</li>
+                          <li>An access token will be generated for the demo-app</li>
+                        </ul>
+                      </li>
+                      <li>Consume CAMARA API to get the information</li>
+                    </ul>
+                  </li>
+                  <li>If you already have an access token:
+                    <ul>
+                      <li>Consume CAMARA API to get the information</li>
+                    </ul>
+                  </li>
+                </ul>
+                You can see a detailed explanation in the following link: <a
+                  href="https://github.com/Telefonica/opengateway-aggregation-poc/blob/main/README.md">Architecture
+                  Information</a>
+                </p>
+              </div>
+              <hr/>
+
+              <div class="row align-items-center">
+                <div class="col-md-6 col-sm-6" >
+                  <select name="ipport" id="ipport">
+                    <option value="<%= clientIp %>" selected><%= clientIp %> (Your IP)</option>
+                    <option value="83.58.58.57">83.58.58.57:3543 (Telefónica)</option>
+                    <option value="109.42.3.0">109.42.3.0:4631 (Vodafone)</option>
+                  </select>
+                </div>
+                <div class="col-md-6 col-sm-6">
+                  <a id="jwtbearer-button" class="btn btn-primary" style="margin: 10px;" href="/jwtbearer/verify?ip=<%= clientIp %>">
+                    Device Location Verification<br />
+                    JWT Bearer
+                  </a>
+                </div>
+              </div>
+
+            </div>
+            <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+              <h2>Authorization Code Example: Device Location Verification API</h2>
+              <div class="alert alert-warning" role="alert">
+                <p>You can click on the <i>Device Location Verification</i> button in
+                  order to consume Camara APIs. The complete process follow the next logic:
+                <ul>
+                  <li>If you don't have an access token yet:
+                    <ul>
+                      <li>Redirect the browser to the Aggregator's /authorize endpoint with the needed scopes.</li>
+                      <li>The authserver redirects to the Demo App's callback including a code.</li>
+                      <li>The Demo App exchanges that code for an access token.</li>
+                      <li>Consume CAMARA API to get the information using that access token.</li>
+                    </ul>
+                  </li>
+                  <li>If you already have an access token:
+                    <ul>
+                      <li>Consume CAMARA API to get the information</li>
+                    </ul>
+                  </li>
+                </ul>
+                You can see a detailed explanation in the following link: <a
+                  href="https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow">Architecture
+                  Information</a>
+                </p>
+              </div>
+              <hr/>
+
+              <div class="row d-flex justify-content-center">
+                <div class="col-md-4">
+                  <a class="btn btn-primary" href="/authcode/verify?state=<%= state %>">
+                    Device Location Verification<br />
+                    Authorization Code
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
         </div>
       </div>
+      <br />
+      <hr />
+      <p>Result: </p>
+      <% if (result) { %>
+        <pre><%= result %></pre>
+        <% } %>
     </div>
-    <br/>
-    <p>Result: </p>
-    <% if (result) { %>
-    <pre><%= result %></pre>
-    <% } %>
-  </div>
-</main>
+  </main>
 
 </body>
+
 </html>

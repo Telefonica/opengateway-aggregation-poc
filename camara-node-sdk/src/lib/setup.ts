@@ -37,6 +37,7 @@ export interface CamaraSetup {
   id: CamaraSetupId;
   //TODO: This can be syncronous if we use another lib for managing keys than node-jose
   jwks(): Promise<object>;
+  authserverClient: AuthserverClient;
   tokenService: TokenService;
   cacheService: CacheService;
 }
@@ -74,6 +75,7 @@ const createSdkSetup = (config: CamaraConfig = {}, id: CamaraSetupId = defaultSe
     jwks() {
       return authserverClient.jwks();
     },
+    authserverClient,
     tokenService,
     cacheService,
   };
