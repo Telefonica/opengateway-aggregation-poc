@@ -11,6 +11,7 @@ services:
     restart: on-failure
     environment:
       PORT: 2211
+      IDENTITY_RESOLVER: ripe # allowed values: ripe, asn
     ports:
       - 2211:2211
 
@@ -20,6 +21,7 @@ services:
     restart: on-failure
     environment:
       PORT: 2222
+      IDENTITY_RESOLVER: ripe # allowed values: ripe, asn
     ports:
       - 2222:2222
 

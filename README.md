@@ -26,7 +26,7 @@ The authorization code flow demo needs the following modification in your ```/et
 You need to add the following resolutions in the hosts file:
 
 ```
-# authcode demoapp
+# authcode demo-app
 127.0.0.1       aggregator-telco-router-1
 127.0.0.1       aggregator-telco-router-2
 127.0.0.1       operator-platform-authserver-1
