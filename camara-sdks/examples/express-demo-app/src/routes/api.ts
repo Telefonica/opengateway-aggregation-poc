@@ -3,9 +3,9 @@ import { v4 as uuid } from 'uuid';
 import jose from 'node-jose';
 import type JWT from 'camara-node-sdk/src/clients/AuthserverClient'
 import type { Router } from 'express';
-import Camara from 'camara-node-sdk/src';
+import type Camara from 'camara-node-sdk/src';
 
-const ApiRoutes = (): Router => {
+const ApiRoutes = (camara: Camara): Router => {
   const router = express.Router();
 
   /**
@@ -14,7 +14,7 @@ const ApiRoutes = (): Router => {
   */
   router.get('/jwks', async (req, res, next) => {
     try {
-      res.json(await Camara.jwks());
+      res.json(await camara.jwks());
     } catch (err) {
       next(err);
     }

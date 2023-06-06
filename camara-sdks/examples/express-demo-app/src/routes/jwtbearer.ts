@@ -5,7 +5,7 @@ import type DeviceLocationVerificationClient from 'camara-node-sdk/src/clients/D
 import type { Router } from 'express';
 import getIpAddress from '../utils/getIpAddress';
 
-const JWTbearerRoutes = (deviceLocationVerificationClient: DeviceLocationVerificationClient): Router => {
+const JWTbearerRoutes = (camara: Camara, deviceLocationVerificationClient: DeviceLocationVerificationClient): Router => {
     const router = express.Router();
     /**
      * JWTbearer Section
@@ -27,7 +27,7 @@ const JWTbearerRoutes = (deviceLocationVerificationClient: DeviceLocationVerific
                  * The user identifier is the ip:port but the model is generic to be extended
                  * with other identifiers (MSISDN, etc).
                  */
-                req.session.camara = await Camara.session({
+                req.session.camara = await camara.session({
                     ipport: req.query.ip as string
                 });
             }

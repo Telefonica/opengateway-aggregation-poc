@@ -1,8 +1,9 @@
 import type { BaseRequestContext } from 'camara-node-sdk/src/clients/BaseClient';
 import type { CamaraSetupId } from 'camara-node-sdk/src/lib/setup';
-import { defaultSetupId, getSetup } from 'camara-node-sdk/src/lib/setup';
+import { defaultSetupId } from 'camara-node-sdk/src/lib/setup';
 import type { AuthorizeParams, AuthorizeCallbackParams, AuthorizeSession } from 'camara-node-sdk/src/clients/AuthserverClient';
 import type { TokenSet } from 'camara-node-sdk/src/clients/AuthserverClient';
+import type Camara from 'sdks/camara-node-sdk/src';
 
 export interface PassportContext extends BaseRequestContext {
   /** the setup id containing sdk configuration to use. Defaults to 'default' */
@@ -11,7 +12,7 @@ export interface PassportContext extends BaseRequestContext {
 
 export type Passport = (
   { redirect_uri, scope }: { redirect_uri: string, scope?: string },
-  context?: PassportContext
+  camara: Camara
 ) => { authorize: any, callback: any}
 
 
@@ -26,9 +27,10 @@ const retrieveParametersFromRequest = (req: any) => {
   }
 };
 
-export const passport: Passport = ({ redirect_uri, scope }, context = {}) => {
-  const { setupId = defaultSetupId } = context;
-  const setup = getSetup(setupId);
+export const passport: Passport = ({ redirect_uri, scope }, camara ) => {
+
+  const setupId  = camara.camaraSetupId || defaultSetupId;
+  const setup = camara.getSetup(setupId);
   const { authserverClient } = setup;
 
 
