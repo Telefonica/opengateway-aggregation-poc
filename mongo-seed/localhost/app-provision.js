@@ -8,7 +8,7 @@ db.apps.replaceOne(
         name : "Demo App",
         description : "App for testing",
         developer : {
-            email : "johndoe@demoapp.com",
+            email : "johndoe@demo-app.com",
             name : "John Doe Developer"
         },
         status : "active",
@@ -18,10 +18,21 @@ db.apps.replaceOne(
                 scopes : [
                     "device-location-verification-verify-read"
                 ]
+            },
+            {
+                grant_type : "authorization_code",
+                scopes : [
+                    "openid",
+                    "number-verification-verify-hashed-read",
+                    "device-location-verification-verify-read"
+                ]
             }
         ],
         sector_identifier_uri : "http://localhost:3000",
-        jwks_uri : "http://demo-app:3000/api/jwks"
+        jwks_uri : "http://demo-app:3000/api/jwks",
+        redirect_uri : [
+            "http://aggregator-telco-router-2:3322/oauth2/authorize/callback"
+        ]
     },
     {
         upsert: true
@@ -30,13 +41,13 @@ db.apps.replaceOne(
 
 db.apps.replaceOne(
     {
-        _id : "b8798a4a-7746-415e-88cf-1c44a2d5776f"
+        _id : "4d019263-3ff0-4d0e-a48a-5b3d877038dc"
     },
     {
-        _id : "b8798a4a-7746-415e-88cf-1c44a2d5776f",
-        consumer_secret : "5d435c56-c68f-4bb4-8959-514f562fafea",
-        name : "Aggregator Portal",
-        description : "Aggregator Portal for testing",
+        _id : "4d019263-3ff0-4d0e-a48a-5b3d877038dc",
+        consumer_secret : "4222fddd-64b6-4452-b24e-23caae9ccc08",
+        name : "Aggregator",
+        description : "Aggregator for testing",
         developer : {
             email : "jeandupont@demoapp.com",
             name : "Jean Dupont Developer"
@@ -46,7 +57,8 @@ db.apps.replaceOne(
             {
                 grant_type : "basic",
                 scopes : [
-                    "admin:apps:create"
+                    "admin:apps:create",
+                    "admin:apps:read"
                 ]
             }
         ]

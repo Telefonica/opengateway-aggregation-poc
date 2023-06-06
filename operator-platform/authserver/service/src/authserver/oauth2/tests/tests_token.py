@@ -198,7 +198,7 @@ class TokenTestCase(BasicTestCase):
         now = int(time.time())
         id_token = {
             'acr': '2',
-            'amr': ['sms'],
+            'amr': ['nbma'],
             'nonce': '70979686-e99a-4dc9-a668-b76c5bbf9ae0',
             'sub': '2128c01f-dcc8-4fde-a74e-eba2f9b1a3af',
             'auth_time': now,
@@ -274,7 +274,7 @@ class TokenTestCase(BasicTestCase):
 
         return token, id_token_str, id_token_data
 
-    def assertAccesTokenError(self, response, status, **kwargs):
+    def assertAccessTokenError(self, response, status, **kwargs):
         self.assertEqual(response.status_code, status)
         body = {
             "error": "access_denied",
