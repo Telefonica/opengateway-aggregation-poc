@@ -10,11 +10,11 @@ import Camara from 'camara-node-sdk';
 import DeviceLocationVerificationClient from 'camara-node-sdk/clients/DeviceLocationVerificationClient';
 
 // Autoconfigure the SDK with env vars
-Camara.setup();
+const camara: Camara = new Camara();
 const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
 
 // Create a CAMARA Session using your client IP as identifier and some scopes
-const session = await Camara.session({ ipport: '127.0.0.1:3000', scope: 'scope1 scope2' });
+const session = await camara.session({ ipport: '127.0.0.1:3000', scope: 'scope1 scope2' });
 // Call CAMARA APIs using the session
 const params = { coordinates: { longitude: 3.8044, latitude: 42.3408 } };
 const location = await deviceLocationVerificationClient.verify({ postcode: '28080' }, { session });
@@ -35,7 +35,8 @@ import NumberVerificationClient from 'camara-node-sdk/clients/NumberVerification
 import type { AuthorizeParams, AuthorizeCallbackParams, AuthorizeSession } from 'camara-node-sdk/src/clients/AuthserverClient';
 import type { TokenSet } from 'camara-node-sdk/src/clients/AuthserverClient';
 
-const setup = Camara.setup();
+const camara: Camara = new Camara();
+const setup = camara.getSetup();
 const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
 
 const { authserverClient } = setup;
@@ -73,3 +74,12 @@ const result = await deviceLocationVerificationClient.verify(params, {
 
 ```
 
+# Get JWKS information
+
+```js
+import Camara from 'camara-node-sdk';
+
+const camara: Camara = new Camara();
+
+const data = await camara.jwks());
+```

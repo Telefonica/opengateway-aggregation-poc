@@ -6,17 +6,18 @@ import getIpAddress from '../utils/getIpAddress';
 import type NumberVerificationClient from 'camara-node-sdk/src/clients/NumberVerificationClient';
 import type { Router } from 'express';
 import CamaraExpress from 'camara-express-sdk/src';
+import type Camara from 'camara-node-sdk/src';
 
-const AuthCodeRoutes = (deviceLocationVerificationClient: DeviceLocationVerificationClient, numberVerificationClient: NumberVerificationClient): Router => {
+const AuthCodeRoutes = (camara: Camara, deviceLocationVerificationClient: DeviceLocationVerificationClient, numberVerificationClient: NumberVerificationClient): Router => {
     const router = express.Router();
     const camaraPassportDevLocation = CamaraExpress.passport({
         redirect_uri: `${process.env.HOST}/authcode/devloc/callback`,
         scope: "device-location-verification-verify-read"
-    });
+    }, camara);
     const camaraPassportNumVerification = CamaraExpress.passport({
         redirect_uri: `${process.env.HOST}/authcode/numver/callback`,
         scope: "openid number-verification-verify-hashed-read"
-    });
+    }, camara);
 
     /**
     * Authcode Section - Number Verification API. Scope openid number-verification-verify-hashed-read.

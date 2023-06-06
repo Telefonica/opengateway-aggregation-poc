@@ -18,7 +18,7 @@ import ApiRoutes from './routes/api';
 // Initialize the SDK offering networking services (device location verification in the example)
 // When the aggregator is an hyperscaler, this could be its own SDK (e.g., Azure SDK)
 /////////////////////////////////////////////////
-Camara.setup();
+const camara: Camara = new Camara();
 const deviceLocationVerificationClient = new DeviceLocationVerificationClient();
 const numberVerificationClient = new NumberVerificationClient();
 
@@ -35,11 +35,11 @@ app.use(express.urlencoded({ extended: false }))
 
 app.use(express.json())
 
-app.use('/jwtbearer', JWTbearerRoutes(deviceLocationVerificationClient));
+app.use('/jwtbearer', JWTbearerRoutes(camara, deviceLocationVerificationClient));
 
-app.use('/authcode', AuthCodeRoutes(deviceLocationVerificationClient, numberVerificationClient))
+app.use('/authcode', AuthCodeRoutes(camara, deviceLocationVerificationClient, numberVerificationClient))
 
-app.use('/api', ApiRoutes())
+app.use('/api', ApiRoutes(camara))
 
 app.get('/', (req, res) => {
   console.log('Client IP Address: ' + getIpAddress(req));

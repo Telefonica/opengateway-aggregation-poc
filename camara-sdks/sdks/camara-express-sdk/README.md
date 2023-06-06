@@ -12,13 +12,14 @@ To execute the authorization flow you only need an event that enables your brows
 ```js
 import Camara from 'camara-node-sdk';
 import NumberVerificationClient from 'camara-node-sdk/clients/NumberVerificationClient';
+import CamaraExpress from 'camara-express-sdk/src';
 
-Camara.setup();
+const camara = new Camara();
 const numberVerificationClient = new NumberVerificationClient();
-const camaraPassportNumVerification = Camara.passport({
+const camaraPassportNumVerification = CamaraExpress.passport({
   redirect_uri: `${process.env.HOST}/authcode/numver/callback`,
   fixed_scope: "openid number-verification-verify-hashed-read"
-});
+}, camara);
 
 /**
  * Authcode Section - Number Verification API. Scope openid number-verification-verify-hashed-read.
@@ -69,11 +70,12 @@ app.get('/authcode/numver/callback', camaraPassportNumVerification.callback, asy
 
 ```js
 import Camara from 'camara-node-sdk';
-Camara.setup();
+
+const camara: Camara = new Camara();
 
 app.get('/jwks', async (req, res, next) => {
   try {
-    res.json(await Camara.jwks());
+    res.json(await camara.jwks());
   } catch (err) {
     next(err);
   }
