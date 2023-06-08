@@ -1,4 +1,4 @@
-from authserver.oauth2.models import ApplicationCollection
+from authserver.admin.models import ApplicationCollection
 
 
 class AuthUser(object):

@@ -10,8 +10,9 @@ from jwcrypto.jwk import JWK
 from jwcrypto.jws import JWS
 from jwcrypto.jwt import JWT
 
+from authserver.admin.models import ApplicationCollection
 from authserver.oauth2.models import AuthenticationCollection, CodeCollection, \
-    TokenCollection, ApplicationCollection, UserPcrCollection, JtiCollection
+    TokenCollection, UserPcrCollection, JtiCollection
 from authserver.utils.jwk import JWKManager, JWKSUriClient
 from authserver.utils.tests.base import AuthserverTestCase
 

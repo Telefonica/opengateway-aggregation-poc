@@ -4,7 +4,8 @@ from django.conf import settings
 from jwcrypto.jwt import JWT
 from oauthlib.oauth2.rfc6749.tokens import random_token_generator
 
-from authserver.oauth2.models import Grant, CodeCollection
+from authserver.admin.models import Grant
+from authserver.oauth2.models import CodeCollection
 from authserver.utils.jwk import JWKManager
 from authserver.utils.schemas import FIELD_JTI, FIELD_ISSUER, FIELD_AUDIENCE, FIELD_SCOPES, FIELD_CLIENT_ID, FIELD_EXPIRATION, FIELD_ISSUED_TIME
 

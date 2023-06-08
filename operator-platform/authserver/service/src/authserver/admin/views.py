@@ -1,51 +1,17 @@
 import logging
-from json.decoder import JSONDecoder
-import ujson as json
-from django.conf import settings
-from django.http.response import HttpResponse
-from django.views.generic.base import View
-from django.urls import reverse
-from oauthlib.oauth2.rfc6749.errors import InvalidRequestFatalError
-from pymongo.errors import DuplicateKeyError
 
-from authserver.oauth2.baikal.validators import BaikalRequestValidator
-from authserver.utils.exceptions import NotFoundError, ServerError, ConflictError, InvalidParameterValueError
-from authserver.utils.parsers import object_pairs_hook
-from authserver.utils.schemas import APPLICATION_VALIDATOR
+from django.conf import settings
+from django.urls import reverse
+from pymongo.errors import DuplicateKeyError
+from rest_framework.response import Response
+from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_200_OK
+
+from authserver.admin.models import ApplicationCollection
+from authserver.utils.exceptions import NotFoundError, ConflictError, InvalidParameterValueError
+from authserver.utils.schemas import APPLICATION_VALIDATOR, FIELD_APP_ID
 from authserver.utils.views import publish_to_middleware, JSONBasicAuthenticatedView
-from authserver.oauth2.models import ApplicationCollection
 
 logger = logging.getLogger(settings.LOGGING_PREFIX)
-
-validator = BaikalRequestValidator()
-
-
-def build_response(headers, body, status):
-    response = HttpResponse(body, status=status)
-    for header in headers:
-        response[header] = headers[header]
-    return response
-
-
-def get_json_data(data):
-    try:
-        decoder = JSONDecoder(object_pairs_hook=object_pairs_hook)
-        return decoder.decode(data)
-    except Exception as e:
-        raise Exception(f'Invalid JSON: {e.args[0]}')
-
-
-def get_body_from_request(request):
-    try:
-        content_type = request.headers.get('Content-Type', None)
-        if content_type.startswith('application/json'):
-            return get_json_data(request.body.decode('utf-8'))
-        elif content_type.startswith('application/x-www-form-urlencoded'):
-            return request.body
-    except Exception as e:
-        raise InvalidRequestFatalError(description=str(e.args[0]))
-
-    raise InvalidRequestFatalError(description='Invalid content type')
 
 
 @publish_to_middleware(response_content_type='application/json', operation='APPLICATION')
@@ -64,28 +30,34 @@ class ApplicationView(JSONBasicAuthenticatedView):
         application = ApplicationCollection.find_one_by_id(client_id, False)
         if application is None:
             raise NotFoundError(request.path)
-        return build_response({"Content-Type": "application/json"},
-                              json.dumps(application, escape_forward_slashes=False), 200)
+
+        application[FIELD_APP_ID] = application[ApplicationCollection.FIELD_ID]
+        del application[ApplicationCollection.FIELD_ID]
+        return Response(application, status=HTTP_200_OK)
 
     def put(self, request, client_id):
-        application = get_body_from_request(request)
+        application = request.data
+        APPLICATION_VALIDATOR.validate(application)
+
+        if FIELD_APP_ID in application:
+            if application[FIELD_APP_ID] != client_id:
+                raise InvalidParameterValueError(message="App identifier does not match the one in the URL path")
+        else:
+            application[FIELD_APP_ID] = client_id
+
         application[ApplicationCollection.FIELD_ID] = client_id
-        try:
-            APPLICATION_VALIDATOR.validate(application)
-        except Exception as e:
-            logger.warning('Error processing application: %s', str(e.args[0]))
-            raise InvalidParameterValueError(message=str(e.args[0]))
         update_result = ApplicationCollection.update(application)
-        if update_result is None:
+        if update_result.matched_count == 0:
             raise NotFoundError(request.path)
-        return build_response({"Content-Type": "application/json"},
-                              json.dumps(application, escape_forward_slashes=False), 200)
+
+        del application[ApplicationCollection.FIELD_ID]
+        return Response(application, status=HTTP_200_OK)
 
     def delete(self, request, client_id):
-        delete_result = ApplicationCollection.remove(client_id)
-        if delete_result is None:
+        deletion_result = ApplicationCollection.remove(client_id)
+        if deletion_result.deleted_count == 0:
             raise NotFoundError(request.path)
-        return build_response({"Content-Type": "application/json"}, None, 204)
+        return Response(status=HTTP_204_NO_CONTENT)
 
 
 @publish_to_middleware(response_content_type='application/json', operation='APPLICATIONS')
@@ -97,18 +69,16 @@ class ApplicationsView(JSONBasicAuthenticatedView):
         super().__init__(**kwargs)
 
     def post(self, request):
-        application = get_body_from_request(request)
+        application = request.data
+        APPLICATION_VALIDATOR.validate(application)
+
         try:
-            APPLICATION_VALIDATOR.validate(application)
-        except Exception as e:
-            logger.warning('Error processing application: %s', str(e.args[0]))
-            raise InvalidParameterValueError(message=str(e.args[0]))
-        try:
-            result = ApplicationCollection.insert(application)
-        except DuplicateKeyError as dke:
+            ApplicationCollection.insert(application)
+        except DuplicateKeyError:
             raise ConflictError(f'{request.path}/{application[ApplicationCollection.FIELD_ID]}')
-        return build_response({
-            "Content-Type": "application/json",
-            "Location": f'{request.scheme}://{request.headers.get("Host")}{reverse("applications")}/'
-                        f'{application[ApplicationCollection.FIELD_ID]}'
-        }, json.dumps(application, escape_forward_slashes=False), 201)
+
+        del application[ApplicationCollection.FIELD_ID]
+        response = Response(application, status=HTTP_201_CREATED)
+        response.headers["Location"] = f'{settings.AUTHSERVER_HOST}/{reverse("applications")}/{application[FIELD_APP_ID]}'
+        return response
+

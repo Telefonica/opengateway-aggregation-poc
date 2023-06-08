@@ -12,7 +12,8 @@ from freezegun import freeze_time
 from jsonschema import FormatChecker
 from jsonschema.validators import Draft7Validator
 
-from authserver.oauth2.models import CibaAuthorizationCollection, ApplicationCollection, UserPcrCollection
+from authserver.admin.models import ApplicationCollection
+from authserver.oauth2.models import CibaAuthorizationCollection, UserPcrCollection
 from authserver.oauth2.tests.tests_basic import BasicTestCase, APPLICATION, USER_PCR, SP_JWT_PRIVATE_KEY, get_signed_jwt, get_unsigned_jwt
 from authserver.utils.jwk import JWKManager
 from authserver.utils.utils import overwrite_dict

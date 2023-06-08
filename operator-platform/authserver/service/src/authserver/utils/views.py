@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 
 from .exceptions import NotFoundError
 from .parsers import BaikalJSONParser
-from ..oauth2.models import ApplicationCollection, Grant
+from ..admin.models import ApplicationCollection, Grant
 
 
 class Handler404(View):
@@ -23,6 +23,9 @@ class GrantScopePermissions(BasePermission):
     """
 
     def has_permission(self, request, view):
+        if getattr(view, request.method.lower(), None) is None:
+            # Not allowed method is managed by view code
+            return True
         if request.user and request.user.is_authenticated:
             required_scopes = self._get_view_scopes(request, view)
             for grant in request.user.data[ApplicationCollection.FIELD_GRANTS]:

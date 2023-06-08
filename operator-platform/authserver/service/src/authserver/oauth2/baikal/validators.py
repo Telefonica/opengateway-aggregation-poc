@@ -16,11 +16,12 @@ from oauthlib.oauth2.rfc6749.errors import OAuth2Error, InvalidScopeError, Inval
 from oauthlib.openid import RequestValidator
 from pymongo.errors import DuplicateKeyError
 
+from authserver.admin.models import ApplicationCollection, Grant
 from authserver.clients.oidc import OidcClient
 from authserver.middleware.baikal import BaikalMiddleware
 from authserver.oauth2.baikal.grant_types import GRANT_TYPE_AUTHORIZATION_CODE
 from authserver.oauth2.baikal.tokens import refresh_token_expires_in
-from authserver.oauth2.models import TokenCollection, CodeCollection, ApplicationCollection, Grant, AuthenticationCollection, JtiCollection, UserPcrCollection, \
+from authserver.oauth2.models import TokenCollection, CodeCollection, AuthenticationCollection, JtiCollection, UserPcrCollection, \
     CibaAuthorizationCollection
 from authserver.utils.exceptions import InvalidParameterValueError, JWTException, InvalidSignatureError, UnavailableSignatureError, ExpiredLoginHintTokenError, \
     AuthorizationPendingError

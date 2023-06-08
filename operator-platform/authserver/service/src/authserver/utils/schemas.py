@@ -32,18 +32,6 @@ FIELD_IDENTIFIER = 'identifier'
 FIELD_ALG = 'alg'
 FIELD_KID = 'kid'
 
-FIELD_ID = '_id'
-FIELD_CONSUMER_SECRET = 'consumer_secret'
-FIELD_NAME = 'name'
-FIELD_DESCRIPTION = 'description'
-FIELD_DEVELOPER = 'developer'
-FIELD_EMAIL = 'email'
-FIELD_STATUS = 'status'
-FIELD_GRANTS = 'grants'
-FIELD_GRANT_TYPE = 'grant_type'
-FIELD_SECTOR_IDENTIFIER_URI = 'sector_identifier_uri'
-FIELD_JWKS_URI = 'jwks_uri'
-
 
 JWT_ID_TOKEN_PAYLOAD = {
     'type': 'object',
@@ -203,10 +191,24 @@ JWT_LOGIN_HINT_TOKEN_PAYLOAD = {
 
 JWT_LOGIN_HINT_TOKEN_VALIDATOR = Draft7Validator(JWT_LOGIN_HINT_TOKEN_PAYLOAD, format_checker=FormatChecker())
 
+
+FIELD_APP_ID = 'id'
+FIELD_CONSUMER_SECRET = 'consumer_secret'
+FIELD_NAME = 'name'
+FIELD_DESCRIPTION = 'description'
+FIELD_DEVELOPER = 'developer'
+FIELD_EMAIL = 'email'
+FIELD_STATUS = 'status'
+FIELD_GRANTS = 'grants'
+FIELD_GRANT_TYPE = 'grant_type'
+FIELD_SECTOR_IDENTIFIER_URI = 'sector_identifier_uri'
+FIELD_JWKS_URI = 'jwks_uri'
+
+
 APPLICATION_PAYLOAD = {
     'type': 'object',
     'properties': {
-        FIELD_ID: {
+        FIELD_APP_ID: {
             'type': 'string'
         },
         FIELD_CONSUMER_SECRET: {
@@ -263,7 +265,7 @@ APPLICATION_PAYLOAD = {
             'type': 'string'
         }
     },
-    'required': [FIELD_ID, FIELD_CONSUMER_SECRET, FIELD_NAME, FIELD_REDIRECT_URI, FIELD_DEVELOPER, FIELD_GRANTS],
+    'required': [FIELD_APP_ID, FIELD_NAME, FIELD_DEVELOPER, FIELD_GRANTS, FIELD_JWKS_URI],
     'additionalProperties': False
 }
 

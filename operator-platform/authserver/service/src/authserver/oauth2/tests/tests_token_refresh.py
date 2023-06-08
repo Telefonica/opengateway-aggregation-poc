@@ -7,7 +7,8 @@ from django.conf import settings
 from django.test.client import Client
 from freezegun.api import freeze_time
 
-from authserver.oauth2.models import ApplicationCollection, TokenCollection
+from authserver.admin.models import ApplicationCollection
+from authserver.oauth2.models import TokenCollection
 from authserver.oauth2.tests.tests_authorize import AuthorizationCodeTestCase
 from authserver.oauth2.tests.tests_basic import APPLICATION, get_signed_jwt, SP_JWT_PRIVATE_KEY
 from authserver.oauth2.tests.tests_token import TokenTestCase

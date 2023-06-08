@@ -9,7 +9,8 @@ from django.test.client import Client
 from jsonschema import FormatChecker
 from jsonschema.validators import validate
 
-from authserver.oauth2.models import ApplicationCollection, TokenCollection
+from authserver.admin.models import ApplicationCollection
+from authserver.oauth2.models import TokenCollection
 from authserver.oauth2.tests.tests_basic import APPLICATION, BasicTestCase
 from authserver.oauth2.tests.tests_token import TokenTestCase
 from authserver.oauth2.tests.tests_token_client_credentials import ClientCredentialsTokenTestCase

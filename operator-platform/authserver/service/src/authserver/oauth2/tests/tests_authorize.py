@@ -6,7 +6,8 @@ from django.conf import settings
 from django.test.client import Client
 from django.test.utils import override_settings
 
-from authserver.oauth2.models import ApplicationCollection, UserPcrCollection, \
+from authserver.admin.models import ApplicationCollection
+from authserver.oauth2.models import UserPcrCollection, \
     AuthenticationCollection, CodeCollection
 from authserver.oauth2.tests.tests_basic import BasicTestCase, APPLICATION, USER_PCR, USER_PHONE_IDENTITY
 from authserver.utils.utils import overwrite_dict

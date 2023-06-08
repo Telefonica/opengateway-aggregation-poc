@@ -17,8 +17,9 @@ from oauthlib.oauth2.rfc6749.grant_types import AuthorizationCodeGrant as OAuth2
 from oauthlib.oauth2.rfc6749.grant_types.base import GrantTypeBase
 from oauthlib.openid.connect.core.grant_types import AuthorizationCodeGrant
 
+from authserver.admin.models import ApplicationCollection
 from authserver.middleware.baikal import log_metric, log_error_metric, BaikalMiddleware
-from authserver.oauth2.models import ApplicationCollection, UserPcrCollection
+from authserver.oauth2.models import UserPcrCollection
 from authserver.utils.exceptions import MissingParameterError, InvalidParameterValueError, InvalidSignatureError, JWTException
 from authserver.utils.jws import FIELD_KID, FIELD_ALGORITHM
 from authserver.utils.jws import get_jws_info, validate_jws_header

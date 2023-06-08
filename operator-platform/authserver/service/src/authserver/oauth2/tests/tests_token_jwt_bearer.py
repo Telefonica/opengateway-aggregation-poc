@@ -9,7 +9,8 @@ from django.conf import settings
 from django.test.utils import override_settings
 from freezegun.api import freeze_time
 
-from authserver.oauth2.models import ApplicationCollection, TokenCollection, UserPcrCollection
+from authserver.admin.models import ApplicationCollection
+from authserver.oauth2.models import TokenCollection, UserPcrCollection
 from authserver.oauth2.tests.tests_basic import APPLICATION, get_signed_jwt, SP_JWT_PRIVATE_KEY, USER_PCR
 from authserver.oauth2.tests.tests_token import TokenTestCase
 from authserver.utils.utils import overwrite_dict
