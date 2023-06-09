@@ -19,10 +19,10 @@ from oauthlib.oauth2.rfc6749.errors import InvalidRequestFatalError, InvalidClie
 from oauthlib.oauth2.rfc6749.grant_types import AuthorizationCodeGrant as OAuth2AuthorizationCodeGrant
 from oauthlib.oauth2.rfc6749.tokens import random_token_generator
 
+from aggregator.admin.models import ApplicationCollection
 from aggregator.clients.oidc import OidcClient
 from aggregator.clients.telco_finder import TelcoFinderClient
 from aggregator.middleware.telcorouter import AggregatorMiddleware, log_error_metric, log_metric
-from aggregator.oauth2.models import ApplicationCollection
 from aggregator.utils.exceptions import MissingParameterError, InvalidParameterValueError, JWTException, InvalidSignatureError
 from aggregator.utils.http import do_request_call
 from aggregator.utils.jwe import build_jwe

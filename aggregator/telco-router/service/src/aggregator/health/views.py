@@ -1,7 +1,7 @@
 from django.http.response import HttpResponse
 from django.views.generic.base import View
 
-from aggregator.oauth2.models import ApplicationCollection
+from aggregator.admin.models import ApplicationCollection
 
 
 class CheckView(View):

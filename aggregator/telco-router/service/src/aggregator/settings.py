@@ -242,9 +242,14 @@ DISCOVERY = {
 }
 
 TELCO_FINDER_HOST = os.getenv('TELCO_FINDER_HOST', 'http://127.0.0.1:10010')
-TELCO_FINDER_PATH = '/telcofinder/v1/{identity_type}/{identifier}'
+TELCO_FINDER_IDENTITY_PATH = '/telcofinder/v1/{identity_type}/{identifier}'
+TELCO_FINDER_TELCOS_PATH = '/telcofinder/v1/discovery'
 API_VERIFY_CERTIFICATE = False
 API_HTTP_TIMEOUT = 10
+
+OPERATOR_CLIENT_ID = 'f1283a82-46d7-471c-9c3c-39b4d393cbe6'
+OPERATOR_APPS_SCOPES = ['admin:apps:create', 'admin:apps:read']
+OPERATOR_APPS_PATH = '/api/admin/apps'
 
 try:
     sys.path.append('/etc/telcorouter/')

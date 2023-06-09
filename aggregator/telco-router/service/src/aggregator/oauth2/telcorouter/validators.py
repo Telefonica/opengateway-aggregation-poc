@@ -14,8 +14,9 @@ from oauthlib.oauth2.rfc6749.errors import OAuth2Error, InvalidScopeError, Inval
 from oauthlib.openid import RequestValidator
 from pymongo.errors import DuplicateKeyError
 
+from aggregator.admin.models import ApplicationCollection, Grant
 from aggregator.clients.oidc import OidcClient
-from aggregator.oauth2.models import ApplicationCollection, Grant, JtiCollection
+from aggregator.oauth2.models import JtiCollection
 from aggregator.oauth2.telcorouter.grant_types import GRANT_TYPE_AUTHORIZATION_CODE
 from aggregator.utils.exceptions import InvalidParameterValueError, JWTException, InvalidSignatureError, UnavailableSignatureError
 from aggregator.utils.jwe import get_jwe_info, get_jwe_token

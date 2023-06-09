@@ -8,7 +8,7 @@ from django.test.client import Client
 from django.test.utils import override_settings
 from freezegun import freeze_time
 
-from aggregator.oauth2.models import ApplicationCollection
+from aggregator.admin.models import ApplicationCollection
 from aggregator.oauth2.tests.tests_basic import BasicTestCase, APPLICATION
 from aggregator.utils.utils import overwrite_dict
 

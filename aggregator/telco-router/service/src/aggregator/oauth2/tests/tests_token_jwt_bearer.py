@@ -7,7 +7,7 @@ from django.conf import settings
 from freezegun.api import freeze_time
 from jwcrypto import jwe
 
-from aggregator.oauth2.models import ApplicationCollection
+from aggregator.admin.models import ApplicationCollection
 from aggregator.oauth2.tests.tests_basic import APPLICATION, get_signed_jwt, SP_JWT_PRIVATE_KEY, USER_PCR
 from aggregator.oauth2.tests.tests_token import TokenTestCase
 from aggregator.utils.jwe import get_jwe_info

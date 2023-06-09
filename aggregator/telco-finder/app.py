@@ -1,5 +1,6 @@
 import ipaddress
 import os
+from copy import deepcopy
 
 from flask import Flask, jsonify
 from gevent.pywsgi import WSGIServer
@@ -31,6 +32,17 @@ def telcofinder(identifier_type, identifier_value):
         return jsonify(serving_operator_info)
     else:
         return 'Not able to resolve serving operator', 404
+
+
+@app.route('/telcofinder/v1/discovery', methods=['GET'])
+def telcosfinder():
+    telcos = []
+    for _id, telco in OPERATOR_DATABASE.items():
+        telco_info = deepcopy(telco)
+        telco_info['id'] = _id
+        telcos.append(telco_info)
+
+    return jsonify(telcos)
 
 
 @app.route('/healthz')

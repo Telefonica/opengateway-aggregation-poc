@@ -230,3 +230,82 @@ JWT_STATE_PAYLOAD = {
 }
 
 JWT_STATE_VALIDATOR = Draft7Validator(JWT_STATE_PAYLOAD, format_checker=FormatChecker())
+
+
+FIELD_APP_ID = 'id'
+FIELD_CONSUMER_SECRET = 'consumer_secret'
+FIELD_NAME = 'name'
+FIELD_DESCRIPTION = 'description'
+FIELD_DEVELOPER = 'developer'
+FIELD_EMAIL = 'email'
+FIELD_STATUS = 'status'
+FIELD_GRANTS = 'grants'
+FIELD_GRANT_TYPE = 'grant_type'
+FIELD_SECTOR_IDENTIFIER_URI = 'sector_identifier_uri'
+FIELD_JWKS_URI = 'jwks_uri'
+
+APPLICATION_PAYLOAD = {
+    'type': 'object',
+    'properties': {
+        FIELD_APP_ID: {
+            'type': 'string'
+        },
+        FIELD_CONSUMER_SECRET: {
+            'type': 'string'
+        },
+        FIELD_NAME: {
+            'type': 'string'
+        },
+        FIELD_DESCRIPTION: {
+            'type': 'string',
+        },
+        FIELD_REDIRECT_URI: {
+            'type': 'array',
+            'items': {
+                'type': 'string'
+            }
+        },
+        FIELD_DEVELOPER: {
+            'type': 'object',
+            'properties': {
+                FIELD_EMAIL: {
+                    'type': 'string'
+                },
+                FIELD_NAME: {
+                    'type': 'string'
+                }
+            }
+        },
+        FIELD_STATUS: {
+            'type': 'string',
+            "enum": ["active", "inactive"]
+        },
+        FIELD_GRANTS: {
+            'type': 'array',
+            'items': {
+                'type': 'object',
+                'properties': {
+                    FIELD_GRANT_TYPE: {
+                        'type': 'string'
+                    },
+                    FIELD_SCOPES: {
+                        'type': 'array',
+                        'items': {
+                            'type': 'string'
+                        }
+                    }
+                }
+            }
+        },
+        FIELD_SECTOR_IDENTIFIER_URI: {
+            'type': 'string'
+        },
+        FIELD_JWKS_URI: {
+            'type': 'string'
+        }
+    },
+    'required': [FIELD_APP_ID, FIELD_NAME, FIELD_DEVELOPER, FIELD_GRANTS, FIELD_JWKS_URI],
+    'additionalProperties': False
+}
+
+APPLICATION_VALIDATOR = Draft7Validator(APPLICATION_PAYLOAD, format_checker=FormatChecker())

@@ -58,7 +58,8 @@ db.apps.replaceOne(
             {
                 grant_type : "basic",
                 scopes : [
-                    "admin:apps:create"
+                    "admin:apps:create",
+                    "admin:apps:read"
                 ]
             }
         ]

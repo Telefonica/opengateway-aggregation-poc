@@ -10,7 +10,8 @@ from jwcrypto.jwk import JWK
 from jwcrypto.jws import JWS
 from jwcrypto.jwt import JWT
 
-from aggregator.oauth2.models import ApplicationCollection, JtiCollection
+from aggregator.admin.models import ApplicationCollection
+from aggregator.oauth2.models import JtiCollection
 from aggregator.utils.jwk import JWKManager, JWKSUriClient
 from aggregator.utils.tests.base import AggregatorTestCase
 

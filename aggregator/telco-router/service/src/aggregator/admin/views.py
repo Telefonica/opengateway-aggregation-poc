@@ -1,15 +1,18 @@
 import logging
+from copy import deepcopy
 
 from django.conf import settings
 from django.urls import reverse
 from pymongo.errors import DuplicateKeyError
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_200_OK
+from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_201_CREATED
 
-from authserver.admin.models import ApplicationCollection
-from authserver.utils.exceptions import NotFoundError, ConflictError, InvalidParameterValueError
-from authserver.utils.schemas import APPLICATION_VALIDATOR, FIELD_APP_ID
-from authserver.utils.views import publish_to_middleware, JSONBasicAuthenticatedView
+from aggregator.admin.models import ApplicationCollection
+from aggregator.clients.operator import OperatorClient
+from aggregator.clients.telco_finder import TelcoFinderClient
+from aggregator.utils.exceptions import NotFoundError, ConflictError, InvalidParameterValueError
+from aggregator.utils.schemas import APPLICATION_VALIDATOR, FIELD_APP_ID
+from aggregator.utils.views import publish_to_middleware, JSONBasicAuthenticatedView
 
 logger = logging.getLogger(settings.LOGGING_PREFIX)
 
@@ -36,11 +39,11 @@ class ApplicationView(JSONBasicAuthenticatedView):
         if application is None:
             raise NotFoundError(request.path)
 
-        application[FIELD_APP_ID] = application[ApplicationCollection.FIELD_ID]
-        return Response(get_returned_app(application), status=HTTP_200_OK)
+        return Response(get_returned_app(application), HTTP_200_OK)
 
     def put(self, request, client_id):
         application = request.data
+
         APPLICATION_VALIDATOR.validate(application)
 
         if application[FIELD_APP_ID] != client_id:
@@ -51,13 +54,24 @@ class ApplicationView(JSONBasicAuthenticatedView):
         if update_result.matched_count == 0:
             raise NotFoundError(request.path)
 
-        return Response(get_returned_app(application), status=HTTP_200_OK)
+        del application[ApplicationCollection.FIELD_ID]
+
+        operator_application = deepcopy(application)
+        operator_application[ApplicationCollection.FIELD_REDIRECT_URI] = [settings.AGGREGATOR_HOST + reverse('aggregator-callback')]
+        telcos = TelcoFinderClient().get_telcos()
+        for telco in telcos:
+            OperatorClient().update_app(telco, operator_application)
+
+        return Response(get_returned_app(application), HTTP_200_OK)
 
     def delete(self, request, client_id):
         deletion_result = ApplicationCollection.remove(client_id)
         if deletion_result.deleted_count == 0:
             raise NotFoundError(request.path)
-        return Response(status=HTTP_204_NO_CONTENT)
+        telcos = TelcoFinderClient().get_telcos()
+        for telco in telcos:
+            OperatorClient().delete_app(telco, client_id)
+        return Response(HTTP_204_NO_CONTENT)
 
 
 @publish_to_middleware(response_content_type='application/json', operation='APPLICATIONS')
@@ -70,6 +84,7 @@ class ApplicationsView(JSONBasicAuthenticatedView):
 
     def post(self, request):
         application = request.data
+
         APPLICATION_VALIDATOR.validate(application)
 
         try:
@@ -77,7 +92,14 @@ class ApplicationsView(JSONBasicAuthenticatedView):
         except DuplicateKeyError:
             raise ConflictError(f'{request.path}/{application[ApplicationCollection.FIELD_ID]}')
 
-        response = Response(get_returned_app(application), status=HTTP_201_CREATED)
-        response.headers["Location"] = f'{settings.AUTHSERVER_HOST}/{reverse("applications")}/{application[FIELD_APP_ID]}'
-        return response
+        del application[ApplicationCollection.FIELD_ID]
 
+        operator_application = deepcopy(application)
+        operator_application[ApplicationCollection.FIELD_REDIRECT_URI] = [settings.AGGREGATOR_HOST + reverse('aggregator-callback')]
+        telcos = TelcoFinderClient().get_telcos()
+        for telco in telcos:
+            OperatorClient().create_app(telco, operator_application)
+
+        response = Response(get_returned_app(application), status=HTTP_201_CREATED)
+        response.headers["Location"] = f'{settings.AGGREGATOR_HOST}/{reverse("applications")}/{application[FIELD_APP_ID]}'
+        return response

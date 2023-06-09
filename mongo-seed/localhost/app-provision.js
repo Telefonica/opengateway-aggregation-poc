@@ -41,13 +41,42 @@ db.apps.replaceOne(
 
 db.apps.replaceOne(
     {
+        _id : "f1283a82-46d7-471c-9c3c-39b4d393cbe6"
+    },
+    {
+        _id : "f1283a82-46d7-471c-9c3c-39b4d393cbe6",
+        name : "TelcoRouter 2",
+        description : "TelcoRouter 2 for testing",
+        developer : {
+            email : "jeandupont@demoapp.com",
+            name : "Jean Dupont Developer"
+        },
+        status : "active",
+        grants : [
+            {
+                grant_type : "client_credentials",
+                scopes : [
+                    "admin:apps:create",
+                    "admin:apps:read"
+                ]
+            }
+        ],
+        jwks_uri : "http://aggregator-telco-router-2:3322/oauth2/jwks",
+    },
+    {
+        upsert: true
+    }
+);
+
+db.apps.replaceOne(
+    {
         _id : "4d019263-3ff0-4d0e-a48a-5b3d877038dc"
     },
     {
         _id : "4d019263-3ff0-4d0e-a48a-5b3d877038dc",
         consumer_secret : "4222fddd-64b6-4452-b24e-23caae9ccc08",
-        name : "Aggregator",
-        description : "Aggregator for testing",
+        name : "API Gateway",
+        description : "API Gateway for testing",
         developer : {
             email : "jeandupont@demoapp.com",
             name : "Jean Dupont Developer"

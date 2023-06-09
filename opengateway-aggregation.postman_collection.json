@@ -7,6 +7,197 @@
 	},
 	"item": [
 		{
+			"name": "Apps",
+			"item": [
+				{
+					"name": "App Creation",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "5d435c56-c68f-4bb4-8959-514f562fafea",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "b8798a4a-7746-415e-88cf-1c44a2d5776f",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\" : \"e360b676-5459-41aa-b383-17f714b0b6b1\",\r\n    \"consumer_secret\" : \"b262dac2-40f4-4c9e-b877-d6f7401b84fc\",\r\n    \"name\" : \"Demo App\",\r\n    \"description\" : \"App for testing\",\r\n    \"developer\" : {\r\n        \"email\" : \"johndoe@demo-app.com\",\r\n        \"name\" : \"John Doe Developer\"\r\n    },\r\n    \"status\" : \"active\",\r\n    \"grants\" : [\r\n        {\r\n            \"grant_type\" : \"urn:ietf:params:oauth:grant-type:jwt-bearer\",\r\n            \"scopes\" : [\r\n                \"device-location-verification-verify-read\"\r\n            ]\r\n        },\r\n        {\r\n            \"grant_type\" : \"authorization_code\",\r\n            \"scopes\" : [\r\n                \"openid\",\r\n                \"number-verification-verify-hashed-read\",\r\n                \"device-location-verification-verify-read\"\r\n            ]\r\n        }\r\n    ],\r\n    \"sector_identifier_uri\" : \"https://opengateway.baikalplatform.es\",\r\n    \"jwks_uri\" : \"https://opengateway.baikalplatform.es/api/jwks\",\r\n    \"redirect_uri\" : [\r\n        \"https://opengateway.baikalplatform.es/authcode/devloc/callback\",\r\n        \"https://opengateway.baikalplatform.es/authcode/numver/callback\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aggregator-telco-router-2:3322/api/admin/apps",
+							"protocol": "http",
+							"host": [
+								"aggregator-telco-router-2"
+							],
+							"port": "3322",
+							"path": [
+								"api",
+								"admin",
+								"apps"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "App Query",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "5d435c56-c68f-4bb4-8959-514f562fafea",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "b8798a4a-7746-415e-88cf-1c44a2d5776f",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\" : \"e360b676-5459-41aa-b383-17f714b0b6b1\",\r\n    \"consumer_secret\" : \"b262dac2-40f4-4c9e-b877-d6f7401b84fc\",\r\n    \"name\" : \"Demo App\",\r\n    \"description\" : \"App for testing\",\r\n    \"developer\" : {\r\n        \"email\" : \"johndoe@demo-app.com\",\r\n        \"name\" : \"John Doe Developer\"\r\n    },\r\n    \"status\" : \"active\",\r\n    \"grants\" : [\r\n        {\r\n            \"grant_type\" : \"urn:ietf:params:oauth:grant-type:jwt-bearer\",\r\n            \"scopes\" : [\r\n                \"device-location-verification-verify-read\"\r\n            ]\r\n        },\r\n        {\r\n            \"grant_type\" : \"authorization_code\",\r\n            \"scopes\" : [\r\n                \"openid\",\r\n                \"number-verification-verify-hashed-read\",\r\n                \"device-location-verification-verify-read\"\r\n            ]\r\n        }\r\n    ],\r\n    \"sector_identifier_uri\" : \"https://opengateway.baikalplatform.es\",\r\n    \"jwks_uri\" : \"https://opengateway.baikalplatform.es/api/jwks\",\r\n    \"redirect_uri\" : [\r\n        \"https://opengateway.baikalplatform.es/authcode/devloc/callback\",\r\n        \"https://opengateway.baikalplatform.es/authcode/numver/callback\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aggregator-telco-router-2:3322/api/admin/apps/e360b676-5459-41aa-b383-17f714b0b6b1",
+							"protocol": "http",
+							"host": [
+								"aggregator-telco-router-2"
+							],
+							"port": "3322",
+							"path": [
+								"api",
+								"admin",
+								"apps",
+								"e360b676-5459-41aa-b383-17f714b0b6b1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "App Update",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "5d435c56-c68f-4bb4-8959-514f562fafea",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "b8798a4a-7746-415e-88cf-1c44a2d5776f",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\" : \"e360b676-5459-41aa-b383-17f714b0b6b1\",\r\n    \"consumer_secret\" : \"b262dac2-40f4-4c9e-b877-d6f7401b84fc\",\r\n    \"name\" : \"Demo App\",\r\n    \"description\" : \"App for testing\",\r\n    \"developer\" : {\r\n        \"email\" : \"johndoe@demo-app.com\",\r\n        \"name\" : \"John Doe Developer\"\r\n    },\r\n    \"status\" : \"active\",\r\n    \"grants\" : [\r\n        {\r\n            \"grant_type\" : \"urn:ietf:params:oauth:grant-type:jwt-bearer\",\r\n            \"scopes\" : [\r\n                \"device-location-verification-verify-read\"\r\n            ]\r\n        },\r\n        {\r\n            \"grant_type\" : \"authorization_code\",\r\n            \"scopes\" : [\r\n                \"openid\",\r\n                \"number-verification-verify-hashed-read\",\r\n                \"device-location-verification-verify-read\"\r\n            ]\r\n        }\r\n    ],\r\n    \"sector_identifier_uri\" : \"https://opengateway.baikalplatform.es\",\r\n    \"jwks_uri\" : \"https://opengateway.baikalplatform.es/api/jwks\",\r\n    \"redirect_uri\" : [\r\n        \"https://opengateway.baikalplatform.es/authcode/devloc/callback\",\r\n        \"https://opengateway.baikalplatform.es/authcode/numver/callback\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aggregator-telco-router-2:3322/api/admin/apps/e360b676-5459-41aa-b383-17f714b0b6b1",
+							"protocol": "http",
+							"host": [
+								"aggregator-telco-router-2"
+							],
+							"port": "3322",
+							"path": [
+								"api",
+								"admin",
+								"apps",
+								"e360b676-5459-41aa-b383-17f714b0b6b1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "App Deletion",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "5d435c56-c68f-4bb4-8959-514f562fafea",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "b8798a4a-7746-415e-88cf-1c44a2d5776f",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\" : \"e360b676-5459-41aa-b383-17f714b0b6b1\",\r\n    \"consumer_secret\" : \"b262dac2-40f4-4c9e-b877-d6f7401b84fc\",\r\n    \"name\" : \"Demo App\",\r\n    \"description\" : \"App for testing\",\r\n    \"developer\" : {\r\n        \"email\" : \"johndoe@demo-app.com\",\r\n        \"name\" : \"John Doe Developer\"\r\n    },\r\n    \"status\" : \"active\",\r\n    \"grants\" : [\r\n        {\r\n            \"grant_type\" : \"urn:ietf:params:oauth:grant-type:jwt-bearer\",\r\n            \"scopes\" : [\r\n                \"device-location-verification-verify-read\"\r\n            ]\r\n        },\r\n        {\r\n            \"grant_type\" : \"authorization_code\",\r\n            \"scopes\" : [\r\n                \"openid\",\r\n                \"number-verification-verify-hashed-read\",\r\n                \"device-location-verification-verify-read\"\r\n            ]\r\n        }\r\n    ],\r\n    \"sector_identifier_uri\" : \"https://opengateway.baikalplatform.es\",\r\n    \"jwks_uri\" : \"https://opengateway.baikalplatform.es/api/jwks\",\r\n    \"redirect_uri\" : [\r\n        \"https://opengateway.baikalplatform.es/authcode/devloc/callback\",\r\n        \"https://opengateway.baikalplatform.es/authcode/numver/callback\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aggregator-telco-router-2:3322/api/admin/apps/e360b676-5459-41aa-b383-17f714b0b6b1",
+							"protocol": "http",
+							"host": [
+								"aggregator-telco-router-2"
+							],
+							"port": "3322",
+							"path": [
+								"api",
+								"admin",
+								"apps",
+								"e360b676-5459-41aa-b383-17f714b0b6b1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Assertion (Internal)",
 			"event": [
 				{

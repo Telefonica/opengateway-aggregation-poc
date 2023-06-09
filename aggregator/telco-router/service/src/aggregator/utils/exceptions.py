@@ -4,6 +4,7 @@ from collections import OrderedDict
 import ujson as json
 from django.conf import settings
 from django.http.response import HttpResponse
+from jsonschema.exceptions import ValidationError
 from oauthlib.oauth2.rfc6749 import errors
 from rest_framework.exceptions import MethodNotAllowed, ParseError, \
     UnsupportedMediaType, NotAcceptable, AuthenticationFailed, NotAuthenticated, PermissionDenied
@@ -32,6 +33,11 @@ class ServerErrorException(AggregatorException):
                          'server_error',
                          message,
                          'Internal server error')
+
+
+class InvalidAccessTokenException(ServerErrorException):
+    def __init__(self, message):
+        super().__init__(message)
 
 
 class JWTException(Exception):
@@ -103,6 +109,14 @@ class NotFoundError(errors.FatalClientError):
         super().__init__(description=f'Resource {resource} does not exist.', **kwargs)
 
 
+class ConflictError(errors.FatalClientError):
+    status_code = 409
+    error = 'invalid_request'
+
+    def __init__(self, resource, **kwargs):
+        super().__init__(description=f'Resource {resource} already exists.', **kwargs)
+
+
 class InvalidParameterValueError(errors.InvalidRequestError):
 
     def __init__(self, parameter=None, message=None, **kwargs):
@@ -171,6 +185,8 @@ def api_exception_handler(exc, context):
         return api_exception_handler(errors.CustomOAuth2Error('invalid_request', status_code=405, description=exc.detail), context)
     elif isinstance(exc, ParseError) or isinstance(exc, UnsupportedMediaType):
         return api_exception_handler(InvalidParameterValueError(exc.detail), context)
+    elif isinstance(exc, ValidationError):
+        return api_exception_handler(InvalidParameterValueError(str(exc.args[0])), context)
     elif isinstance(exc, NotAcceptable):
         return api_exception_handler(errors.CustomOAuth2Error('invalid_request', status_code=406, description=exc.detail), context)
     elif isinstance(exc, AuthenticationFailed) or isinstance(exc, NotAuthenticated):
@@ -178,7 +194,7 @@ def api_exception_handler(exc, context):
     elif isinstance(exc, PermissionDenied):
         return api_exception_handler(errors.InsufficientScopeError(exc.detail), context)
     else:
-        log_exception(exc)
+        logger.error(exc, exc_info=True)
         return api_exception_handler(errors.CustomOAuth2Error('server_error', status_code=500), context)
 
 

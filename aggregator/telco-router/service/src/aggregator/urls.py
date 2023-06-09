@@ -7,6 +7,7 @@ from .utils.views import Handler404
 
 urlpatterns = [
     re_path(r'^' + settings.AGGREGATOR_PATH_PREFIX + 'oauth2', include('aggregator.oauth2.urls')),
+    re_path(r'^' + settings.AGGREGATOR_PATH_PREFIX + 'api/admin', include('aggregator.admin.urls')),
     re_path(r'^' + settings.AGGREGATOR_PATH_PREFIX + 'api/', ApiView.as_view(), name='api'),
     re_path(r'health/', include('aggregator.health.urls')),
 ]

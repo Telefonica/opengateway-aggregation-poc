@@ -1,4 +1,4 @@
-from aggregator.oauth2.models import ApplicationCollection
+from aggregator.admin.models import ApplicationCollection
 
 
 class AuthUser(object):
