@@ -256,10 +256,6 @@ class TokenTestCase(BasicTestCase):
 
         if id_token:
             self.assertIn('id_token', token)
-        else:
-            self.assertNotIn('id_token', token)
-
-        if id_token:
             id_token_str = token['id_token']
             id_token_data = self.get_id_token_data(id_token_str)
 

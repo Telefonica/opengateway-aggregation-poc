@@ -35,3 +35,9 @@ SP_JWT_PRIVATE_KEY_FILE = os.path.join(os.path.dirname(__file__), 'tests/keys/sp
 SP_JWT_PRIVATE_KEY_PASSWORD = None
 SP_JWT_PUBLIC_KEY_FILE = os.path.join(os.path.dirname(__file__), 'tests/keys/sp_jwtRS256_public.pem')
 SP_JWT_KID = 'sp_kid'
+
+OPERATOR_JWT_SIGNING_ALGORITHM = 'RS256'
+OPERATOR_JWT_PRIVATE_KEY_FILE = os.path.join(os.path.dirname(__file__), 'tests/keys/operator_jwtRS256_private.pem')
+OPERATOR_JWT_PRIVATE_KEY_PASSWORD = None
+OPERATOR_JWT_PUBLIC_KEY_FILE = os.path.join(os.path.dirname(__file__), 'tests/keys/operator_jwtRS256_public.pem')
+OPERATOR_JWT_KID = 'operator_kid'

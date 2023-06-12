@@ -76,8 +76,8 @@ with open(settings.SP_JWT_PRIVATE_KEY_FILE, 'rb') as f:
 
 with open(settings.SP_JWT_PUBLIC_KEY_FILE, 'rb') as f:
     content = f.read()
-    SI_JWT_PUBLIC_KEY = JWK.from_pem(content)
-    public_key_json = json.loads(SI_JWT_PUBLIC_KEY.export(False))
+    SP_JWT_PUBLIC_KEY = JWK.from_pem(content)
+    public_key_json = json.loads(SP_JWT_PUBLIC_KEY.export(False))
     public_key_json['kid'] = settings.SP_JWT_KID
     JWKS_URI = {'keys': []}
     JWKS_URI['keys'].append(public_key_json)
