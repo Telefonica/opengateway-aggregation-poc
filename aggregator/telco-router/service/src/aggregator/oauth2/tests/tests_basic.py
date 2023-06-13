@@ -167,10 +167,10 @@ class BasicTestCase(AggregatorTestCase):
     def do_mocking(cls, m, jwks_uri_params=None):
         if jwks_uri_params is None:
             m.get(APPLICATION['jwks_uri'], text=json.dumps(SP_JWKS_URI))
-            m.get('http://oauth.operator.com/jwks', text=json.dumps(OPERATOR_JWKS_URI))
         else:
             m.get(APPLICATION['jwks_uri'], **jwks_uri_params)
-            m.get('http://oauth.operator.com/jwks', text=json.dumps(OPERATOR_JWKS_URI))
+
+        m.get('http://oauth.operator.com/jwks', text=json.dumps(OPERATOR_JWKS_URI))
 
         m.get("http://api.aggregator.com/telcofinder/v1/tel/+34618051526",
               json={
