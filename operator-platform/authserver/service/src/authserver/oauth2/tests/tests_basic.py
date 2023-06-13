@@ -79,8 +79,8 @@ with open(settings.SP_JWT_PUBLIC_KEY_FILE, 'rb') as f:
     SP_JWT_PUBLIC_KEY = JWK.from_pem(content)
     public_key_json = json.loads(SP_JWT_PUBLIC_KEY.export(False))
     public_key_json['kid'] = settings.SP_JWT_KID
-    JWKS_URI = {'keys': []}
-    JWKS_URI['keys'].append(public_key_json)
+    SP_JWKS_URI = {'keys': []}
+    SP_JWKS_URI['keys'].append(public_key_json)
 
 
 def get_signed_jwt(obj, alg, kid, key):
@@ -174,6 +174,6 @@ class BasicTestCase(AuthserverTestCase):
     @classmethod
     def do_mocking(cls, m, jwks_uri_params=None):
         if jwks_uri_params is None:
-            m.get(APPLICATION['jwks_uri'], text=json.dumps(JWKS_URI))
+            m.get(APPLICATION['jwks_uri'], text=json.dumps(SP_JWKS_URI))
         else:
             m.get(APPLICATION['jwks_uri'], **jwks_uri_params)
