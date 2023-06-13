@@ -11,6 +11,7 @@ from django.conf import settings
 from django.urls import reverse
 from jwcrypto.jwk import JWK
 from jwcrypto.jws import JWS, InvalidJWSSignature
+from jwcrypto.jwt import JWT
 from oauthlib import common
 from oauthlib.oauth2 import AuthorizationCodeGrant
 from oauthlib.oauth2.rfc6749 import errors
@@ -26,6 +27,7 @@ from aggregator.oauth2.models import ApplicationCollection
 from aggregator.utils.exceptions import MissingParameterError, InvalidParameterValueError, JWTException, InvalidSignatureError
 from aggregator.utils.http import do_request_call
 from aggregator.utils.jwe import build_jwe
+from aggregator.utils.jwk import JWKManager
 from aggregator.utils.jws import validate_jws_header, get_jws_info, FIELD_ALGORITHM
 from aggregator.utils.schemas import FIELD_SUB, FIELD_SCOPE, FIELD_KID, FIELD_JTI, FIELD_ISSUER, FIELD_AUDIENCE, FIELD_ISSUED_TIME, FIELD_EXPIRATION, \
     FIELD_REDIRECT_URI, FIELD_ROUTING, FIELD_STATE, FIELD_CODE, FIELD_CLIENT_ID
@@ -261,10 +263,24 @@ class AggregatorOAuth2AuthorizationCodeGrant(AggregatorAuthorizationCodeGrantMix
             body = response.json()
             raise CustomOAuth2Error(body['error'], status_code=response.status_code, description=body['error_description'])
 
+    def _get_id_token(self, request, id_token):
+        jws_token = JWS()
+        jws_token.deserialize(id_token)
+        jwks_uri = OidcClient().get_data(request.routing['authserver_url'], 'jwks_uri')
+        signature_key = JWKManager().get_app_public_key(jwks_uri, jws_token.jose_header[FIELD_KID])
+        id_token_data = get_jws_info(jws_token, signature_key, request.routing['authserver_url'], [request.client_id], None).payload
+
+        id_token_data = {k: v for (k, v) in id_token_data.items() if not k.endswith('_hash')}
+        id_token_data[FIELD_ISSUER] = settings.AGGREGATOR_ISSUER
+
+        jwt = JWT(header={'alg': settings.JWT_SIGNING_ALGORITHM, 'kid': settings.JWT_KID}, claims=id_token_data)
+        jwt.make_signed_token(JWKManager().get_private_key())
+        return jwt.serialize(True)
+
     def _generate_token(self, request, token_handler):
         request.token = self._get_routing_token(request)
         request.refresh_token = None
-        request.extra_credentials = {"id_token": request.token["id_token"]} if "id_token" in request.token else {}
+        request.extra_credentials = {"id_token": self._get_id_token(request, request.token["id_token"])} if "id_token" in request.token else {}
         if FIELD_SCOPE in request.token:
             request.scopes = request.token[FIELD_SCOPE].split(' ')
         return request.token

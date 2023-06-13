@@ -44,9 +44,6 @@ JWT_ID_TOKEN_PAYLOAD = {
         'azp': {
             'type': 'string'
         },
-        'at_hash': {
-            'type': 'string'
-        },
         'acr': {
             'type': 'string'
         },
@@ -64,7 +61,7 @@ JWT_ID_TOKEN_PAYLOAD = {
             'pattern': r'^\+\d+$'
         }
     },
-    'required': ['aud', 'iss', 'exp', 'iat', 'sub', 'azp', 'at_hash', 'acr', 'amr'],
+    'required': ['aud', 'iss', 'exp', 'iat', 'sub', 'azp', 'acr', 'amr'],
     'additionalProperties': False
 }
 
@@ -256,6 +253,12 @@ class TokenTestCase(BasicTestCase):
 
         if id_token:
             self.assertIn('id_token', token)
+            id_token_str = token['id_token']
+            id_token_data = self.get_id_token_data(id_token_str)
+
+            self.assertEqual(id_token_data['iss'], settings.AGGREGATOR_ISSUER)
+            self.assertEqual(id_token_data['aud'], [APPLICATION['_id']])
+            self.assertEqual(id_token_data['sub'], '2128c01f-dcc8-4fde-a74e-eba2f9b1a3af')
         else:
             self.assertNotIn('id_token', token)
 
