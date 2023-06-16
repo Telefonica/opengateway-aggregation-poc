@@ -7,8 +7,10 @@ from django.conf import settings
 from jsonschema.exceptions import ValidationError
 from jwcrypto.jwe import InvalidJWEData
 from jwcrypto.jws import InvalidJWSSignature
+from jwcrypto.jwt import JWT
 
 from aggregator.utils.exceptions import JWTException, InvalidParameterValueError
+from aggregator.utils.jwk import JWKManager
 from aggregator.utils.schemas import FIELD_ISSUER, FIELD_AUDIENCE, FIELD_ISSUED_TIME, FIELD_EXPIRATION, FIELD_NOT_BEFORE
 from aggregator.utils.utils import get_cleaned_data
 
@@ -20,7 +22,7 @@ FIELD_ALGORITHM = 'alg'
 FIELD_ENCRYPTION = 'enc'
 FIELD_CORRELATOR = 'corr'
 
-JWT = namedtuple('JWT', ['header', 'payload'])
+JWTObject = namedtuple('JWT', ['header', 'payload'])
 
 
 def validate_jws_header(jwstoken, algs, kid):
@@ -58,7 +60,7 @@ def get_jws_info(jwstoken, key, issuer, audiences=None, validator=None):
         if FIELD_NOT_BEFORE in payload and payload[FIELD_NOT_BEFORE] - settings.AUTH_REQUEST_JWT_TIME_LEEWAY > now:
             raise JWTException('JWT is not valid yet')
 
-        return JWT(jwstoken.jose_header, payload)
+        return JWTObject(jwstoken.jose_header, payload)
     except JWTException as e:
         raise
     except InvalidJWEData as e:
@@ -67,5 +69,14 @@ def get_jws_info(jwstoken, key, issuer, audiences=None, validator=None):
         raise InvalidParameterValueError(str(".".join(e.path)), e.message)
     except InvalidJWSSignature as e:
         raise
+    except Exception as e:
+        raise JWTException(str(e.args[0]))
+
+
+def build_jws(payload):
+    try:
+        jwt = JWT(header={'alg': settings.JWT_SIGNING_ALGORITHM, 'kid': settings.JWT_KID}, claims=payload)
+        jwt.make_signed_token(JWKManager().get_private_key())
+        return jwt.serialize(True)
     except Exception as e:
         raise JWTException(str(e.args[0]))

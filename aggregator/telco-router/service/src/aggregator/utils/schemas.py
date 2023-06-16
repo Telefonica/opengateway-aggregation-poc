@@ -31,6 +31,8 @@ FIELD_IDENTIFIER = 'identifier'
 FIELD_ROUTING = 'routing'
 FIELD_STATE = 'state'
 FIELD_CODE = 'code'
+FIELD_ASSERTION = 'assertion'
+FIELD_CLIENT_ASSERTION = 'client_assertion'
 
 FIELD_ALG = 'alg'
 FIELD_KID = 'kid'
@@ -82,7 +84,10 @@ JWT_CLIENT_ASSERTION_PAYLOAD = {
     'type': 'object',
     'properties': {
         FIELD_AUDIENCE: {
-            'type': 'string'
+            "anyOf": [
+                {'type': 'string'},
+                {'type': 'array', 'items': {'type': 'string'}}
+            ]
         },
         FIELD_ISSUER: {
             'type': 'string'
@@ -113,7 +118,10 @@ JWT_ASSERTION_PAYLOAD = {
     'type': 'object',
     'properties': {
         FIELD_AUDIENCE: {
-            'type': 'string'
+            "anyOf": [
+                {'type': 'string'},
+                {'type': 'array', 'items': {'type': 'string'}}
+            ]
         },
         FIELD_ISSUER: {
             'type': 'string'
