@@ -112,6 +112,7 @@ class AggregatorRequestValidator(RequestValidator):
                     signature_key = self.get_signature_key(jws_token.jose_header[FIELD_KID], request)
                     jwt = get_jws_info(jws_token, signature_key, request.client_id, settings.AGGREGATOR_AUDIENCES, validator=None)
                     self._validate_client_assertion(jwt.payload, request)
+                    request.client_assertion = jwt.payload
                     return True
             except InvalidJWSSignature:
                 raise InvalidClientError(description=InvalidSignatureError.description, request=request)

@@ -22,7 +22,7 @@ FIELD_ALGORITHM = 'alg'
 FIELD_ENCRYPTION = 'enc'
 FIELD_CORRELATOR = 'corr'
 
-JWT = namedtuple('JWT', ['header', 'payload'])
+JWTObject = namedtuple('JWT', ['header', 'payload'])
 
 
 class KeySetStorage(object, metaclass=Singleton):
@@ -73,7 +73,7 @@ def get_jwe_info(jwe_token, audience=None, validator=None):
         if FIELD_EXPIRATION in payload and payload[FIELD_EXPIRATION] + settings.AUTH_REQUEST_JWT_TIME_LEEWAY < now:
             raise JWTException('Expired JWT token')
 
-        return JWT(jwe_token.jose_header, payload)
+        return JWTObject(jwe_token.jose_header, payload)
     except JWTException as e:
         raise
     except InvalidJWEData as e:
