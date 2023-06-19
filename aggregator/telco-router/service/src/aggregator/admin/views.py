@@ -58,6 +58,7 @@ class ApplicationView(JSONBasicAuthenticatedView):
 
         operator_application = deepcopy(application)
         operator_application[ApplicationCollection.FIELD_REDIRECT_URI] = [settings.AGGREGATOR_HOST + reverse('aggregator-callback')]
+        operator_application[ApplicationCollection.FIELD_JWKS_URI] = settings.AGGREGATOR_HOST + reverse('jwkset')
         telcos = TelcoFinderClient().get_telcos()
         for telco in telcos:
             OperatorClient().update_app(telco, operator_application)
@@ -96,6 +97,7 @@ class ApplicationsView(JSONBasicAuthenticatedView):
 
         operator_application = deepcopy(application)
         operator_application[ApplicationCollection.FIELD_REDIRECT_URI] = [settings.AGGREGATOR_HOST + reverse('aggregator-callback')]
+        operator_application[ApplicationCollection.FIELD_JWKS_URI] = settings.AGGREGATOR_HOST + reverse('jwkset')
         telcos = TelcoFinderClient().get_telcos()
         for telco in telcos:
             OperatorClient().create_app(telco, operator_application)
