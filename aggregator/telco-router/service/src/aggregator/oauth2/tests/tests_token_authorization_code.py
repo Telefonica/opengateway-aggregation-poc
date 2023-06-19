@@ -1,4 +1,5 @@
 import json
+import time
 from copy import deepcopy
 from datetime import datetime
 
@@ -6,10 +7,12 @@ import requests_mock
 from django.conf import settings
 from django.test.client import Client
 from freezegun.api import freeze_time
+from jwcrypto.jwt import JWT
 
 from aggregator.admin.models import ApplicationCollection
+from aggregator.devtest_settings import OPERATOR_JWT_KID
 from aggregator.oauth2.tests.tests_authorize import AuthorizationCodeTestCase
-from aggregator.oauth2.tests.tests_basic import APPLICATION, get_signed_jwt, SP_JWT_PRIVATE_KEY
+from aggregator.oauth2.tests.tests_basic import APPLICATION, get_signed_jwt, SP_JWT_PRIVATE_KEY, OPERATOR_JWT_PRIVATE_KEY
 from aggregator.oauth2.tests.tests_token import TokenTestCase
 from aggregator.utils.utils import overwrite_dict
 
@@ -42,6 +45,25 @@ class AuthorizationCodeTokenTestCase(TokenTestCase):
         return token
 
     @classmethod
+    def get_operator_id_token(cls, **kwargs):
+        now = int(time.time())
+        id_token = {
+            'acr': '2',
+            'amr': ['nbma'],
+            'nonce': '70979686-e99a-4dc9-a668-b76c5bbf9ae0',
+            'sub': '2128c01f-dcc8-4fde-a74e-eba2f9b1a3af',
+            'auth_time': now,
+            'iat': now,
+            'exp': now + 300,
+            'aud': ['68399c5b-3cfa-4348-9f96-33d379077d71'],
+            'azp': '68399c5b-3cfa-4348-9f96-33d379077d71',
+            'iss': 'http://oauth.operator.com'
+        }
+        jwt = JWT(header={'alg': settings.JWT_SIGNING_ALGORITHM, 'kid': OPERATOR_JWT_KID}, claims=id_token)
+        jwt.make_signed_token(OPERATOR_JWT_PRIVATE_KEY)
+        return jwt.serialize(True)
+
+    @classmethod
     def do_mocking(cls, m, jwks_uri_params=None):
         AuthorizationCodeTestCase.do_mocking(m, jwks_uri_params)
 
@@ -51,7 +73,7 @@ class AuthorizationCodeTokenTestCase(TokenTestCase):
                    "token_type": "Bearer",
                    "expires_in": 3600,
                    "scope": "phone",
-                   "id_token": "the_id_token"
+                   "id_token": cls.get_operator_id_token()
                })
 
 

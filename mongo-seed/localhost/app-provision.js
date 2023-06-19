@@ -29,7 +29,7 @@ db.apps.replaceOne(
             }
         ],
         sector_identifier_uri : "http://localhost:3000",
-        jwks_uri : "http://demo-app:3000/api/jwks",
+        jwks_uri : "http://aggregator-telco-router-2:3322/oauth2/jwks",
         redirect_uri : [
             "http://aggregator-telco-router-2:3322/oauth2/authorize/callback"
         ]

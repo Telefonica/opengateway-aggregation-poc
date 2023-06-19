@@ -79,7 +79,10 @@ JWT_CLIENT_ASSERTION_PAYLOAD = {
     'type': 'object',
     'properties': {
         FIELD_AUDIENCE: {
-            'type': 'string'
+            "anyOf": [
+                {'type': 'string'},
+                {'type': 'array', 'items': {'type': 'string'}}
+            ]
         },
         FIELD_ISSUER: {
             'type': 'string'
@@ -110,7 +113,10 @@ JWT_ASSERTION_PAYLOAD = {
     'type': 'object',
     'properties': {
         FIELD_AUDIENCE: {
-            'type': 'string'
+            "anyOf": [
+                {'type': 'string'},
+                {'type': 'array', 'items': {'type': 'string'}}
+            ]
         },
         FIELD_ISSUER: {
             'type': 'string'
@@ -160,7 +166,10 @@ JWT_LOGIN_HINT_TOKEN_PAYLOAD = {
     'type': 'object',
     'properties': {
         FIELD_AUDIENCE: {
-            'type': 'string'
+            "anyOf": [
+                {'type': 'string'},
+                {'type': 'array', 'items': {'type': 'string'}}
+            ]
         },
         FIELD_ISSUER: {
             'type': 'string'

@@ -61,11 +61,23 @@ with open(settings.SP_JWT_PRIVATE_KEY_FILE, 'rb') as f:
 
 with open(settings.SP_JWT_PUBLIC_KEY_FILE, 'rb') as f:
     content = f.read()
-    SI_JWT_PUBLIC_KEY = JWK.from_pem(content)
-    public_key_json = json.loads(SI_JWT_PUBLIC_KEY.export(False))
+    SP_JWT_PUBLIC_KEY = JWK.from_pem(content)
+    public_key_json = json.loads(SP_JWT_PUBLIC_KEY.export(False))
     public_key_json['kid'] = settings.SP_JWT_KID
-    JWKS_URI = {'keys': []}
-    JWKS_URI['keys'].append(public_key_json)
+    SP_JWKS_URI = {'keys': []}
+    SP_JWKS_URI['keys'].append(public_key_json)
+
+with open(settings.OPERATOR_JWT_PRIVATE_KEY_FILE, 'rb') as f:
+    content = f.read()
+    OPERATOR_JWT_PRIVATE_KEY = JWK.from_pem(content, settings.OPERATOR_JWT_PRIVATE_KEY_PASSWORD.encode('utf-8') if settings.OPERATOR_JWT_PRIVATE_KEY_PASSWORD is not None else None)
+
+with open(settings.OPERATOR_JWT_PUBLIC_KEY_FILE, 'rb') as f:
+    content = f.read()
+    OPERATOR_JWT_PUBLIC_KEY = JWK.from_pem(content)
+    public_key_json = json.loads(OPERATOR_JWT_PUBLIC_KEY.export(False))
+    public_key_json['kid'] = settings.OPERATOR_JWT_KID
+    OPERATOR_JWKS_URI = {'keys': []}
+    OPERATOR_JWKS_URI['keys'].append(public_key_json)
 
 
 def get_signed_jwt(obj, alg, kid, key):
@@ -155,9 +167,11 @@ class BasicTestCase(AggregatorTestCase):
     @classmethod
     def do_mocking(cls, m, jwks_uri_params=None):
         if jwks_uri_params is None:
-            m.get(APPLICATION['jwks_uri'], text=json.dumps(JWKS_URI))
+            m.get(APPLICATION['jwks_uri'], text=json.dumps(SP_JWKS_URI))
         else:
             m.get(APPLICATION['jwks_uri'], **jwks_uri_params)
+
+        m.get('http://oauth.operator.com/jwks', text=json.dumps(OPERATOR_JWKS_URI))
 
         m.get("http://api.aggregator.com/telcofinder/v1/tel/+34618051526",
               json={
@@ -173,6 +187,8 @@ class BasicTestCase(AggregatorTestCase):
 
         m.get("http://oauth.operator.com/.well-known/openid-configuration",
               json={
+                  "issuer": "http://oauth.operator.com",
                   "token_endpoint": "http://oauth.operator.com/token",
-                  "authorization_endpoint": "http://oauth.operator.com/authorize"
+                  "authorization_endpoint": "http://oauth.operator.com/authorize",
+                  "jwks_uri": "http://oauth.operator.com/jwks",
               })

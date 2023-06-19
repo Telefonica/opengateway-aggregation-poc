@@ -2,6 +2,7 @@ import logging
 import time
 from base64 import urlsafe_b64encode
 from collections import OrderedDict
+from copy import deepcopy
 from urllib.parse import urlencode, parse_qsl
 
 import oauthlib.oauth2.rfc6749.grant_types.base
@@ -26,9 +27,10 @@ from aggregator.middleware.telcorouter import AggregatorMiddleware, log_error_me
 from aggregator.utils.exceptions import MissingParameterError, InvalidParameterValueError, JWTException, InvalidSignatureError
 from aggregator.utils.http import do_request_call
 from aggregator.utils.jwe import build_jwe
-from aggregator.utils.jws import validate_jws_header, get_jws_info, FIELD_ALGORITHM
+from aggregator.utils.jwk import JWKManager
+from aggregator.utils.jws import validate_jws_header, get_jws_info, FIELD_ALGORITHM, build_jws
 from aggregator.utils.schemas import FIELD_SUB, FIELD_SCOPE, FIELD_KID, FIELD_JTI, FIELD_ISSUER, FIELD_AUDIENCE, FIELD_ISSUED_TIME, FIELD_EXPIRATION, \
-    FIELD_REDIRECT_URI, FIELD_ROUTING, FIELD_STATE, FIELD_CODE, FIELD_CLIENT_ID
+    FIELD_REDIRECT_URI, FIELD_ROUTING, FIELD_STATE, FIELD_CODE, FIELD_CLIENT_ID, FIELD_CLIENT_ASSERTION, FIELD_ASSERTION
 from aggregator.utils.utils import enrich_object, get_cleaned_data
 
 logger = logging.getLogger(settings.LOGGING_PREFIX)
@@ -235,6 +237,23 @@ class AggregatorAuthorizationCodeGrantMixin:
 
 class AggregatorOAuth2AuthorizationCodeGrant(AggregatorAuthorizationCodeGrantMixin, OAuth2AuthorizationCodeGrant):
 
+    def _get_routing_params(self, request):
+        content_type = request.headers.get('Content-Type', None)
+        if content_type == 'application/json':
+            params = request.body
+        else:
+            params = dict(parse_qsl(request.body))
+
+        params[FIELD_REDIRECT_URI] = settings.AGGREGATOR_HOST + reverse('aggregator-callback')
+        params[FIELD_CODE] = request.auth[FIELD_CODE]
+
+        if hasattr(request, FIELD_CLIENT_ASSERTION):
+            client_assertion = deepcopy(getattr(request, FIELD_CLIENT_ASSERTION))
+            client_assertion.update({FIELD_AUDIENCE: request.routing['authserver_url']})
+            params[FIELD_CLIENT_ASSERTION] = build_jws(client_assertion)
+
+        return params
+
     def _get_routing_token(self, request):
         request.routing = request.auth[FIELD_ROUTING]
 
@@ -243,28 +262,31 @@ class AggregatorOAuth2AuthorizationCodeGrant(AggregatorAuthorizationCodeGrantMix
         headers = {AggregatorMiddleware.AGGREGATOR_CORRELATOR_HEADER: AggregatorMiddleware.get_correlator(AggregatorMiddleware.get_current_request()),
                    'Content-Type': 'application/x-www-form-urlencoded'}
 
-        content_type = request.headers.get('Content-Type', None)
-        if content_type == 'application/json':
-            params = request.body
-        else:
-            params = dict(parse_qsl(request.body))
-        params[FIELD_REDIRECT_URI] = settings.AGGREGATOR_HOST + reverse('aggregator-callback')
-        params[FIELD_CODE] = request.auth[FIELD_CODE]
-
         response = do_request_call('Routing Token', 'POST', metadata['token_endpoint'],
-                                   headers=headers, data=urlencode(params),
+                                   headers=headers, data=urlencode(self._get_routing_params(request)),
                                    verify=settings.API_VERIFY_CERTIFICATE, timeout=settings.API_HTTP_TIMEOUT)
 
         if response.status_code == requests.codes.ok:  # @UndefinedVariable
             return response.json()
         else:
             body = response.json()
-            raise CustomOAuth2Error(body['error'], status_code=response.status_code, description=body['error_description'])
+            raise CustomOAuth2Error(body['error'], status_code=response.status_code, description=body.get('error_description', None))
+
+    def _build_id_token(self, request, id_token):
+        jws_token = JWS()
+        jws_token.deserialize(id_token)
+        jwks_uri = OidcClient().get_data(request.routing['authserver_url'], 'jwks_uri')
+        signature_key = JWKManager().get_app_public_key(jwks_uri, jws_token.jose_header[FIELD_KID])
+        id_token_data = get_jws_info(jws_token, signature_key, request.routing['authserver_url'], [request.client_id], None).payload
+
+        id_token_data = {k: v for (k, v) in id_token_data.items() if not k.endswith('_hash')}
+        id_token_data[FIELD_ISSUER] = settings.AGGREGATOR_ISSUER
+        return build_jws(id_token_data)
 
     def _generate_token(self, request, token_handler):
         request.token = self._get_routing_token(request)
         request.refresh_token = None
-        request.extra_credentials = {"id_token": request.token["id_token"]} if "id_token" in request.token else {}
+        request.extra_credentials = {"id_token": self._build_id_token(request, request.token["id_token"])} if "id_token" in request.token else {}
         if FIELD_SCOPE in request.token:
             request.scopes = request.token[FIELD_SCOPE].split(' ')
         return request.token
@@ -273,7 +295,6 @@ class AggregatorOAuth2AuthorizationCodeGrant(AggregatorAuthorizationCodeGrantMix
         headers = self._get_default_headers()
         try:
             self.validate_token_request(request)
-            logger.debug('Token request validation ok for %r.', request)
         except errors.OAuth2Error as e:
             logger.debug('Client error during validation of %r. %r.', request, e)
             headers.update(e.headers)
@@ -347,6 +368,27 @@ class AggregatorJWTBearerGrant(oauthlib.oauth2.rfc6749.grant_types.base.GrantTyp
         for validator in self.custom_validators.post_token:
             validator(request)
 
+    def _get_routing_params(self, request):
+        content_type = request.headers.get('Content-Type', None)
+        if content_type == 'application/json':
+            params = request.body
+        else:
+            params = dict(parse_qsl(request.body))
+
+        if hasattr(request, FIELD_CLIENT_ASSERTION):
+            client_assertion = deepcopy(getattr(request, FIELD_CLIENT_ASSERTION))
+            client_assertion.update({FIELD_AUDIENCE: request.routing['authserver_url']})
+            params[FIELD_CLIENT_ASSERTION] = build_jws(client_assertion)
+
+        assertion = deepcopy(request.auth)
+        assertion.update({
+            FIELD_ISSUER: settings.AGGREGATOR_ISSUER if assertion[FIELD_ISSUER] != request.client.client_id else assertion[FIELD_ISSUER],
+            FIELD_AUDIENCE: request.routing['authserver_url']
+        })
+        params[FIELD_ASSERTION] = build_jws(assertion)
+
+        return params
+
     def _get_routing_token(self, request):
         index = request.auth[FIELD_SUB].find(":")
         request.routing = TelcoFinderClient().get_routing_metadata(request.auth[FIELD_SUB][0:index], request.auth[FIELD_SUB][index+1:])
@@ -358,13 +400,14 @@ class AggregatorJWTBearerGrant(oauthlib.oauth2.rfc6749.grant_types.base.GrantTyp
         headers = {AggregatorMiddleware.AGGREGATOR_CORRELATOR_HEADER: AggregatorMiddleware.get_correlator(AggregatorMiddleware.get_current_request()),
                    'Content-Type': 'application/x-www-form-urlencoded'}
         response = do_request_call('Routing Token', 'POST', metadata['token_endpoint'],
-                        headers=headers, data=request.body, verify=settings.API_VERIFY_CERTIFICATE, timeout=settings.API_HTTP_TIMEOUT)
+                                   headers=headers, data=urlencode(self._get_routing_params(request)),
+                                   verify=settings.API_VERIFY_CERTIFICATE, timeout=settings.API_HTTP_TIMEOUT)
 
         if response.status_code == requests.codes.ok:  # @UndefinedVariable
             return response.json()
         else:
             body = response.json()
-            raise CustomOAuth2Error(body['error'], status_code=response.status_code, description=body['error_description'])
+            raise CustomOAuth2Error(body['error'], status_code=response.status_code, description=body.get('error_description', None))
 
     def _generate_token(self, request, token_handler):
         request.refresh_token = None

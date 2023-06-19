@@ -29,7 +29,7 @@ db.apps.replaceOne(
             }
         ],
         sector_identifier_uri : "https://opengateway.baikalplatform.es",
-        jwks_uri : "https://opengateway.baikalplatform.es/api/jwks",
+        jwks_uri : "https://aggregator-telco-router-2.opengateway.baikalplatform.es/oauth2/jwks",
         redirect_uri : [
             "https://aggregator-telco-router-2.opengateway.baikalplatform.es/oauth2/authorize/callback"
         ]
